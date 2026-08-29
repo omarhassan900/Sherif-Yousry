@@ -1,0 +1,95 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model AdminUser {
+  id                     String    @id @default(cuid())
+  email                  String    @unique
+  displayName            String
+  passwordHash           String
+  role                   String    @default("admin") // "super_admin" | "admin"
+  isActive               Boolean   @default(true)
+  requiresPasswordChange Boolean   @default(true)
+  failedLoginAttempts    Int       @default(0)
+  lockedUntil            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  createdContent  ContentItem[]    @relation("CreatedBy")
+  updatedContent  ContentItem[]    @relation("UpdatedBy")
+  revisions       ContentRevision[]
+  uploadedMedia   MediaItem[]
+}
+
+model ContentItem {
+  id         String   @id @default(cuid())
+  type       String   // "service" | "article" | "page_section"
+  titleAr    String
+  titleEn    String
+  bodyAr     String
+  bodyEn     String
+  status     String   @default("unpublished") // "published" | "unpublished"
+  metadata   String   @default("{}") // JSON string for type-specific fields
+  
+  createdById String
+  updatedById String
+  createdBy   AdminUser @relation("CreatedBy", fields: [createdById], references: [id])
+  updatedBy   AdminUser @relation("UpdatedBy", fields: [updatedById], references: [id])
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  revisions      ContentRevision[]
+  mediaReferences MediaReference[]
+
+  @@index([type, status])
+  @@index([updatedAt])
+}
+
+model ContentRevision {
+  id              String   @id @default(cuid())
+  contentId       String
+  content         ContentItem @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  revisionNumber  Int
+  previousState   String   // JSON snapshot of all fields
+  changedFields   String   // JSON array of field names
+  changedById     String
+  changedBy       AdminUser @relation(fields: [changedById], references: [id])
+  createdAt       DateTime @default(now())
+
+  @@index([contentId, createdAt])
+  @@unique([contentId, revisionNumber])
+}
+
+model MediaItem {
+  id           String   @id @default(cuid())
+  fileName     String   @unique
+  originalName String
+  filePath     String
+  mimeType     String
+  fileSize     Int
+  width        Int
+  height       Int
+  uploadedById String
+  uploadedBy   AdminUser @relation(fields: [uploadedById], references: [id])
+  uploadedAt   DateTime @default(now())
+
+  references MediaReference[]
+}
+
+model MediaReference {
+  id        String      @id @default(cuid())
+  mediaId   String
+  media     MediaItem   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  contentId String
+  content   ContentItem @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  fieldName String
+
+  @@unique([mediaId, contentId, fieldName])
+}

@@ -1,0 +1,60 @@
+{
+  "name": "sherif-yousry-advisory",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sherif Yousry Advisory - Finance & Tax Advisory Platform",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "@tiptap/core": "^3.30.2",
+    "@tiptap/extension-image": "^3.30.2",
+    "@tiptap/extension-link": "^3.30.2",
+    "@tiptap/react": "^3.30.2",
+    "@tiptap/starter-kit": "^3.30.2",
+    "autoprefixer": "10.4.20",
+    "bcryptjs": "2.4.3",
+    "better-sqlite3": "^13.0.3",
+    "framer-motion": "11.5.4",
+    "jose": "5.6.3",
+    "lucide-react": "0.441.0",
+    "next": "14.2.15",
+    "next-auth": "4.24.7",
+    "next-intl": "3.20.0",
+    "postcss": "8.4.47",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "sharp": "^0.35.3",
+    "tailwindcss": "3.4.12",
+    "zod": "3.23.8"
+  },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/bcryptjs": "2.4.6",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "20.16.5",
+    "@types/react": "18.3.5",
+    "@types/react-dom": "18.3.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.15",
+    "fast-check": "^4.9.0",
+    "jsdom": "^29.1.1",
+    "prisma": "^7.9.1",
+    "tsx": "^4.23.12",
+    "typescript": "5.6.2",
+    "vitest": "^2.1.9"
+  }
+}
