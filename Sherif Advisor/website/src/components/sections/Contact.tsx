@@ -1,34 +1,39 @@
 'use client';
 
-import { useState } from 'react';
-import { Send, Phone, Mail, MapPin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Phone, Mail, MapPin } from 'lucide-react';
+import InquiryForm from '@/components/forms/InquiryForm';
+import { getClientLanguage, type Language } from '@/lib/language';
+
+const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    service: '',
-    message: '',
-  });
+  const [lang, setLang] = useState<Language>('ar');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Integrate with backend API
-    console.log('Form submitted:', formData);
-  };
+  useEffect(() => {
+    setLang(getClientLanguage());
+  }, []);
 
   return (
-    <section className="bg-brand-navy py-20 lg:py-24" id="contact">
+    <section
+      className="bg-brand-navy py-20 lg:py-24"
+      id="contact"
+      dir={lang === 'ar' ? 'rtl' : 'ltr'}
+    >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-[1fr_1.5fr] gap-16">
           {/* Info Side */}
           <div className="flex flex-col gap-8">
             <div>
-              <span className="section-label mb-3 block">تواصل معنا</span>
+              <span className="section-label mb-3 block">
+                {t(lang, 'تواصل معنا', 'Contact Us')}
+              </span>
               <h2 className="font-amiri text-3xl leading-relaxed text-text-primary">
-                نحن هنا لمساعدتك في التخطيط لما هو قادم.
+                {t(
+                  lang,
+                  'نحن هنا لمساعدتك في التخطيط لما هو قادم.',
+                  'We are here to help you plan for what comes next.'
+                )}
               </h2>
             </div>
 
@@ -38,7 +43,9 @@ export function Contact() {
                   <Phone className="w-4 h-4 text-brand-gold" />
                 </div>
                 <div>
-                  <p className="text-xs text-text-muted">اتصل بنا</p>
+                  <p className="text-xs text-text-muted">
+                    {t(lang, 'اتصل بنا', 'Call us')}
+                  </p>
                   <p className="text-sm text-text-primary" dir="ltr">
                     +20 xxx xxx xxxx
                   </p>
@@ -50,7 +57,9 @@ export function Contact() {
                   <Mail className="w-4 h-4 text-brand-gold" />
                 </div>
                 <div>
-                  <p className="text-xs text-text-muted">البريد الإلكتروني</p>
+                  <p className="text-xs text-text-muted">
+                    {t(lang, 'البريد الإلكتروني', 'Email')}
+                  </p>
                   <p className="text-sm text-text-primary">
                     info@sherifadvisory.com
                   </p>
@@ -62,98 +71,23 @@ export function Contact() {
                   <MapPin className="w-4 h-4 text-brand-gold" />
                 </div>
                 <div>
-                  <p className="text-xs text-text-muted">المقر الرئيسي</p>
-                  <p className="text-sm text-text-primary">القاهرة، مصر</p>
+                  <p className="text-xs text-text-muted">
+                    {t(lang, 'المقر الرئيسي', 'Headquarters')}
+                  </p>
+                  <p className="text-sm text-text-primary">
+                    {t(lang, 'القاهرة، مصر', 'Cairo, Egypt')}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Form */}
-          <form
-            onSubmit={handleSubmit}
-            className="bg-brand-navy-deep border border-white/10 rounded-lg p-8 flex flex-col gap-5"
-          >
-            <div className="grid sm:grid-cols-2 gap-5">
-              <input
-                type="text"
-                placeholder="الاسم الكامل"
-                required
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="bg-brand-navy/50 border border-white/10 px-4 py-3 text-sm text-text-primary placeholder:text-text-muted rounded focus:outline-none focus:border-brand-gold transition-colors"
-              />
-              <input
-                type="email"
-                placeholder="البريد الإلكتروني"
-                required
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="bg-brand-navy/50 border border-white/10 px-4 py-3 text-sm text-text-primary placeholder:text-text-muted rounded focus:outline-none focus:border-brand-gold transition-colors"
-              />
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-5">
-              <input
-                type="tel"
-                placeholder="رقم الهاتف"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                className="bg-brand-navy/50 border border-white/10 px-4 py-3 text-sm text-text-primary placeholder:text-text-muted rounded focus:outline-none focus:border-brand-gold transition-colors"
-              />
-              <input
-                type="text"
-                placeholder="اسم الشركة"
-                value={formData.company}
-                onChange={(e) =>
-                  setFormData({ ...formData, company: e.target.value })
-                }
-                className="bg-brand-navy/50 border border-white/10 px-4 py-3 text-sm text-text-primary placeholder:text-text-muted rounded focus:outline-none focus:border-brand-gold transition-colors"
-              />
-            </div>
-
-            <select
-              value={formData.service}
-              onChange={(e) =>
-                setFormData({ ...formData, service: e.target.value })
-              }
-              className="bg-brand-navy/50 border border-white/10 px-4 py-3 text-sm text-text-muted rounded focus:outline-none focus:border-brand-gold transition-colors"
-            >
-              <option value="">اختر الخدمة المطلوبة</option>
-              <option value="tax">الاستشارات الضريبية</option>
-              <option value="finance">الاستشارات المالية</option>
-              <option value="cfo">المدير المالي بالتعاقد</option>
-              <option value="risk">المخاطر والحوكمة</option>
-              <option value="business">إدارة الأعمال</option>
-              <option value="international">التوسع الدولي</option>
-              <option value="formation">تأسيس الشركات</option>
-              <option value="investors">خدمات المستثمرين</option>
-            </select>
-
-            <textarea
-              placeholder="كيف يمكننا مساعدتك؟"
-              rows={4}
-              value={formData.message}
-              onChange={(e) =>
-                setFormData({ ...formData, message: e.target.value })
-              }
-              className="bg-brand-navy/50 border border-white/10 px-4 py-3 text-sm text-text-primary placeholder:text-text-muted rounded focus:outline-none focus:border-brand-gold transition-colors resize-none"
-            />
-
-            <button
-              type="submit"
-              className="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto sm:self-start"
-            >
-              <Send className="w-4 h-4" />
-              <span>إرسال الطلب</span>
-            </button>
-          </form>
+          {/* Shared inquiry form */}
+          <InquiryForm
+            lang={lang}
+            source="contact"
+            title={t(lang, 'لنبدأ العمل', "Let's get you started")}
+          />
         </div>
       </div>
     </section>

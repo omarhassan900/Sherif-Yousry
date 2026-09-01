@@ -47,6 +47,7 @@ model ContentItem {
 
   revisions      ContentRevision[]
   mediaReferences MediaReference[]
+  serviceInquiries ServiceInquiry[] @relation("ServiceInquiries")
 
   @@index([type, status])
   @@index([updatedAt])
@@ -92,4 +93,34 @@ model MediaReference {
   fieldName String
 
   @@unique([mediaId, contentId, fieldName])
+}
+
+model ServiceInquiry {
+  id           String   @id @default(cuid())
+  // Link to the service the inquiry was sent from. Nullable + SetNull so
+  // deleting a service doesn't erase its inquiry history.
+  serviceId    String?
+  service      ContentItem? @relation("ServiceInquiries", fields: [serviceId], references: [id], onDelete: SetNull)
+  // Snapshot of the service name at submission time (survives service deletion)
+  serviceName  String
+
+  // Source of the inquiry: "service" (from a service page) | "contact" (contact form)
+  source       String   @default("service")
+
+  name             String
+  email            String
+  phone            String?
+  countryCode      String?  // dial code selected with the phone, e.g. "+20"
+  businessActivity String?
+  country          String?  // "I live in..."
+  helpWith         String?  // "What can we help you with?"
+  consent          Boolean  @default(false)
+  message          String?
+
+  status       String   @default("new") // "new" | "read" | "archived"
+  ipAddress    String?
+  createdAt    DateTime @default(now())
+
+  @@index([status, createdAt])
+  @@index([serviceId])
 }

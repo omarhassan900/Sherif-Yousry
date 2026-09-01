@@ -17,9 +17,11 @@ import {
   Calculator,
   Loader2,
 } from 'lucide-react';
+import { ImagePlus, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import AdminShell from '../../../components/AdminShell';
 import RevisionHistory from '../../../components/RevisionHistory';
+import MediaPicker from '../../../components/MediaPicker';
 
 interface IconOption {
   name: string;
@@ -68,6 +70,10 @@ export default function EditServicePage() {
   const [selectedIcon, setSelectedIcon] = useState('');
   const [displayOrder, setDisplayOrder] = useState('');
   const [published, setPublished] = useState(false);
+  const [fullDescriptionEn, setFullDescriptionEn] = useState('');
+  const [fullDescriptionAr, setFullDescriptionAr] = useState('');
+  const [image, setImage] = useState<{ id: string; filePath: string } | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // Fetch admin name
   useEffect(() => {
@@ -108,6 +114,11 @@ export default function EditServicePage() {
         setSelectedIcon(data.metadata?.icon || '');
         setDisplayOrder(data.metadata?.displayOrder?.toString() || '');
         setPublished(data.status === 'published');
+        setFullDescriptionEn(data.metadata?.fullDescriptionEn || '');
+        setFullDescriptionAr(data.metadata?.fullDescriptionAr || '');
+        if (data.metadata?.image) {
+          setImage({ id: data.metadata?.imageId || '', filePath: data.metadata.image });
+        }
       } catch {
         setErrors({ general: 'Network error. Failed to load service data.' });
       } finally {
@@ -186,6 +197,10 @@ export default function EditServicePage() {
             displayOrder: Number(displayOrder),
             descriptionAr,
             descriptionEn,
+            fullDescriptionEn: fullDescriptionEn.trim(),
+            fullDescriptionAr: fullDescriptionAr.trim(),
+            image: image?.filePath ?? '',
+            imageId: image?.id ?? '',
           },
         }),
       });
@@ -397,6 +412,80 @@ export default function EditServicePage() {
             </div>
           </div>
 
+          {/* Full Description (shown on the service detail page) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="fullDescriptionEn" className="text-sm font-medium text-text-primary">
+                Full Description (English)
+              </label>
+              <textarea
+                id="fullDescriptionEn"
+                rows={6}
+                value={fullDescriptionEn}
+                onChange={(e) => setFullDescriptionEn(e.target.value)}
+                disabled={isSubmitting}
+                placeholder="Full details shown on the service page (optional)..."
+                dir="ltr"
+                className="px-3 py-2 bg-brand-navy-dark border border-white/10 rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-gold/40 transition-colors resize-none"
+              />
+              <span className="text-xs text-text-muted">
+                Leave empty to fall back to the short description.
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label htmlFor="fullDescriptionAr" className="text-sm font-medium text-text-primary text-right">
+                الوصف الكامل (عربي)
+              </label>
+              <textarea
+                id="fullDescriptionAr"
+                rows={6}
+                value={fullDescriptionAr}
+                onChange={(e) => setFullDescriptionAr(e.target.value)}
+                disabled={isSubmitting}
+                placeholder="التفاصيل الكاملة التي تظهر في صفحة الخدمة (اختياري)..."
+                dir="rtl"
+                className="px-3 py-2 bg-brand-navy-dark border border-white/10 rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-gold/40 transition-colors text-right resize-none"
+              />
+            </div>
+          </div>
+
+          {/* Service Image */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-text-primary">
+              Image
+            </label>
+            {image ? (
+              <div className="relative inline-block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={image.filePath}
+                  alt="Selected service"
+                  className="w-48 h-32 object-cover rounded-lg border border-white/10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setImage(null)}
+                  disabled={isSubmitting}
+                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-500 transition-colors"
+                  aria-label="Remove image"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setPickerOpen(true)}
+                disabled={isSubmitting}
+                className="flex items-center gap-2 px-4 py-3 border border-dashed border-white/20 rounded-lg text-sm text-text-muted hover:border-brand-gold/40 hover:text-text-primary transition-colors"
+              >
+                <ImagePlus className="w-5 h-5" />
+                Select image from media
+              </button>
+            )}
+          </div>
+
           {/* Icon Picker */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-text-primary">
@@ -511,6 +600,15 @@ export default function EditServicePage() {
         {/* Revision History */}
         <RevisionHistory contentId={serviceId} />
       </div>
+
+      <MediaPicker
+        isOpen={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(media) => {
+          setImage({ id: media.id, filePath: media.filePath });
+          setPickerOpen(false);
+        }}
+      />
     </AdminShell>
   );
 }

@@ -74,3 +74,94 @@
     text-wrap: pretty;
   }
 }
+
+/* ============================================================
+   Admin light theme
+   Scoped to `.admin-theme`. Remaps the dark brand/text tokens
+   used across admin pages to light values without touching the
+   public site. Uses !important to override utility classes.
+   ============================================================ */
+.admin-theme {
+  background-color: #f4f5f7 !important;
+  color: #0e1729;
+}
+
+/* Surfaces: navy panels become white cards */
+.admin-theme .bg-brand-navy,
+.admin-theme .bg-brand-navy-dark,
+.admin-theme .bg-brand-navy-deep,
+.admin-theme .bg-brand-navy-mid {
+  background-color: #ffffff !important;
+}
+
+/* Slightly tinted app background for the outermost shell */
+.admin-theme.bg-brand-navy-dark,
+.admin-theme .admin-bg {
+  background-color: #f4f5f7 !important;
+}
+
+/* Translucent navy headers/overlays -> soft white */
+.admin-theme [class*='bg-brand-navy/'],
+.admin-theme [class*='bg-brand-navy-dark/'] {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Text tokens */
+.admin-theme .text-text-primary {
+  color: #0e1729 !important;
+}
+.admin-theme .text-text-secondary {
+  color: #48546b !important;
+}
+.admin-theme .text-text-muted {
+  color: #6b7688 !important;
+}
+
+/* Inputs / focusable field text on white */
+.admin-theme input,
+.admin-theme textarea,
+.admin-theme select {
+  color: #0e1729;
+}
+.admin-theme input::placeholder,
+.admin-theme textarea::placeholder {
+  color: #9aa4b5 !important;
+}
+
+/* Borders: white-alpha borders become light gray */
+.admin-theme .border-white\/10,
+.admin-theme .border-white\/5,
+.admin-theme .border-white\/20,
+.admin-theme .border-white\/40 {
+  border-color: #e2e5ea !important;
+}
+
+/* Hover backgrounds that used white-alpha -> subtle gray */
+.admin-theme .hover\:bg-white\/5:hover,
+.admin-theme .hover\:bg-white\/10:hover {
+  background-color: #eef0f4 !important;
+}
+
+/* Gold accent: keep gold but darken a touch for contrast on white */
+.admin-theme .text-brand-gold {
+  color: #a88b3d !important;
+}
+.admin-theme .bg-brand-gold {
+  background-color: #c9a961 !important;
+  color: #05090f !important;
+}
+.admin-theme .bg-brand-gold\/10 {
+  background-color: rgba(201, 169, 97, 0.14) !important;
+}
+.admin-theme .border-brand-gold\/20,
+.admin-theme .border-brand-gold\/40 {
+  border-color: rgba(168, 139, 61, 0.4) !important;
+}
+
+/* Scrollbar within admin */
+.admin-theme ::-webkit-scrollbar-track {
+  background-color: #e2e5ea;
+}
+.admin-theme ::-webkit-scrollbar-thumb {
+  background-color: rgba(168, 139, 61, 0.45);
+}

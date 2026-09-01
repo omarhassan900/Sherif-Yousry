@@ -80,10 +80,10 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-navy-dark flex items-center justify-center px-6">
+    <div className="admin-theme admin-bg min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         {/* Change Password Card */}
-        <div className="bg-brand-navy border border-white/10 rounded-lg p-10 flex flex-col items-center gap-6">
+        <div className="bg-brand-navy border border-white/10 rounded-lg p-10 flex flex-col items-center gap-6 shadow-sm">
           {/* Branding */}
           <div className="flex flex-col items-center gap-3">
             <div className="w-16 h-16 rounded-full border-2 border-brand-gold/60 flex items-center justify-center">

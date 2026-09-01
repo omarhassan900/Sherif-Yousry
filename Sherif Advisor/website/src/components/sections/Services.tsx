@@ -96,29 +96,36 @@ export function Services() {
   const [cmsServices, setCmsServices] = useState<ServiceItem[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [lang, setLang] = useState<Language>('ar');
+  const [langReady, setLangReady] = useState(false);
 
   useEffect(() => {
     setLang(getClientLanguage());
+    setLangReady(true);
   }, []);
 
   useEffect(() => {
+    if (!langReady) return;
+    let cancelled = false;
     async function fetchServices() {
       try {
         const res = await fetch(`/api/content/services?lang=${lang}`);
         if (res.ok) {
           const data = await res.json();
-          if (data.items && data.items.length > 0) {
+          if (!cancelled && data.items && data.items.length > 0) {
             setCmsServices(data.items);
           }
         }
       } catch {
         // Use fallback
       } finally {
-        setLoaded(true);
+        if (!cancelled) setLoaded(true);
       }
     }
     fetchServices();
-  }, [lang]);
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, langReady]);
 
   return (
     <section className="bg-surface-light py-20 lg:py-24">

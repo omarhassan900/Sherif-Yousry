@@ -8,6 +8,7 @@ import {
   Layers,
   Image,
   Users,
+  Inbox,
   ChevronRight,
 } from 'lucide-react';
 
@@ -22,6 +23,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Services', href: '/admin/services', icon: Briefcase },
   { label: 'Articles', href: '/admin/articles', icon: FileText },
   { label: 'Page Sections', href: '/admin/sections', icon: Layers },
+  { label: 'Inquiries', href: '/admin/inquiries', icon: Inbox },
   { label: 'Media', href: '/admin/media', icon: Image },
   { label: 'Administrators', href: '/admin/administrators', icon: Users },
 ];

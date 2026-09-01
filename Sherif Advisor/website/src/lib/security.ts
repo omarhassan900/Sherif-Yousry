@@ -29,6 +29,19 @@ export const contactFormSchema = z.object({
   message: z.string().max(2000, 'الرسالة طويلة جداً').optional(),
 });
 
+export const serviceInquirySchema = z.object({
+  name: z.string().min(2, 'الاسم مطلوب').max(100),
+  email: z.string().email('بريد إلكتروني غير صالح'),
+  phone: z.string().max(40).optional(),
+  countryCode: z.string().max(8).optional(),
+  businessActivity: z.string().max(100).optional(),
+  country: z.string().max(100).optional(),
+  helpWith: z.string().max(200).optional(),
+  consent: z.boolean().optional(),
+  message: z.string().max(2000, 'الرسالة طويلة جداً').optional(),
+  source: z.enum(['service', 'contact']).optional(),
+});
+
 export const assessmentSchema = z.object({
   companySize: z.enum(['small', 'medium', 'large', 'enterprise']),
   revenue: z.string(),

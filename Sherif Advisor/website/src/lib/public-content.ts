@@ -169,6 +169,27 @@ export async function getPublishedArticles(
 }
 
 /**
+ * Get a single published service by id, with language fallback applied.
+ * Returns null if not found or not published.
+ */
+export async function getPublishedServiceById(
+  id: string,
+  lang: Language
+): Promise<PublicContentResponse | null> {
+  const item = await prisma.contentItem.findFirst({
+    where: {
+      id,
+      type: 'service',
+      status: 'published',
+    },
+  });
+
+  if (!item) return null;
+
+  return resolveLanguageFallback(item, lang);
+}
+
+/**
  * Get a specific page section by page name and section key.
  */
 export async function getPageSection(

@@ -33,7 +33,7 @@ export default function AdminShell({ children, adminName }: AdminShellProps) {
   }
 
   return (
-    <div className="min-h-screen bg-brand-navy-dark flex">
+    <div className="admin-theme admin-bg min-h-screen flex">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
