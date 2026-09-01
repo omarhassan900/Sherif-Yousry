@@ -2,122 +2,122 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, Shield } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { getClientLanguage, setLanguagePreference, type Language } from '@/lib/language';
 
-const navLinks = [
-  { href: '/', label: 'الرئيسية', labelEn: 'Home' },
-  { href: '/services', label: 'خدماتنا', labelEn: 'Services' },
-  { href: '/about', label: 'من نحن', labelEn: 'About' },
-  { href: '/knowledge', label: 'مركز المعرفة', labelEn: 'Knowledge' },
-  { href: '/contact', label: 'تواصل معنا', labelEn: 'Contact' },
+const navItems = [
+  { href: '#services',   labelAr: 'الخدمات',    labelEn: 'Services' },
+  { href: '#markets',    labelAr: 'الأسواق',     labelEn: 'Markets' },
+  { href: '#why-us',     labelAr: 'لماذا نحن',   labelEn: 'Why Us' },
+  { href: '#insights',   labelAr: 'المعرفة',      labelEn: 'Insights' },
+  { href: '#contact',    labelAr: 'تواصل معنا',  labelEn: 'Contact' },
 ];
+
+const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [lang, setLang] = useState<Language>('ar');
+  const [scrolled, setScrolled]     = useState(false);
+  const [lang, setLang]             = useState<Language>('ar');
 
   useEffect(() => {
     setLang(getClientLanguage());
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   function toggleLanguage() {
-    const newLang: Language = lang === 'ar' ? 'en' : 'ar';
-    setLang(newLang);
-    setLanguagePreference(newLang);
-    // Reload to re-render content in new language
+    const next: Language = lang === 'ar' ? 'en' : 'ar';
+    setLang(next);
+    setLanguagePreference(next);
     window.location.reload();
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-brand-navy-deep/95 backdrop-blur-md border-b border-white/5">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <Shield className="w-8 h-8 text-brand-gold" />
-            <div>
-              <div className="font-cormorant text-xl text-text-primary tracking-wide">
-                Sherif Yousry
-              </div>
-              <div className="font-mono text-[9px] tracking-[0.2em] text-text-muted uppercase">
-                Advisory
-              </div>
-            </div>
-          </Link>
+    <header
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-brand-navy-dark/95 backdrop-blur-md border-b border-brand-gold/10 py-4'
+          : 'bg-transparent py-6'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
+        {/* Logo */}
+        <Link href="/" className="flex flex-col leading-none">
+          <span className="font-amiri text-brand-gold text-2xl font-bold">
+            {t(lang, 'شريف يسري', 'Sherif Yousry')}
+          </span>
+          <span className="font-sans text-text-secondary font-light text-xs tracking-wider mt-0.5">
+            {t(lang, 'للاستشارات', 'Advisory')}
+          </span>
+        </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="nav-link">
-                {lang === 'ar' ? link.label : link.labelEn}
-              </Link>
-            ))}
-          </nav>
-
-          {/* CTA + Language + Portal */}
-          <div className="hidden lg:flex items-center gap-4">
-            <Link
-              href="/portal"
-              className="text-xs tracking-wider text-text-muted hover:text-brand-gold transition-colors border border-white/20 px-4 py-2 rounded"
+        {/* Desktop nav */}
+        <nav className="hidden lg:flex items-center gap-8">
+          {navItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="nav-link text-sm after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-px after:bg-brand-gold after:transition-all after:duration-300 hover:after:w-full"
             >
-              {lang === 'ar' ? 'بوابة العملاء' : 'Client Portal'}
-            </Link>
+              {t(lang, item.labelAr, item.labelEn)}
+            </a>
+          ))}
+        </nav>
+
+        {/* Actions */}
+        <div className="hidden lg:flex items-center gap-3">
+          <button
+            onClick={toggleLanguage}
+            className="text-xs text-text-muted hover:text-brand-gold border border-white/10 hover:border-brand-gold px-3 py-1.5 rounded transition-all duration-300"
+          >
+            {lang === 'ar' ? 'EN' : 'عربي'}
+          </button>
+          <Link href="#contact" className="btn-primary !py-3 !px-5 !text-[11px]">
+            {t(lang, 'احجز استشارة', 'Book Consultation')}
+          </Link>
+        </div>
+
+        {/* Mobile toggle */}
+        <button
+          className="lg:hidden text-brand-gold z-[1000]"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="lg:hidden fixed inset-0 bg-brand-navy-dark flex flex-col items-center justify-center gap-8 z-[999]">
+          {navItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="text-text-secondary hover:text-brand-gold text-xl transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t(lang, item.labelAr, item.labelEn)}
+            </a>
+          ))}
+          <div className="flex gap-3 mt-4">
             <button
               onClick={toggleLanguage}
-              className="text-xs tracking-wider text-text-muted hover:text-text-primary transition-colors border border-white/10 px-3 py-1.5 rounded"
-              aria-label={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+              className="text-xs text-text-muted border border-white/10 px-3 py-2 rounded"
             >
               {lang === 'ar' ? 'EN' : 'عربي'}
             </button>
-            <Link href="/contact" className="btn-primary text-[11px] px-5 py-3">
-              {lang === 'ar' ? 'احجز استشارة' : 'Book Consultation'}
+            <Link href="#contact" className="btn-primary !py-3 !px-5" onClick={() => setIsMenuOpen(false)}>
+              {t(lang, 'احجز استشارة', 'Book Consultation')}
             </Link>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden text-text-primary"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="lg:hidden py-6 border-t border-white/10 animate-fade-in">
-            <nav className="flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="nav-link py-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {lang === 'ar' ? link.label : link.labelEn}
-                </Link>
-              ))}
-              <hr className="border-white/10 my-2" />
-              <div className="flex items-center justify-between">
-                <Link href="/portal" className="nav-link py-2">
-                  {lang === 'ar' ? 'بوابة العملاء' : 'Client Portal'}
-                </Link>
-                <button
-                  onClick={toggleLanguage}
-                  className="text-xs text-text-muted hover:text-text-primary border border-white/10 px-3 py-1.5 rounded"
-                >
-                  {lang === 'ar' ? 'EN' : 'عربي'}
-                </button>
-              </div>
-              <Link href="/contact" className="btn-primary text-center mt-2">
-                {lang === 'ar' ? 'احجز استشارة' : 'Book Consultation'}
-              </Link>
-            </nav>
-          </div>
-        )}
-      </div>
+      )}
     </header>
   );
 }

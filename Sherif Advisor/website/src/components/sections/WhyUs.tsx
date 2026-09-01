@@ -1,60 +1,102 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import React from 'react';
+import { getClientLanguage, type Language } from '@/lib/language';
+
+const t = (lang: Language, ar: React.ReactNode, en: React.ReactNode): React.ReactNode =>
+  lang === 'ar' ? ar : en;
+
 const reasons = [
   {
-    id: '٠١',
-    title: 'انضباط المكاتب الكبرى',
-    description: 'منهجية يقودها كبار المهنيين ومراجعة جودة موثقة.',
+    id: '٠١', idEn: '01',
+    titleAr: 'انضباط المكاتب الكبرى',    titleEn: 'Big-Firm Discipline',
+    descAr: 'منهجية يقودها كبار المهنيين مع مراجعة جودة موثقة ومعايير امتثال صارمة.',
+    descEn: 'Expert-led methodology with documented quality reviews and strict compliance standards.',
   },
   {
-    id: '٠٢',
-    title: 'تركيز على العميل',
-    description: 'نطاق مصمم لك مع تواصل مباشر مع الشريك المسؤول.',
+    id: '٠٢', idEn: '02',
+    titleAr: 'تركيز على العميل',           titleEn: 'Client-First Focus',
+    descAr: 'نطاق مصمم خصيصاً لك مع تواصل مباشر مع الشريك المسؤول، بدون وسطاء.',
+    descEn: 'Tailored scope with direct partner access — no middlemen.',
   },
   {
-    id: '٠٣',
-    title: 'خبرة محلية',
-    description: 'معرفة عميقة بالتنظيم والتطبيق في مصر.',
+    id: '٠٣', idEn: '03',
+    titleAr: 'خبرة محلية',                 titleEn: 'Local Expertise',
+    descAr: 'معرفة عميقة باللوائح التنظيمية والتطبيق العملي في مصر ومنطقة الخليج.',
+    descEn: 'Deep knowledge of regulations and practice in Egypt and the Gulf.',
   },
   {
-    id: '٠٤',
-    title: 'حضور إقليمي',
-    description: 'توسّع إلى السعودية والإمارات مع عملائنا.',
+    id: '٠٤', idEn: '04',
+    titleAr: 'حضور إقليمي',                titleEn: 'Regional Presence',
+    descAr: 'التوسع في السعودية والإمارات جنباً إلى جنب مع عملائنا لدعم النمو عبر الحدود.',
+    descEn: 'Expanding into KSA and UAE alongside our clients for cross-border growth.',
   },
   {
-    id: '٠٥',
-    title: 'تنفيذ رقمي',
-    description: 'بوابة وتقويمات ومخرجات متابَعة كإجراء أساسي.',
+    id: '٠٥', idEn: '05',
+    titleAr: 'تنفيذ رقمي',                 titleEn: 'Digital Execution',
+    descAr: 'بوابة عملاء، لوحات معلومات، ومخرجات متتابعة كإجراء أساسي وليس كفكرة لاحقة.',
+    descEn: 'Client portal, dashboards, and tracked deliverables as standard — not an afterthought.',
   },
 ];
 
-export function WhyUs() {
-  return (
-    <section className="bg-brand-navy py-20 lg:py-24">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid lg:grid-cols-[1fr_2.5fr] gap-12 items-start">
-          {/* Title */}
-          <div className="flex flex-col gap-3">
-            <span className="section-label">لماذا نحن</span>
-            <h2 className="font-amiri text-3xl leading-relaxed text-text-primary">
-              لماذا شريف يسري للاستشارات؟
-            </h2>
-          </div>
+function Card({ reason, lang, delay }: { reason: typeof reasons[0]; lang: Language; delay: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [vis, setVis] = useState(false);
 
-          {/* Reasons Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8">
-            {reasons.map((reason) => (
-              <div key={reason.id} className="flex flex-col gap-3">
-                <div className="w-9 h-9 border border-brand-gold/60 rounded-full flex items-center justify-center font-mono text-[10px] text-brand-gold">
-                  {reason.id}
-                </div>
-                <h3 className="text-sm font-medium text-white">
-                  {reason.title}
-                </h3>
-                <p className="text-xs leading-6 text-text-secondary">
-                  {reason.description}
-                </p>
-              </div>
-            ))}
-          </div>
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setVis(true); obs.disconnect(); }
+    }, { threshold: 0.1 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="why-card"
+      style={{
+        opacity: vis ? 1 : 0,
+        transform: vis ? 'translateY(0)' : 'translateY(30px)',
+        transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
+      }}
+    >
+      <span className="font-mono text-brand-gold text-xs mb-4 block">
+        {lang === 'ar' ? reason.id : reason.idEn}
+      </span>
+      <h4 className="text-text-primary font-semibold text-lg mb-3">
+        {lang === 'ar' ? reason.titleAr : reason.titleEn}
+      </h4>
+      <p className="text-text-secondary text-sm leading-7">
+        {lang === 'ar' ? reason.descAr : reason.descEn}
+      </p>
+    </div>
+  );
+}
+
+export function WhyUs() {
+  const [lang, setLang] = useState<Language>('ar');
+  useEffect(() => { setLang(getClientLanguage()); }, []);
+
+  return (
+    <section className="py-24 bg-brand-navy-dark" id="why-us">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <span className="section-label mb-4 block">
+          {lang === 'ar' ? 'لماذا شريف يسري للاستشارات؟' : 'Why Sherif Yousry Advisory?'}
+        </span>
+        <h2 className="section-title mb-12">
+          {t(lang,
+            <>انضباط المكاتب الكبرى.<br />ومرونة المكاتب المتخصصة.</>,
+            <>Big-firm discipline.<br />Boutique agility.</>
+          )}
+        </h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {reasons.map((r, i) => (
+            <Card key={r.idEn} reason={r} lang={lang} delay={i * 100} />
+          ))}
         </div>
       </div>
     </section>

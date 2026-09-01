@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   html {
@@ -10,70 +10,106 @@
   }
 
   body {
-    @apply bg-brand-navy-dark font-sans text-text-primary;
+    @apply bg-brand-navy-dark font-sans text-text-primary overflow-x-hidden;
+    line-height: 1.7;
   }
 
   /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-brand-navy-dark;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-brand-gold/30 rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-brand-gold/50;
-  }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { @apply bg-brand-navy-dark; }
+  ::-webkit-scrollbar-thumb { @apply bg-brand-gold/30 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-brand-gold/50; }
 }
 
 @layer components {
   .btn-primary {
-    @apply px-8 py-4 bg-brand-gold text-brand-navy font-medium text-xs tracking-widest
-           hover:bg-brand-gold-light transition-all duration-300 uppercase;
+    @apply inline-flex items-center gap-2 px-8 py-4 bg-brand-gold text-brand-navy font-bold
+           text-xs tracking-widest hover:bg-brand-gold-light transition-all duration-300
+           hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(201,169,97,0.3)];
   }
 
   .btn-outline {
-    @apply px-8 py-4 border border-white/40 text-text-primary font-medium text-xs tracking-widest
-           hover:border-brand-gold hover:text-brand-gold transition-all duration-300 uppercase;
+    @apply inline-flex items-center gap-2 px-8 py-4 border border-white/30 text-text-primary
+           font-semibold text-xs tracking-widest hover:border-brand-gold hover:text-brand-gold
+           hover:bg-brand-gold/5 transition-all duration-300;
   }
 
   .section-label {
-    @apply font-mono text-[11px] tracking-[0.28em] text-brand-gold uppercase;
+    @apply font-mono text-[12px] tracking-[0.15em] text-brand-gold uppercase inline-block;
   }
 
   .section-title {
-    @apply font-amiri text-4xl leading-relaxed text-text-primary;
+    @apply font-amiri text-text-primary leading-[1.3];
+    font-size: clamp(2rem, 5vw, 3.5rem);
   }
 
   .section-title-dark {
-    @apply font-amiri text-4xl leading-relaxed text-text-dark;
+    @apply font-amiri text-text-dark leading-[1.3];
+    font-size: clamp(2rem, 5vw, 3.5rem);
   }
 
   .card-service {
-    @apply bg-white p-9 flex flex-col gap-3.5 min-h-[180px]
-           hover:shadow-lg hover:-translate-y-1 transition-all duration-300;
+    @apply bg-brand-navy-mid p-8 flex flex-col gap-3 border border-white/5
+           hover:border-brand-gold hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)]
+           transition-all duration-300 cursor-pointer;
   }
 
   .nav-link {
-    @apply text-text-secondary hover:text-brand-gold transition-colors duration-200
-           text-sm tracking-wide;
+    @apply text-text-secondary hover:text-brand-gold transition-colors duration-200 text-sm
+           tracking-wide relative;
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    @apply opacity-0 translate-y-8 transition-all duration-700;
+  }
+  .reveal.visible {
+    @apply opacity-100 translate-y-0;
+  }
+
+  /* Why-us card hover glow */
+  .why-card {
+    @apply bg-white/[0.02] border border-white/5 p-10 transition-all duration-300
+           relative overflow-hidden cursor-default;
+  }
+  .why-card:hover {
+    @apply bg-brand-gold/5 -translate-y-2 border-brand-gold/30 shadow-[0_20px_40px_rgba(0,0,0,0.2)];
   }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  .text-pretty {
-    text-wrap: pretty;
-  }
+  .text-balance  { text-wrap: balance; }
+  .text-pretty   { text-wrap: pretty; }
 }
+
+/* ── Scroll progress bar ── */
+#scrollProgress {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 3px;
+  background: #C9A961;
+  z-index: 9999;
+  width: 0%;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px rgba(201,169,97,0.5);
+}
+
+/* ── Grid shimmer ── */
+@keyframes shimmer {
+  0%   { left: -100%; }
+  100% { left: 100%; }
+}
+@keyframes markerPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+@keyframes gridMove {
+  0%   { transform: translate(0,0); }
+  100% { transform: translate(10px,10px); }
+}
+
+/* ── Admin light theme (unchanged) ── */
 
 /* ============================================================
    Admin light theme

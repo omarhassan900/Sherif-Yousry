@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { AIChatWidget } from '@/components/chat/AIChatWidget';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -41,7 +40,6 @@ export default function RootLayout({
     <html lang="ar" dir="rtl">
       <body className="antialiased">
         {children}
-        <AIChatWidget />
       </body>
     </html>
   );

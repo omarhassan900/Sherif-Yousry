@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin } from 'lucide-react';
 import InquiryForm from '@/components/forms/InquiryForm';
+import type { InquiryFormProps } from '@/components/forms/InquiryForm';
 import { getClientLanguage, type Language } from '@/lib/language';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);

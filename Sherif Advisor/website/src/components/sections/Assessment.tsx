@@ -1,51 +1,91 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ClipboardCheck } from 'lucide-react';
+import React from 'react';
+import { getClientLanguage, type Language } from '@/lib/language';
 
 const steps = [
-  { id: '٠١', text: 'أجب على تسعة أسئلة قصيرة' },
-  { id: '٠٢', text: 'استلم ملف أعمالك ومؤشرات المخاطر' },
-  { id: '٠٣', text: 'احصل على خدمة وخطة موصى بهما' },
-  { id: '٠٤', text: 'احجز استشارة أو اطلب عرضاً' },
+  { idAr: '١', idEn: '1', textAr: 'أجب على تسعة أسئلة قصيرة عن عمليات أعمالك.',     textEn: 'Answer nine short questions about your business operations.' },
+  { idAr: '٢', idEn: '2', textAr: 'استلم ملف أعمالك ومؤشرات المخاطر الفورية.',       textEn: 'Receive your business profile and instant risk indicators.' },
+  { idAr: '٣', idEn: '3', textAr: 'احصل على خدمة وخطة استراتيجية موصى بهما.',       textEn: 'Get a recommended service and strategic plan.' },
+  { idAr: '٤', idEn: '4', textAr: 'احجز استشارة أو اطلب عرضاً رسمياً.',              textEn: 'Book a consultation or request a formal proposal.' },
 ];
 
+const t = (lang: Language, ar: React.ReactNode, en: React.ReactNode): React.ReactNode =>
+  lang === 'ar' ? ar : en;
+
 export function Assessment() {
+  const [lang, setLang] = useState<Language>('ar');
+  const [vis, setVis] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setLang(getClientLanguage()); }, []);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVis(true); obs.disconnect(); } }, { threshold: 0.15 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   return (
-    <section className="bg-brand-navy-mid py-20 lg:py-24">
+    <section
+      className="py-24 bg-gradient-to-br from-brand-navy to-brand-navy-dark border-y border-brand-gold/20"
+      id="assessment"
+    >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left Content */}
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-2 section-label">
-              <ClipboardCheck className="w-4 h-4" />
-              <span>تقييم مجاني</span>
-            </div>
-            <h2 className="font-amiri text-3xl leading-relaxed text-text-primary">
-              لست متأكداً من موقعك؟ ابدأ التقييم المجاني لأعمالك.
+          {/* Text side */}
+          <div>
+            <span className="section-label mb-4 block">
+              {t(lang, 'أداة تفاعلية', 'Interactive Tool')}
+            </span>
+            <h2 className="section-title mb-6">
+              {t(lang, <>لست متأكداً من موقعك؟<br />ابدأ التقييم المجاني لأعمالك.</>, <>Not sure where you stand?<br />Start your free business assessment.</>)}
             </h2>
-            <p className="text-base text-text-secondary leading-[1.85]">
-              تسعة أسئلة عن الحجم والالتزام والنضج المالي تُنتج درجة جاهزية
-              ومؤشرات مخاطر وخطة استشارية موصى بها — في أقل من أربع دقائق.
+            <p className="text-text-secondary text-base leading-relaxed mb-8 max-w-lg">
+              {t(
+                lang,
+                'تسعة أسئلة عن الحجم والالتزام والنضج المالي تُنتج درجة جاهزية ومؤشرات مخاطر وخطة استشارية موصى بها — في أقل من أربع دقائق.',
+                'Nine questions on size, compliance and financial maturity produce a readiness score, risk indicators, and a recommended advisory plan — in under four minutes.',
+              )}
             </p>
-            <Link href="/assessment" className="btn-primary w-fit">
-              ابدأ التقييم
+            <Link href="/assessment" className="btn-primary">
+              {t(lang, 'ابدأ التقييم الآن ←', 'Start Assessment Now →')}
             </Link>
           </div>
 
-          {/* Steps */}
-          <div className="border border-white/20 p-9 flex flex-col gap-5 rounded-lg">
-            {steps.map((step) => (
-              <div
-                key={step.id}
-                className="flex gap-4 items-baseline"
-              >
-                <span className="font-mono text-xs text-brand-gold min-w-[22px]">
-                  {step.id}
-                </span>
-                <span className="text-sm text-text-primary/90">
-                  {step.text}
-                </span>
-              </div>
-            ))}
+          {/* Steps card */}
+          <div
+            ref={ref}
+            className="bg-brand-gold/5 border border-brand-gold/20 rounded-xl p-9 transition-all duration-700"
+            style={{ opacity: vis ? 1 : 0, transform: vis ? 'translateX(0)' : 'translateX(-30px)' }}
+          >
+            <h3 className="font-amiri text-brand-gold text-2xl mb-7">
+              {t(lang, 'خارطة طريقك في 4 خطوات', 'Your roadmap in 4 steps')}
+            </h3>
+            <div className="flex flex-col gap-5">
+              {steps.map((step, i) => (
+                <div
+                  key={step.idEn}
+                  className="flex gap-4 items-start group"
+                  style={{
+                    opacity: vis ? 1 : 0,
+                    transform: vis ? 'translateX(0)' : 'translateX(20px)',
+                    transition: `opacity 0.5s ease ${i * 150}ms, transform 0.5s ease ${i * 150}ms`,
+                  }}
+                >
+                  <span className="w-7 h-7 rounded-full bg-brand-gold text-brand-navy flex items-center justify-center text-xs font-bold flex-shrink-0 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(201,169,97,0.5)] transition-all duration-300">
+                    {t(lang, step.idAr, step.idEn)}
+                  </span>
+                  <p className="text-text-secondary text-sm leading-7">
+                    {t(lang, step.textAr, step.textEn)}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
