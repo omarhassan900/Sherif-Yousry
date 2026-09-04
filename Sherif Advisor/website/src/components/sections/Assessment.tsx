@@ -82,7 +82,7 @@ export function Assessment() {
                   'Nine questions on size, compliance and financial maturity produce a readiness score, risk indicators, and a recommended advisory plan — in under four minutes.',
                 )}
             </p>
-            <Link href="/assessment" className="btn-primary">
+            <Link href="#contact" className="btn-primary">
               {t(lang, 'ابدأ التقييم الآن ←', 'Start Assessment Now →')}
             </Link>
           </div>

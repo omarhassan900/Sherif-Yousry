@@ -235,7 +235,6 @@ export async function getPageSection(
       type: 'page_section',
     },
   });
-
   const section = items.find((item) => {
     try {
       const meta = JSON.parse(item.metadata);

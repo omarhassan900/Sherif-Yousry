@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPageSection, Language } from '@/lib/public-content';
+import { Section } from 'lucide-react';
 
 /**
  * GET /api/content/sections/[page]/[key]
@@ -18,7 +19,6 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const langParam = searchParams.get('lang');
     const lang: Language = langParam === 'en' ? 'en' : 'ar';
-
     const section = await getPageSection(page, key, lang);
 
     if (!section) {
