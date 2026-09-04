@@ -169,6 +169,38 @@ export async function getPublishedArticles(
 }
 
 /**
+ * Get a single published article by id, with language fallback applied.
+ * Returns null if not found, unpublished, or its publishDate is in the future.
+ */
+export async function getPublishedArticleById(
+  id: string,
+  lang: Language
+): Promise<PublicContentResponse | null> {
+  const item = await prisma.contentItem.findFirst({
+    where: {
+      id,
+      type: 'article',
+      status: 'published',
+    },
+  });
+
+  if (!item) return null;
+
+  // Respect a future publishDate (scheduled articles stay hidden).
+  try {
+    const meta = JSON.parse(item.metadata);
+    const publishDate = meta.publishDate as string | undefined;
+    if (publishDate && new Date(publishDate) > new Date()) {
+      return null;
+    }
+  } catch {
+    // ignore parse errors and treat as publishable
+  }
+
+  return resolveLanguageFallback(item, lang);
+}
+
+/**
  * Get a single published service by id, with language fallback applied.
  * Returns null if not found or not published.
  */

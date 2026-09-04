@@ -38,9 +38,34 @@ type CountryKey = keyof typeof countryData;
 
 export function RegionalMap() {
   const [lang, setLang] = useState<Language>('ar');
+  const [langReady, setLangReady] = useState(false);
   const [active, setActive] = useState<CountryKey | null>(null);
+  const [cms, setCms] = useState<{ label: string; title: string } | null>(null);
 
-  useEffect(() => { setLang(getClientLanguage()); }, []);
+  useEffect(() => {
+    setLang(getClientLanguage());
+    setLangReady(true);
+  }, []);
+
+  // Editable heading from CMS homepage/markets.
+  useEffect(() => {
+    if (!langReady) return;
+    let cancelled = false;
+    fetch(`/api/content/sections/homepage/markets?lang=${lang}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data && (data.title || data.body)) {
+          setCms({
+            label: (data.body ?? '').replace(/<[^>]*>/g, '').trim(),
+            title: (data.title ?? '').replace(/<[^>]*>/g, '').trim(),
+          });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, langReady]);
 
   const data = active ? countryData[active] : null;
 
@@ -62,10 +87,10 @@ export function RegionalMap() {
     <section className="py-24 bg-gradient-to-b from-brand-navy-dark to-brand-navy" id="markets">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <span className="section-label mb-4 block">
-          {t(lang, '\u062d\u0636\u0648\u0631\u0646\u0627 \u0627\u0644\u0625\u0642\u0644\u064a\u0645\u064a', 'Regional Presence')}
+          {cms?.label || t(lang, 'حضورنا الإقليمي', 'Regional Presence')}
         </span>
         <h2 className="section-title mb-12">
-          {t(lang, '\u0623\u0633\u0648\u0627\u0642 \u0627\u0633\u062a\u0631\u0627\u062a\u064a\u062c\u064a\u0629 \u0641\u064a \u0627\u0644\u0634\u0631\u0642 \u0627\u0644\u0623\u0648\u0633\u0637', 'Strategic Markets in the Middle East')}
+          {cms?.title || t(lang, 'أسواق استراتيجية في الشرق الأوسط', 'Strategic Markets in the Middle East')}
         </h2>
 
         <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start">

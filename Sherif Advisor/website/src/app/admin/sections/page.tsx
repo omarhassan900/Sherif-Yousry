@@ -37,11 +37,36 @@ const PAGE_LABELS: Record<string, string> = {
 /** Display order for page groups */
 const PAGE_ORDER = ['homepage', 'about', 'contact'];
 
-/** Formats a sectionKey like "hero" or "services" into a nice display name */
+/**
+ * Friendly display name + description per section, keyed by "page:sectionKey".
+ * Makes it clear which part of the public site each section controls.
+ */
+const SECTION_META: Record<string, { name: string; desc: string }> = {
+  'homepage:hero': { name: 'Hero Banner', desc: 'Main headline & intro at the top of the homepage' },
+  'homepage:stats': { name: 'Stats Bar', desc: 'Heading above the statistics counters' },
+  'homepage:why-us': { name: 'Why Us', desc: 'Heading of the “Why Sherif Yousry” section' },
+  'homepage:markets': { name: 'Regional Map', desc: 'Heading of the regional presence / markets map' },
+  'homepage:assessment': { name: 'Assessment CTA', desc: 'Heading & intro of the free assessment call-to-action' },
+  'homepage:services': { name: 'Services Heading', desc: 'Heading above the services cards on the homepage' },
+  'homepage:insights': { name: 'Insights Heading', desc: 'Heading above the insights/articles on the homepage' },
+  'about:main': { name: 'About Content', desc: 'Title & body of the About page' },
+  'contact:main': { name: 'Contact Intro', desc: 'Intro text shown above the contact form' },
+};
+
+/** Formats a sectionKey like "hero" into a fallback display name */
 function formatSectionName(key: string): string {
   return key
     .replace(/[-_]/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function getSectionMeta(page: string, key: string): { name: string; desc: string } {
+  return (
+    SECTION_META[`${page}:${key}`] ?? {
+      name: formatSectionName(key),
+      desc: '',
+    }
+  );
 }
 
 function formatDate(dateStr: string): string {
@@ -142,23 +167,36 @@ export default function AdminSectionsPage() {
 
                   {/* Section cards */}
                   <div className="rounded-lg border border-white/10 bg-brand-navy overflow-hidden divide-y divide-white/5">
-                    {sections.map((section) => (
-                      <Link
-                        key={section.id}
-                        href={`/admin/sections/${section.id}/edit`}
-                        className="flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors group"
-                      >
-                        <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-text-muted group-hover:text-brand-gold transition-colors" />
-                          <span className="text-text-primary font-medium group-hover:text-brand-gold transition-colors">
-                            {formatSectionName(section.metadata?.sectionKey || '')}
+                    {sections.map((section) => {
+                      const meta = getSectionMeta(
+                        section.metadata?.page || '',
+                        section.metadata?.sectionKey || ''
+                      );
+                      return (
+                        <Link
+                          key={section.id}
+                          href={`/admin/sections/${section.id}/edit`}
+                          className="flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors group gap-4"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <FileText className="w-5 h-5 shrink-0 text-text-muted group-hover:text-brand-gold transition-colors" />
+                            <div className="min-w-0">
+                              <span className="block text-text-primary font-medium group-hover:text-brand-gold transition-colors">
+                                {meta.name}
+                              </span>
+                              {meta.desc && (
+                                <span className="block text-xs text-text-muted truncate">
+                                  {meta.desc}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="text-sm text-text-secondary whitespace-nowrap shrink-0">
+                            {formatDate(section.updatedAt)}
                           </span>
-                        </div>
-                        <span className="text-sm text-text-secondary whitespace-nowrap">
-                          {formatDate(section.updatedAt)}
-                        </span>
-                      </Link>
-                    ))}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               );

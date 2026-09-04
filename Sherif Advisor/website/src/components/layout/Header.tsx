@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { getClientLanguage, setLanguagePreference, type Language } from '@/lib/language';
 
+// Root-relative anchors (/#section) so they always resolve to the homepage
+// section, even when the user is on another page like an article or service.
 const navItems = [
-  { href: '#services',   labelAr: 'الخدمات',    labelEn: 'Services' },
-  { href: '#markets',    labelAr: 'الأسواق',     labelEn: 'Markets' },
-  { href: '#why-us',     labelAr: 'لماذا نحن',   labelEn: 'Why Us' },
-  { href: '#insights',   labelAr: 'المعرفة',      labelEn: 'Insights' },
-  { href: '#contact',    labelAr: 'تواصل معنا',  labelEn: 'Contact' },
+  { href: '/#services',   labelAr: 'الخدمات',    labelEn: 'Services' },
+  { href: '/#markets',    labelAr: 'الأسواق',     labelEn: 'Markets' },
+  { href: '/#why-us',     labelAr: 'لماذا نحن',   labelEn: 'Why Us' },
+  { href: '/#insights',   labelAr: 'الأفكار',      labelEn: 'Insights' },
+  { href: '/#contact',    labelAr: 'تواصل معنا',  labelEn: 'Contact' },
 ];
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
@@ -59,13 +61,13 @@ export function Header() {
         {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-8">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.href}
               href={item.href}
               className="nav-link text-sm after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-px after:bg-brand-gold after:transition-all after:duration-300 hover:after:w-full"
             >
               {t(lang, item.labelAr, item.labelEn)}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -77,7 +79,7 @@ export function Header() {
           >
             {lang === 'ar' ? 'EN' : 'عربي'}
           </button>
-          <Link href="#contact" className="btn-primary !py-3 !px-5 !text-[11px]">
+          <Link href="/#contact" className="btn-primary !py-3 !px-5 !text-[11px]">
             {t(lang, 'احجز استشارة', 'Book Consultation')}
           </Link>
         </div>
@@ -96,14 +98,14 @@ export function Header() {
       {isMenuOpen && (
         <div className="lg:hidden fixed inset-0 bg-brand-navy-dark flex flex-col items-center justify-center gap-8 z-[999]">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.href}
               href={item.href}
               className="text-text-secondary hover:text-brand-gold text-xl transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               {t(lang, item.labelAr, item.labelEn)}
-            </a>
+            </Link>
           ))}
           <div className="flex gap-3 mt-4">
             <button
@@ -112,7 +114,7 @@ export function Header() {
             >
               {lang === 'ar' ? 'EN' : 'عربي'}
             </button>
-            <Link href="#contact" className="btn-primary !py-3 !px-5" onClick={() => setIsMenuOpen(false)}>
+            <Link href="/#contact" className="btn-primary !py-3 !px-5" onClick={() => setIsMenuOpen(false)}>
               {t(lang, 'احجز استشارة', 'Book Consultation')}
             </Link>
           </div>

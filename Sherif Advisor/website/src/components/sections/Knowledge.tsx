@@ -9,7 +9,12 @@ interface Article {
   id: string;
   title: string;
   body: string;
-  metadata: { category?: string; publishDate?: string };
+  metadata: {
+    category?: string;
+    publishDate?: string;
+    featuredImageId?: string;
+    featuredImage?: string;
+  };
 }
 
 const fallback = [
@@ -64,6 +69,7 @@ export function Knowledge() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loaded,   setLoaded]   = useState(false);
   const [lang,     setLang]     = useState<Language>('ar');
+  const [heading, setHeading] = useState<{ label: string; title: string } | null>(null);
 
   useEffect(() => { setLang(getClientLanguage()); }, []);
 
@@ -80,44 +86,72 @@ export function Knowledge() {
     fetchArticles();
   }, [lang]);
 
+  // Editable heading from CMS homepage/insights.
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/content/sections/homepage/insights?lang=${lang}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data && (data.title || data.body)) {
+          setHeading({
+            label: (data.body ?? '').replace(/<[^>]*>/g, '').trim(),
+            title: (data.title ?? '').replace(/<[^>]*>/g, '').trim(),
+          });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [lang]);
+
   return (
     <section className="py-24 bg-brand-navy-dark" id="insights">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-end justify-between mb-12">
           <div>
             <span className="section-label mb-4 block">
-              {t(lang, 'المعرفة والتحديثات التنظيمية', 'Knowledge & Regulatory Updates')}
+              {heading?.label || t(lang, 'الأفكار والرؤى', 'Insights')}
             </span>
             <h2 className="section-title">
-              {t(lang, 'ابقَ في المقدمة.', 'Stay ahead.')}
+              {heading?.title || t(lang, 'رؤى تزيد وعي عملائنا.', 'Insights that raise our clients’ awareness.')}
             </h2>
           </div>
           <Link href="/knowledge" className="hidden md:flex items-center gap-2 text-sm text-brand-gold hover:text-brand-gold-light transition-colors">
-            {t(lang, 'جميع المقالات', 'All Articles')} <ArrowLeft className="w-4 h-4" />
+            {t(lang, 'جميع المقالات', 'All Insights')} <ArrowLeft className="w-4 h-4" />
           </Link>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loaded && articles.length > 0
-            ? articles.map((a, i) => (
-                <div key={a.id} className="group border border-white/5 bg-white/[0.02] overflow-hidden hover:border-brand-gold hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-300">
-                  <div className="h-48 bg-brand-navy-mid flex items-center justify-center font-mono text-xs text-text-muted">
-                    ARTICLE COVER
-                  </div>
-                  <div className="p-6">
-                    <span className="font-mono text-brand-gold text-xs">{a.metadata?.category ?? ''}</span>
-                    <h4 className="font-amiri text-text-primary text-lg mt-2 leading-snug group-hover:text-brand-gold transition-colors duration-300">{a.title}</h4>
-                    <span className="font-mono text-text-muted text-xs mt-2 block">{a.metadata?.publishDate ? new Date(a.metadata.publishDate).getFullYear() : ''}</span>
-                  </div>
-                </div>
-              ))
+            ? articles.map((a) => {
+                const cover = a.metadata?.featuredImage || a.metadata?.featuredImageId;
+                const hasImage = typeof cover === 'string' && cover.startsWith('/');
+                return (
+                  <Link key={a.id} href={`/knowledge/${a.id}`} className="group border border-white/5 bg-white/[0.02] overflow-hidden hover:border-brand-gold hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-300 block">
+                    {hasImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={cover as string} alt={a.title} className="h-48 w-full object-cover" />
+                    ) : (
+                      <div className="h-48 bg-brand-navy-mid flex items-center justify-center font-mono text-xs text-text-muted">
+                        ARTICLE COVER
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <span className="font-mono text-brand-gold text-xs">{a.metadata?.category ?? ''}</span>
+                      <h4 className="font-amiri text-text-primary text-lg mt-2 leading-snug group-hover:text-brand-gold transition-colors duration-300">{a.title}</h4>
+                      <span className="font-mono text-text-muted text-xs mt-2 block">{a.metadata?.publishDate ? new Date(a.metadata.publishDate).getFullYear() : ''}</span>
+                    </div>
+                  </Link>
+                );
+              })
             : fallback.map((item, i) => (
                 <ArticleCard key={item.catEn} item={item} lang={lang} delay={i * 120} />
               ))}
         </div>
 
         <Link href="/knowledge" className="md:hidden flex items-center justify-center gap-2 mt-8 text-sm text-brand-gold">
-          {t(lang, 'جميع المقالات', 'All Articles')} <ArrowLeft className="w-4 h-4" />
+          {t(lang, 'جميع المقالات', 'All Insights')} <ArrowLeft className="w-4 h-4" />
         </Link>
       </div>
     </section>

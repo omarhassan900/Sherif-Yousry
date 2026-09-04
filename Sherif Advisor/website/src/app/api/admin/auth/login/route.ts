@@ -93,7 +93,9 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set('admin-session', token, {
       httpOnly: true,
-      secure: true,
+      // Only require HTTPS in production; on http://localhost during dev the
+      // browser would otherwise refuse to store a Secure cookie.
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
       maxAge: 8 * 60 * 60, // 8 hours

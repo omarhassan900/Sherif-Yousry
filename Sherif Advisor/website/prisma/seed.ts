@@ -73,6 +73,52 @@ async function main() {
       metadata: JSON.stringify({ page: 'homepage', sectionKey: 'stats' }),
     },
     {
+      // "Why Us" section heading (label / title). The 5 reason cards below
+      // it remain fixed in the design for now.
+      type: 'page_section' as const,
+      titleAr: 'انضباط المكاتب الكبرى. ومرونة المكاتب المتخصصة.',
+      titleEn: 'Big-firm discipline. Boutique agility.',
+      bodyAr: 'لماذا شريف يسري للاستشارات؟',
+      bodyEn: 'Why Sherif Yousry Advisory?',
+      metadata: JSON.stringify({ page: 'homepage', sectionKey: 'why-us' }),
+    },
+    {
+      // Regional map / markets section heading.
+      type: 'page_section' as const,
+      titleAr: 'أسواق استراتيجية في الشرق الأوسط',
+      titleEn: 'Strategic Markets in the Middle East',
+      bodyAr: 'حضورنا الإقليمي',
+      bodyEn: 'Regional Presence',
+      metadata: JSON.stringify({ page: 'homepage', sectionKey: 'markets' }),
+    },
+    {
+      // Assessment CTA section heading + intro.
+      type: 'page_section' as const,
+      titleAr: 'لست متأكداً من موقعك؟ ابدأ التقييم المجاني لأعمالك.',
+      titleEn: 'Not sure where you stand? Start your free business assessment.',
+      bodyAr: 'تسعة أسئلة عن الحجم والالتزام والنضج المالي تُنتج درجة جاهزية ومؤشرات مخاطر وخطة استشارية موصى بها — في أقل من أربع دقائق.',
+      bodyEn: 'Nine questions on size, compliance and financial maturity produce a readiness score, risk indicators, and a recommended advisory plan — in under four minutes.',
+      metadata: JSON.stringify({ page: 'homepage', sectionKey: 'assessment' }),
+    },
+    {
+      // Services section heading on the homepage (the cards come from CMS Services).
+      type: 'page_section' as const,
+      titleAr: 'استشارات شاملة مبنية على التزاماتك.',
+      titleEn: 'Comprehensive advisory built on your commitments.',
+      bodyAr: 'خدماتنا',
+      bodyEn: 'Our Services',
+      metadata: JSON.stringify({ page: 'homepage', sectionKey: 'services' }),
+    },
+    {
+      // Insights section heading on the homepage (the cards come from CMS Articles).
+      type: 'page_section' as const,
+      titleAr: 'رؤى تزيد وعي عملائنا.',
+      titleEn: 'Insights that raise our clients’ awareness.',
+      bodyAr: 'الأفكار والرؤى',
+      bodyEn: 'Insights',
+      metadata: JSON.stringify({ page: 'homepage', sectionKey: 'insights' }),
+    },
+    {
       type: 'page_section' as const,
       titleAr: 'من نحن',
       titleEn: 'About Page',
@@ -90,14 +136,27 @@ async function main() {
     },
   ];
 
-  // Create page sections (upsert based on metadata to avoid duplicates)
-  for (const section of pageSections) {
-    const existing = await prisma.contentItem.findFirst({
-      where: {
-        type: 'page_section',
-        metadata: section.metadata,
-      },
+  // Load all existing page sections once so we can match by page+sectionKey
+  // (robust against JSON string/whitespace differences that caused duplicates).
+  const existingSections = await prisma.contentItem.findMany({
+    where: { type: 'page_section' },
+  });
+
+  function findExisting(metadataJson: string) {
+    const target = JSON.parse(metadataJson);
+    return existingSections.find((row) => {
+      try {
+        const m = JSON.parse(row.metadata);
+        return m.page === target.page && m.sectionKey === target.sectionKey;
+      } catch {
+        return false;
+      }
     });
+  }
+
+  // Create page sections (match by page+sectionKey to avoid duplicates)
+  for (const section of pageSections) {
+    const existing = findExisting(section.metadata);
 
     if (existing) {
       await prisma.contentItem.update({

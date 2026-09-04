@@ -5,16 +5,18 @@ import Link from 'next/link';
 import { getClientLanguage, type Language } from '@/lib/language';
 
 const services = [
-  { labelAr: 'الاستشارات الضريبية',   labelEn: 'Tax Advisory',            href: '/services/tax' },
-  { labelAr: 'الاستشارات المالية',     labelEn: 'Financial Advisory',      href: '/services/finance' },
-  { labelAr: 'المدير المالي بالتعاقد', labelEn: 'Fractional CFO',          href: '/services/cfo' },
-  { labelAr: 'المخاطر والحوكمة',       labelEn: 'Risk & Governance',       href: '/services/risk' },
-  { labelAr: 'التوسع الدولي',          labelEn: 'International Expansion',  href: '/services/international' },
+  // These slugs aren't real routes; link to the services listing which lists
+  // the real CMS services (each linking to its own detail page).
+  { labelAr: 'الاستشارات الضريبية',   labelEn: 'Tax Advisory',            href: '/services' },
+  { labelAr: 'الاستشارات المالية',     labelEn: 'Financial Advisory',      href: '/services' },
+  { labelAr: 'المدير المالي بالتعاقد', labelEn: 'Fractional CFO',          href: '/services' },
+  { labelAr: 'المخاطر والحوكمة',       labelEn: 'Risk & Governance',       href: '/services' },
+  { labelAr: 'التوسع الدولي',          labelEn: 'International Expansion',  href: '/services' },
 ];
 
 const quickLinks = [
   { labelAr: 'من نحن',           labelEn: 'About',           href: '/about' },
-  { labelAr: 'مركز المعرفة',     labelEn: 'Knowledge',       href: '/knowledge' },
+  { labelAr: 'الأفكار والرؤى',   labelEn: 'Insights',        href: '/knowledge' },
   { labelAr: 'بوابة العملاء',    labelEn: 'Client Portal',   href: '/portal' },
   { labelAr: 'سياسة الخصوصية',  labelEn: 'Privacy Policy',  href: '/privacy' },
   { labelAr: 'الشروط والأحكام', labelEn: 'Terms',            href: '/terms' },

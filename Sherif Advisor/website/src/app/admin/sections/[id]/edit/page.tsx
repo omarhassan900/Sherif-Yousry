@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import AdminShell from '../../../components/AdminShell';
 import BilingualEditor from '../../../components/BilingualEditor';
 import ContentPreview from '../../../components/ContentPreview';
+import SectionLivePreview from '../../../components/SectionLivePreview';
 import RevisionHistory from '../../../components/RevisionHistory';
 
 interface SectionData {
@@ -48,7 +49,6 @@ function validateTextField(value: string, fieldLabel: string): string | undefine
 }
 
 export default function EditSectionPage() {
-  const router = useRouter();
   const params = useParams();
   const sectionId = params.id as string;
 
@@ -57,6 +57,8 @@ export default function EditSectionPage() {
   const [notFound, setNotFound] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [savedTick, setSavedTick] = useState(0);
+  const [showSaved, setShowSaved] = useState(false);
 
   // Section data
   const [sectionData, setSectionData] = useState<SectionData | null>(null);
@@ -184,7 +186,11 @@ export default function EditSectionPage() {
       });
 
       if (res.ok) {
-        router.push('/admin/sections');
+        // Stay on the page and refresh the front-end preview so the admin
+        // can immediately see the saved result in the real design.
+        setSavedTick((t) => t + 1);
+        setShowSaved(true);
+        setTimeout(() => setShowSaved(false), 3000);
       } else {
         const data = await res.json().catch(() => null);
         setErrors({
@@ -485,10 +491,10 @@ export default function EditSectionPage() {
             </section>
           )}
 
-          {/* Live Preview */}
+          {/* Draft Preview (unsaved content, side-by-side AR/EN) */}
           <section className="space-y-2">
             <h2 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">
-              Live Preview
+              Draft Preview
             </h2>
             <ContentPreview
               titleAr={titleAr}
@@ -499,8 +505,31 @@ export default function EditSectionPage() {
             />
           </section>
 
+          {/* Front-end Preview (real site design, last saved content) */}
+          <section className="space-y-2">
+            <h2 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">
+              Front-end Preview
+            </h2>
+            <SectionLivePreview
+              page={sectionData?.metadata?.page}
+              sectionKey={sectionData?.metadata?.sectionKey}
+              refreshSignal={savedTick}
+            />
+          </section>
+
           {/* Submit */}
-          <div className="flex justify-end pt-4 border-t border-white/10">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+            {showSaved && (
+              <span className="text-sm text-green-400" role="status">
+                Saved — preview updated below.
+              </span>
+            )}
+            <Link
+              href="/admin/sections"
+              className="px-4 py-2 text-sm font-medium rounded border border-white/10 text-text-secondary hover:bg-white/5 transition-colors"
+            >
+              Done
+            </Link>
             <button
               type="submit"
               disabled={isSubmitting}

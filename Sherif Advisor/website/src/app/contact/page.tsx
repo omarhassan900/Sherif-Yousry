@@ -16,25 +16,32 @@ interface SectionContent {
 export default function ContactPage() {
   const [contactInfo, setContactInfo] = useState<SectionContent | null>(null);
   const [lang, setLang] = useState<Language>('ar');
+  const [langReady, setLangReady] = useState(false);
 
   useEffect(() => {
     setLang(getClientLanguage());
+    setLangReady(true);
   }, []);
 
   useEffect(() => {
+    if (!langReady) return;
+    let cancelled = false;
     async function fetchContactSection() {
       try {
-        const res = await fetch(`/api/content/sections/contact/info?lang=${lang}`);
-        if (res.ok) {
-          const data = await res.json();
-          setContactInfo(data);
+        // Seeded section key is `contact/main`.
+        const res = await fetch(`/api/content/sections/contact/main?lang=${lang}`);
+        if (!cancelled && res.ok) {
+          setContactInfo(await res.json());
         }
       } catch {
         // Use static fallback
       }
     }
     fetchContactSection();
-  }, [lang]);
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, langReady]);
 
   return (
     <main>

@@ -6,12 +6,41 @@ import { getClientLanguage, type Language } from '@/lib/language';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
+interface CmsSection {
+  title: string;
+  body: string;
+}
+
 export function Hero() {
   const [lang, setLang] = useState<Language>('ar');
+  const [langReady, setLangReady] = useState(false);
+  const [cms, setCms] = useState<CmsSection | null>(null);
 
   useEffect(() => {
     setLang(getClientLanguage());
+    setLangReady(true);
   }, []);
+
+  // Pull editable Hero content from the CMS (homepage/hero). Falls back to the
+  // built-in copy below when the section is empty or unavailable.
+  useEffect(() => {
+    if (!langReady) return;
+    let cancelled = false;
+    fetch(`/api/content/sections/homepage/hero?lang=${lang}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data && (data.title || data.body)) {
+          setCms({ title: data.title ?? '', body: data.body ?? '' });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, langReady]);
+
+  // Strip HTML tags from the CMS body for the plain hero paragraph.
+  const cmsBodyText = cms?.body ? cms.body.replace(/<[^>]*>/g, '').trim() : '';
 
   return (
     <section
@@ -46,18 +75,24 @@ export function Hero() {
             animation: 'fadeInUp 0.8s ease 0.6s both',
           }}
         >
-          {t(lang, (
-            <>
-              مرحباً بكم في شريف يسري <br />
-              للاستشارات{' '}
-              <em className="text-brand-gold not-italic">المالية والضريبية</em>
-            </>
-          ) as unknown as string, (
-            <>
-              Welcome to Sherif Yousry <br />
-              <em className="text-brand-gold not-italic">Financial & Tax Advisory</em>
-            </>
-          ) as unknown as string)}
+          {cms?.title ? (
+            <span className="[&_em]:text-brand-gold [&_em]:not-italic">
+              {cms.title}
+            </span>
+          ) : (
+            t(lang, (
+              <>
+                مرحباً بكم في شريف يسري <br />
+                للاستشارات{' '}
+                <em className="text-brand-gold not-italic">المالية والضريبية</em>
+              </>
+            ) as unknown as string, (
+              <>
+                Welcome to Sherif Yousry <br />
+                <em className="text-brand-gold not-italic">Financial & Tax Advisory</em>
+              </>
+            ) as unknown as string)
+          )}
         </h1>
 
         {/* Body */}
@@ -65,11 +100,12 @@ export function Hero() {
           className="text-text-secondary text-lg max-w-2xl mb-10"
           style={{ animation: 'fadeInUp 0.8s ease 0.8s both' }}
         >
-          {t(
-            lang,
-            'استشارات متكاملة للشركات التي تخطّط لما هو قادم. نجمع بين انضباط المكاتب الكبرى والخبرة المحلية والتنفيذ الرقمي عبر منطقة الشرق الأوسط وشمال أفريقيا.',
-            'Integrated advisory for companies planning ahead. We combine big-firm discipline with local expertise and digital execution across the MENA region.',
-          )}
+          {cmsBodyText ||
+            t(
+              lang,
+              'استشارات متكاملة للشركات التي تخطّط لما هو قادم. نجمع بين انضباط المكاتب الكبرى والخبرة المحلية والتنفيذ الرقمي عبر منطقة الشرق الأوسط وشمال أفريقيا.',
+              'Integrated advisory for companies planning ahead. We combine big-firm discipline with local expertise and digital execution across the MENA region.',
+            )}
         </p>
 
         {/* CTAs */}

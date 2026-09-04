@@ -18,34 +18,41 @@ export default function AboutPage() {
   const [heroContent, setHeroContent] = useState<SectionContent | null>(null);
   const [valuesContent, setValuesContent] = useState<SectionContent | null>(null);
   const [lang, setLang] = useState<Language>('ar');
+  const [langReady, setLangReady] = useState(false);
 
   useEffect(() => {
     setLang(getClientLanguage());
+    setLangReady(true);
   }, []);
 
   useEffect(() => {
-    // Fetch about page sections from CMS
+    if (!langReady) return;
+    let cancelled = false;
+    // Fetch about page sections from CMS.
+    // The seeded section key is `about/main`, so the hero content comes from
+    // there. `about/values` is optional (only used if you add that section).
     async function fetchSections() {
       try {
-        const [heroRes, valuesRes] = await Promise.all([
-          fetch(`/api/content/sections/about/hero?lang=${lang}`),
+        const [mainRes, valuesRes] = await Promise.all([
+          fetch(`/api/content/sections/about/main?lang=${lang}`),
           fetch(`/api/content/sections/about/values?lang=${lang}`),
         ]);
 
-        if (heroRes.ok) {
-          const data = await heroRes.json();
-          setHeroContent(data);
+        if (!cancelled && mainRes.ok) {
+          setHeroContent(await mainRes.json());
         }
-        if (valuesRes.ok) {
-          const data = await valuesRes.json();
-          setValuesContent(data);
+        if (!cancelled && valuesRes.ok) {
+          setValuesContent(await valuesRes.json());
         }
       } catch {
         // Use static fallback
       }
     }
     fetchSections();
-  }, [lang]);
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, langReady]);
 
   // Static fallback values
   const defaultValues = [

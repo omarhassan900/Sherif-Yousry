@@ -79,18 +79,49 @@ function Card({ reason, lang, delay }: { reason: typeof reasons[0]; lang: Langua
 
 export function WhyUs() {
   const [lang, setLang] = useState<Language>('ar');
-  useEffect(() => { setLang(getClientLanguage()); }, []);
+  const [langReady, setLangReady] = useState(false);
+  const [cms, setCms] = useState<{ label: string; title: string } | null>(null);
+
+  useEffect(() => {
+    setLang(getClientLanguage());
+    setLangReady(true);
+  }, []);
+
+  // Editable heading from CMS homepage/why-us: body = label (eyebrow), title = heading.
+  useEffect(() => {
+    if (!langReady) return;
+    let cancelled = false;
+    fetch(`/api/content/sections/homepage/why-us?lang=${lang}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data && (data.title || data.body)) {
+          setCms({
+            label: (data.body ?? '').replace(/<[^>]*>/g, '').trim(),
+            title: (data.title ?? '').replace(/<[^>]*>/g, '').trim(),
+          });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, langReady]);
 
   return (
     <section className="py-24 bg-brand-navy-dark" id="why-us">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <span className="section-label mb-4 block">
-          {lang === 'ar' ? 'لماذا شريف يسري للاستشارات؟' : 'Why Sherif Yousry Advisory?'}
+          {cms?.label ||
+            (lang === 'ar' ? 'لماذا شريف يسري للاستشارات؟' : 'Why Sherif Yousry Advisory?')}
         </span>
         <h2 className="section-title mb-12">
-          {t(lang,
-            <>انضباط المكاتب الكبرى.<br />ومرونة المكاتب المتخصصة.</>,
-            <>Big-firm discipline.<br />Boutique agility.</>
+          {cms?.title ? (
+            cms.title
+          ) : (
+            t(lang,
+              <>انضباط المكاتب الكبرى.<br />ومرونة المكاتب المتخصصة.</>,
+              <>Big-firm discipline.<br />Boutique agility.</>
+            )
           )}
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -58,10 +58,36 @@ function StatItem({ value, suffix, labelAr, labelEn, lang }: {
 
 export function Stats() {
   const [lang, setLang] = useState<Language>('ar');
-  useEffect(() => { setLang(getClientLanguage()); }, []);
+  const [langReady, setLangReady] = useState(false);
+  const [heading, setHeading] = useState<{ title: string; body: string } | null>(null);
+
+  useEffect(() => {
+    setLang(getClientLanguage());
+    setLangReady(true);
+  }, []);
+
+  // Optional editable heading above the stats, from CMS homepage/stats.
+  useEffect(() => {
+    if (!langReady) return;
+    let cancelled = false;
+    fetch(`/api/content/sections/homepage/stats?lang=${lang}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data && (data.title || data.body)) {
+          setHeading({
+            title: data.title ?? '',
+            body: (data.body ?? '').replace(/<[^>]*>/g, '').trim(),
+          });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, langReady]);
 
   return (
-    <section className="bg-brand-navy border-y border-brand-gold/20 relative overflow-hidden">
+    <section id="stats" className="bg-brand-navy border-y border-brand-gold/20 relative overflow-hidden">
       {/* Shimmer */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -71,6 +97,20 @@ export function Stats() {
           left: '-100%',
         }}
       />
+      {/* Optional editable heading from CMS */}
+      {heading?.title && (
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-12 text-center relative z-10">
+          <h2 className="font-amiri text-2xl md:text-3xl text-text-primary">
+            {heading.title}
+          </h2>
+          {heading.body && (
+            <p className="text-text-secondary text-sm mt-2 max-w-2xl mx-auto leading-7">
+              {heading.body}
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 relative z-10">
         {stats.map((s) => (
           <StatItem key={s.labelEn} {...s} lang={lang} />

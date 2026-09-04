@@ -177,8 +177,9 @@ export async function middleware(request: NextRequest) {
   // ---- Default response with security headers ----
   const response = NextResponse.next();
 
-  // Prevent clickjacking
-  response.headers.set('X-Frame-Options', 'DENY');
+  // Prevent clickjacking from other origins, but allow same-origin framing so
+  // the admin CMS can embed public pages in its front-end preview iframe.
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
   // Prevent MIME sniffing
   response.headers.set('X-Content-Type-Options', 'nosniff');
   // Request ID for audit trail

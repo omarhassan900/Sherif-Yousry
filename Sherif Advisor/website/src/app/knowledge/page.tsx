@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Knowledge } from '@/components/sections/Knowledge';
@@ -15,6 +16,7 @@ interface Article {
     category?: string;
     publishDate?: string;
     featuredImageId?: string;
+    featuredImage?: string;
   };
   updatedAt: string;
 }
@@ -75,10 +77,10 @@ export default function KnowledgePage() {
             <div>
               <div className="flex items-center gap-2 section-label mb-4">
                 <BookOpen className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'مركز المعرفة' : 'Knowledge Center'}</span>
+                <span>{lang === 'ar' ? 'الأفكار والرؤى' : 'Insights'}</span>
               </div>
               <h1 className="font-amiri text-4xl md:text-5xl text-text-primary leading-relaxed">
-                {lang === 'ar' ? 'المعرفة والتحديثات التنظيمية' : 'Knowledge & Regulatory Updates'}
+                {lang === 'ar' ? 'رؤى تزيد وعي عملائنا' : 'Insights to Raise Our Clients’ Awareness'}
               </h1>
               <p className="text-text-secondary mt-4 max-w-xl leading-7">
                 {lang === 'ar'
@@ -131,36 +133,53 @@ export default function KnowledgePage() {
         <section className="bg-surface-light py-20 lg:py-24">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
-              {filteredArticles.map((article) => (
-                <article
-                  key={article.id}
-                  className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-shadow group"
-                >
-                  {/* Image Placeholder */}
-                  <div
-                    className="h-40 flex items-center justify-center font-mono text-xs tracking-wider text-text-muted"
-                    style={{
-                      backgroundImage:
-                        'repeating-linear-gradient(135deg, #E7EAEF 0px, #E7EAEF 8px, #F1F3F6 8px, #F1F3F6 16px)',
-                    }}
+              {filteredArticles.map((article) => {
+                const cover =
+                  article.metadata?.featuredImage ||
+                  article.metadata?.featuredImageId;
+                const hasImage =
+                  typeof cover === 'string' && cover.startsWith('/');
+                return (
+                  <Link
+                    key={article.id}
+                    href={`/knowledge/${article.id}`}
+                    className="bg-white rounded-lg overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all group flex flex-col"
                   >
-                    {article.metadata?.featuredImageId ? '' : 'ARTICLE COVER'}
-                  </div>
-                  <div className="p-7 flex flex-col gap-3">
-                    <span className="font-mono text-[10px] tracking-[0.2em] text-brand-gold">
-                      {article.metadata?.category || 'General'}
-                    </span>
-                    <h3 className="font-cormorant text-xl text-text-dark leading-snug group-hover:text-brand-navy-mid transition-colors">
-                      {article.title}
-                    </h3>
-                    <span className="text-xs text-text-dark-secondary">
-                      {article.metadata?.publishDate
-                        ? new Date(article.metadata.publishDate).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-                        : ''}
-                    </span>
-                  </div>
-                </article>
-              ))}
+                    {/* Cover */}
+                    {hasImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={cover as string}
+                        alt={article.title}
+                        className="h-40 w-full object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="h-40 flex items-center justify-center font-mono text-xs tracking-wider text-text-muted"
+                        style={{
+                          backgroundImage:
+                            'repeating-linear-gradient(135deg, #E7EAEF 0px, #E7EAEF 8px, #F1F3F6 8px, #F1F3F6 16px)',
+                        }}
+                      >
+                        ARTICLE COVER
+                      </div>
+                    )}
+                    <div className="p-7 flex flex-col gap-3">
+                      <span className="font-mono text-[10px] tracking-[0.2em] text-brand-gold">
+                        {article.metadata?.category || 'General'}
+                      </span>
+                      <h3 className="font-cormorant text-xl text-text-dark leading-snug group-hover:text-brand-navy-mid transition-colors">
+                        {article.title}
+                      </h3>
+                      <span className="text-xs text-text-dark-secondary">
+                        {article.metadata?.publishDate
+                          ? new Date(article.metadata.publishDate).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                          : ''}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Pagination */}

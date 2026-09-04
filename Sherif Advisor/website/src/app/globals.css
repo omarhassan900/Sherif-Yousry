@@ -201,3 +201,52 @@
 .admin-theme ::-webkit-scrollbar-thumb {
   background-color: rgba(168, 139, 61, 0.45);
 }
+
+/* ============================================================
+   Article body — styles the rich-text HTML rendered on the
+   public article (Insights) detail page.
+   ============================================================ */
+.article-body h1,
+.article-body h2,
+.article-body h3 {
+  color: #0e1729;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+.article-body h1 { font-size: 1.75rem; }
+.article-body h2 { font-size: 1.4rem; }
+.article-body h3 { font-size: 1.2rem; }
+.article-body p {
+  margin-bottom: 1.1em;
+}
+.article-body ul,
+.article-body ol {
+  margin: 1em 0;
+  padding-inline-start: 1.5em;
+}
+.article-body ul { list-style: disc; }
+.article-body ol { list-style: decimal; }
+.article-body li { margin-bottom: 0.4em; }
+.article-body a {
+  color: #a88b3d;
+  text-decoration: underline;
+}
+.article-body a:hover {
+  color: #c9a961;
+}
+.article-body blockquote {
+  border-inline-start: 3px solid #c9a961;
+  padding-inline-start: 1em;
+  margin: 1.2em 0;
+  color: #5a6478;
+  font-style: italic;
+}
+.article-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1.2em 0;
+}
+.article-body strong { font-weight: 600; color: #0e1729; }
