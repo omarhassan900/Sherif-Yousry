@@ -8,7 +8,7 @@ const services = [
   // These slugs aren't real routes; link to the services listing which lists
   // the real CMS services (each linking to its own detail page).
   { labelAr: 'الاستشارات الضريبية',   labelEn: 'Tax Advisory',            href: '/services' },
-  { labelAr: 'الاستشارات المالية',     labelEn: 'Financial Advisory',      href: '/services' },
+  { labelAr: 'الاستشارات المالية',     labelEn: 'Financial Advisory',      href: '/services/cmtqc4twf000cikzhdpng2wex' },
   { labelAr: 'المدير المالي بالتعاقد', labelEn: 'Fractional CFO',          href: '/services' },
   { labelAr: 'المخاطر والحوكمة',       labelEn: 'Risk & Governance',       href: '/services' },
   { labelAr: 'التوسع الدولي',          labelEn: 'International Expansion',  href: '/services' },
@@ -17,7 +17,7 @@ const services = [
 const quickLinks = [
   { labelAr: 'من نحن',           labelEn: 'About',           href: '/about' },
   { labelAr: 'الأفكار والرؤى',   labelEn: 'Insights',        href: '/knowledge' },
-  { labelAr: 'بوابة العملاء',    labelEn: 'Client Portal',   href: '/portal' },
+  /*{ labelAr: 'بوابة العملاء',    labelEn: 'Client Portal',   href: '/portal' },*/
   { labelAr: 'سياسة الخصوصية',  labelEn: 'Privacy Policy',  href: '/privacy' },
   { labelAr: 'الشروط والأحكام', labelEn: 'Terms',            href: '/terms' },
 ];

@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Loader2, Calendar, Tag } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { getClientLanguage, getDirection, type Language } from '@/lib/language';
+import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 
 interface ArticleDetail {
   id: string;
@@ -181,6 +182,8 @@ export default function ArticleDetailPage() {
       )}
 
       <Footer />
+      <WhatsAppFloat />
+
     </main>
   );
 }

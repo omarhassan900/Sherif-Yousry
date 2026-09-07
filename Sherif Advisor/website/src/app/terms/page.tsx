@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { getClientLanguage, getDirection, type Language } from '@/lib/language';
+import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
@@ -36,6 +37,8 @@ export default function TermsPage() {
         </div>
       </section>
       <Footer />
+            <WhatsAppFloat />
+      
     </main>
   );
 }

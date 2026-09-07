@@ -48,7 +48,8 @@ export function Contact() {
                     {t(lang, 'اتصل بنا', 'Call us')}
                   </p>
                   <p className="text-sm text-text-primary" dir="ltr">
-                    +20 xxx xxx xxxx
+                    <a href="tel:+201112042098"> {t(lang, '+۲۰ ۱۱۱ ۲۰٤ ۲۰۹۸', '+20 111 204 2098')}
+                    </a>
                   </p>
                 </div>
               </div>
@@ -62,7 +63,7 @@ export function Contact() {
                     {t(lang, 'البريد الإلكتروني', 'Email')}
                   </p>
                   <p className="text-sm text-text-primary">
-                    info@sherifadvisory.com
+                    <a href="mailto:info@sherifadvisory.com">info@sherifadvisory.com</a>
                   </p>
                 </div>
               </div>
@@ -76,7 +77,7 @@ export function Contact() {
                     {t(lang, 'المقر الرئيسي', 'Headquarters')}
                   </p>
                   <p className="text-sm text-text-primary">
-                    {t(lang, 'القاهرة، مصر', 'Cairo, Egypt')}
+                    {t(lang, 'القاهرة الجديدة، القاهرة، مصر', 'New Cairo, Cairo, Egypt')}
                   </p>
                 </div>
               </div>

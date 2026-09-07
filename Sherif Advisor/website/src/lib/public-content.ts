@@ -121,7 +121,6 @@ export async function getPublishedArticles(
     },
     orderBy: { updatedAt: 'desc' },
   });
-
   // Filter by publishDate and category from metadata
   const filtered = allArticles.filter((item) => {
     let meta: Record<string, unknown> = {};

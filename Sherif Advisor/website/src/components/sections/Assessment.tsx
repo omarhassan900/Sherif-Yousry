@@ -6,10 +6,10 @@ import React from 'react';
 import { getClientLanguage, type Language } from '@/lib/language';
 
 const steps = [
-  { idAr: '١', idEn: '1', textAr: 'أجب على تسعة أسئلة قصيرة عن عمليات أعمالك.',     textEn: 'Answer nine short questions about your business operations.' },
-  { idAr: '٢', idEn: '2', textAr: 'استلم ملف أعمالك ومؤشرات المخاطر الفورية.',       textEn: 'Receive your business profile and instant risk indicators.' },
-  { idAr: '٣', idEn: '3', textAr: 'احصل على خدمة وخطة استراتيجية موصى بهما.',       textEn: 'Get a recommended service and strategic plan.' },
-  { idAr: '٤', idEn: '4', textAr: 'احجز استشارة أو اطلب عرضاً رسمياً.',              textEn: 'Book a consultation or request a formal proposal.' },
+  { idAr: '١', idEn: '1', textAr: 'أجب عن 9 أسئلة سريعة: شاركنا نبذة مختصرة عن عمليات أعمالك، والامتثال، والهيكل المالي', textEn: 'Answer 9 Quick Questions: Briefly share insights about your business operations, compliance, and financial structure.' },
+  { idAr: '٢', idEn: '2', textAr: 'احصل على رؤى فورية: استلم ملف أعمالك المخصص ومؤشرات المخاطر الفورية.', textEn: 'Get Instant Insights: Receive your customized business profile and immediate risk indicators.' },
+  { idAr: '٣', idEn: '3', textAr: 'اكتشف خارطة طريقك: اطّلع على درجة الجاهزية الإجمالية وخطة استشارية استراتيجية مصممة لاحتياجاتك.', textEn: 'Discover Your Roadmap: View your overall readiness score and a tailored strategic advisory plan.' },
+  { idAr: '٤', idEn: '4', textAr: 'اتخذ الخطوة التالية: احجز استشارة مجانية مع خبرائنا أو اطلب عرض أسعار رسمي.', textEn: 'Take the Next Step: Book a free consultation with our experts or request a formal proposal.' },
 ];
 
 const t = (lang: Language, ar: React.ReactNode, en: React.ReactNode): React.ReactNode =>
@@ -41,7 +41,7 @@ export function Assessment() {
           });
         }
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       cancelled = true;
     };
@@ -94,7 +94,7 @@ export function Assessment() {
             style={{ opacity: vis ? 1 : 0, transform: vis ? 'translateX(0)' : 'translateX(-30px)' }}
           >
             <h3 className="font-amiri text-brand-gold text-2xl mb-7">
-              {t(lang, 'خارطة طريقك في 4 خطوات', 'Your roadmap in 4 steps')}
+              {t(lang, 'خارطة طريقك في 4 خطواتخارطة طريق التقييم في 4 خطوات', 'Your Assessment Roadmap in 4 Steps')}
             </h3>
             <div className="flex flex-col gap-5">
               {steps.map((step, i) => (

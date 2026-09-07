@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Contact } from '@/components/sections/Contact';
 import { getClientLanguage, type Language } from '@/lib/language';
+import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 
 interface SectionContent {
   id: string;
@@ -64,6 +65,8 @@ export default function ContactPage() {
       )}
       <Contact />
       <Footer />
+      <WhatsAppFloat />
+
     </main>
   );
 }

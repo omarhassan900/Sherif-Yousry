@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer';
 import { WhyUs } from '@/components/sections/WhyUs';
 import { Shield, Award, Users, Target } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
+import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 
 interface SectionContent {
   id: string;
@@ -148,6 +149,8 @@ export default function AboutPage() {
 
       <WhyUs />
       <Footer />
+      <WhatsAppFloat />
+
     </main>
   );
 }

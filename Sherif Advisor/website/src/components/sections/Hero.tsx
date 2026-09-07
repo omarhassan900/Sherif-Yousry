@@ -1,58 +1,81 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, type ReactNode } from 'react';
 import { getClientLanguage, type Language } from '@/lib/language';
 
-const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
+// Generic translation function
+const t = <T extends string | ReactNode>(lang: Language, ar: T, en: T): T => 
+  (lang === 'ar' ? ar : en);
 
 interface CmsSection {
   title: string;
   body: string;
 }
 
+const FallbackTitleAr = (
+  <>
+   
+  </>
+);
+
+const FallbackTitleEn = (
+  <>
+   
+  </>
+);
+
 export function Hero() {
   const [lang, setLang] = useState<Language>('ar');
-  const [langReady, setLangReady] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [cms, setCms] = useState<CmsSection | null>(null);
 
   useEffect(() => {
-    setLang(getClientLanguage());
-    setLangReady(true);
+    setIsMounted(true);
+    const detectedLang = getClientLanguage();
+    setLang(detectedLang);
   }, []);
 
-  // Pull editable Hero content from the CMS (homepage/hero). Falls back to the
-  // built-in copy below when the section is empty or unavailable.
   useEffect(() => {
-    if (!langReady) return;
+    if (!isMounted) return;
+
     let cancelled = false;
+
     fetch(`/api/content/sections/homepage/hero?lang=${lang}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (!cancelled && data && (data.title || data.body)) {
-          setCms({ title: data.title ?? '', body: data.body ?? '' });
+        if (!cancelled) {
+          const item = Array.isArray(data) ? data[0] : data;
+          if (item && (item.title || item.body)) {
+            setCms({ title: item.title ?? '', body: item.body ?? '' });
+          } else {
+            setCms(null);
+          }
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setCms(null);
+      });
+
     return () => {
       cancelled = true;
     };
-  }, [lang, langReady]);
-
-  // Strip HTML tags from the CMS body for the plain hero paragraph.
-  const cmsBodyText = cms?.body ? cms.body.replace(/<[^>]*>/g, '').trim() : '';
+  }, [lang, isMounted]);
 
   return (
     <section
       className="relative min-h-screen flex items-center overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #05090F 0%, #0E2749 100%)' }}
+      style={{
+        backgroundImage: 'url("/images/hero-bg.png")', // Ensure this matches your public folder
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
     >
-      {/* Grid background */}
+      {/* Dark overlay to ensure text readability */}
       <div
-        className="absolute inset-0 opacity-50"
+        className="absolute inset-0"
         style={{
-          backgroundImage: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><pattern id='g' width='10' height='10' patternUnits='userSpaceOnUse'><path d='M 10 0 L 0 0 0 10' fill='none' stroke='rgba(201,169,97,0.05)' stroke-width='0.5'/></pattern></defs><rect width='100' height='100' fill='url(%23g)'/></svg>")`,
-          animation: 'gridMove 20s linear infinite',
+          background: 'linear-gradient(135deg, rgba(5,9,15,0.75) 0%, rgba(14,39,73,0.65) 100%)',
         }}
       />
 
@@ -68,11 +91,12 @@ export function Hero() {
 
         {/* Heading */}
         <h1
-          className="font-amiri text-text-primary mb-6 max-w-3xl"
+          className="font-amiri text-white mb-6 max-w-3xl"
           style={{
             fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
             lineHeight: '1.2',
             animation: 'fadeInUp 0.8s ease 0.6s both',
+            textShadow: '0 2px 20px rgba(0,0,0,0.5)',
           }}
         >
           {cms?.title ? (
@@ -80,33 +104,33 @@ export function Hero() {
               {cms.title}
             </span>
           ) : (
-            t(lang, (
-              <>
-                مرحباً بكم في شريف يسري <br />
-                للاستشارات{' '}
-                <em className="text-brand-gold not-italic">المالية والضريبية</em>
-              </>
-            ) as unknown as string, (
-              <>
-                Welcome to Sherif Yousry <br />
-                <em className="text-brand-gold not-italic">Financial & Tax Advisory</em>
-              </>
-            ) as unknown as string)
+            t(lang, FallbackTitleAr, FallbackTitleEn)
           )}
         </h1>
 
-        {/* Body */}
-        <p
-          className="text-text-secondary text-lg max-w-2xl mb-10"
-          style={{ animation: 'fadeInUp 0.8s ease 0.8s both' }}
+        {/* ✅ Body: Renders HTML from CMS, or falls back to plain text */}
+        <div
+          className="text-gray-200 text-lg max-w-2xl mb-10"
+          style={{ 
+            animation: 'fadeInUp 0.8s ease 0.8s both',
+            textShadow: '0 1px 10px rgba(0,0,0,0.5)',
+          }}
         >
-          {cmsBodyText ||
-            t(
-              lang,
-              'استشارات متكاملة للشركات التي تخطّط لما هو قادم. نجمع بين انضباط المكاتب الكبرى والخبرة المحلية والتنفيذ الرقمي عبر منطقة الشرق الأوسط وشمال أفريقيا.',
-              'Integrated advisory for companies planning ahead. We combine big-firm discipline with local expertise and digital execution across the MENA region.',
-            )}
-        </p>
+          {cms?.body ? (
+            <div 
+              // Tailwind arbitrary variants ensure the CMS HTML matches your design system
+              className="[&_p]:mb-0 [&_strong]:font-bold [&_em]:text-brand-gold [&_em]:not-italic"
+              dangerouslySetInnerHTML={{ __html: cms.body }} 
+            />
+          ) : (
+            <p>
+              {t(
+                lang,
+               '',''
+              )}
+            </p>
+          )}
+        </div>
 
         {/* CTAs */}
         <div
@@ -126,15 +150,19 @@ export function Hero() {
           className="flex items-center gap-6 mt-16"
           style={{ animation: 'fadeInUp 0.8s ease 1.2s both' }}
         >
-          <span className="font-mono text-text-muted text-xs tracking-[0.1em]">
+          <span className="font-mono text-gray-300 text-xs tracking-[0.1em]">
             {t(lang, 'الأسواق التي نغطيها', 'Markets we cover')}
           </span>
           <div className="flex gap-2">
-            {[t(lang,'مصر','Egypt'), t(lang,'السعودية','KSA'), t(lang,'الإمارات','UAE')].map((m) => (
+            {[
+              { ar: 'مصر', en: 'Egypt' },
+              { ar: 'السعودية', en: 'KSA' },
+              { ar: 'الإمارات', en: 'UAE' },
+            ].map((m, i) => (
               <span
-                key={m}
+                key={i}
                 className="w-2.5 h-2.5 rounded-full bg-brand-gold shadow-[0_0_10px_#C9A961]"
-                title={m}
+                title={t(lang, m.ar, m.en)}
               />
             ))}
           </div>

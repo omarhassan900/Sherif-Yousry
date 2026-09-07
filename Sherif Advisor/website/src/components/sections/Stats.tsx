@@ -97,20 +97,7 @@ export function Stats() {
           left: '-100%',
         }}
       />
-      {/* Optional editable heading from CMS */}
-      {heading?.title && (
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-12 text-center relative z-10">
-          <h2 className="font-amiri text-2xl md:text-3xl text-text-primary">
-            {heading.title}
-          </h2>
-          {heading.body && (
-            <p className="text-text-secondary text-sm mt-2 max-w-2xl mx-auto leading-7">
-              {heading.body}
-            </p>
-          )}
-        </div>
-      )}
-
+     
       <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 relative z-10">
         {stats.map((s) => (
           <StatItem key={s.labelEn} {...s} lang={lang} />

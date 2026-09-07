@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 
@@ -47,7 +48,6 @@ function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: La
         transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms, border-color 0.3s, box-shadow 0.3s`,
       }}
     >
-      {/* Cover image area */}
       <div className={`h-48 bg-gradient-to-br ${item.gradient} relative overflow-hidden`}>
         <div className="absolute inset-0 bg-brand-gold/0 group-hover:bg-brand-gold/10 transition-all duration-400" />
         <span className="absolute top-4 right-4 bg-brand-gold text-brand-navy text-[11px] font-bold px-3 py-1 group-hover:scale-105 transition-transform duration-300">
@@ -66,28 +66,48 @@ function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: La
 }
 
 export function Knowledge() {
+  // ✅ 1. Start with 'ar' to perfectly match the server's initial render
+  const [lang, setLang] = useState<Language>('ar');
+  const [isMounted, setIsMounted] = useState(false);
+  
   const [articles, setArticles] = useState<Article[]>([]);
-  const [loaded,   setLoaded]   = useState(false);
-  const [lang,     setLang]     = useState<Language>('ar');
+  const [loaded, setLoaded] = useState(false);
   const [heading, setHeading] = useState<{ label: string; title: string } | null>(null);
 
-  useEffect(() => { setLang(getClientLanguage()); }, []);
-
+  // ✅ 2. Detect language ONLY on the client, after hydration is complete
   useEffect(() => {
+    setIsMounted(true);
+    const detectedLang = getClientLanguage();
+    setLang(detectedLang);
+  }, []);
+
+  // ✅ 3. Fetch articles only after mounting to avoid fetching with the wrong default
+  useEffect(() => {
+    if (!isMounted) return;
+    
     async function fetchArticles() {
+      setLoaded(false);
       try {
         const res = await fetch(`/api/content/articles?lang=${lang}&page=1`);
         if (res.ok) {
           const data = await res.json();
-          if (data.items?.length) setArticles(data.items.slice(0, 3));
+          if (data.items?.length) {
+            setArticles(data.items.slice(0, 3));
+          }
         }
-      } catch { /* use fallback */ } finally { setLoaded(true); }
+      } catch (err) {
+        console.error('Failed to fetch articles:', err);
+      } finally {
+        setLoaded(true);
+      }
     }
     fetchArticles();
-  }, [lang]);
+  }, [lang, isMounted]);
 
-  // Editable heading from CMS homepage/insights.
+  // ✅ 4. Fetch heading only after mounting
   useEffect(() => {
+    if (!isMounted) return;
+    
     let cancelled = false;
     fetch(`/api/content/sections/homepage/insights?lang=${lang}`)
       .then((res) => (res.ok ? res.json() : null))
@@ -103,7 +123,7 @@ export function Knowledge() {
     return () => {
       cancelled = true;
     };
-  }, [lang]);
+  }, [lang, isMounted]);
 
   return (
     <section className="py-24 bg-brand-navy-dark" id="insights">
@@ -124,23 +144,49 @@ export function Knowledge() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loaded && articles.length > 0
-            ? articles.map((a) => {
+            ? articles.map((a, index) => {
                 const cover = a.metadata?.featuredImage || a.metadata?.featuredImageId;
-                const hasImage = typeof cover === 'string' && cover.startsWith('/');
+                const hasImage = typeof cover === 'string' && (cover.startsWith('/') || cover.startsWith('http'));
+                
                 return (
-                  <Link key={a.id} href={`/knowledge/${a.id}`} className="group border border-white/5 bg-white/[0.02] overflow-hidden hover:border-brand-gold hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-300 block">
+                  <Link 
+                    key={a.id} 
+                    href={`/knowledge/${a.id}`} 
+                    className="group border border-white/5 bg-white/[0.02] overflow-hidden hover:border-brand-gold hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-300 block"
+                  >
                     {hasImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={cover as string} alt={a.title} className="h-48 w-full object-cover" />
+                      cover.startsWith('http') ? (
+                        <img 
+                          src={cover} 
+                          alt={a.title} 
+                          className="h-48 w-full object-cover"
+                          loading={index === 0 ? 'eager' : 'lazy'}
+                        />
+                      ) : (
+                        <Image 
+                          src={cover} 
+                          alt={a.title} 
+                          width={400}
+                          height={200}
+                          className="h-48 w-full object-cover"
+                          loading={index === 0 ? 'eager' : 'lazy'}
+                        />
+                      )
                     ) : (
                       <div className="h-48 bg-brand-navy-mid flex items-center justify-center font-mono text-xs text-text-muted">
-                        ARTICLE COVER
+                        {t(lang, 'بدون صورة', 'No Image')}
                       </div>
                     )}
                     <div className="p-6">
-                      <span className="font-mono text-brand-gold text-xs">{a.metadata?.category ?? ''}</span>
-                      <h4 className="font-amiri text-text-primary text-lg mt-2 leading-snug group-hover:text-brand-gold transition-colors duration-300">{a.title}</h4>
-                      <span className="font-mono text-text-muted text-xs mt-2 block">{a.metadata?.publishDate ? new Date(a.metadata.publishDate).getFullYear() : ''}</span>
+                      <span className="font-mono text-brand-gold text-xs">
+                        {a.metadata?.category ? t(lang, a.metadata.category, a.metadata.category) : ''}
+                      </span>
+                      <h4 className="font-amiri text-text-primary text-lg mt-2 leading-snug group-hover:text-brand-gold transition-colors duration-300">
+                        {a.title}
+                      </h4>
+                      <span className="font-mono text-text-muted text-xs mt-2 block">
+                        {a.metadata?.publishDate ? new Date(a.metadata.publishDate).getFullYear() : ''}
+                      </span>
                     </div>
                   </Link>
                 );

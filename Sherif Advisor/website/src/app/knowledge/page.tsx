@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image'; // ✅ Added for optimized local images
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Knowledge } from '@/components/sections/Knowledge';
 import { BookOpen, Search } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
+import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 
 interface Article {
   id: string;
@@ -24,22 +26,41 @@ interface Article {
 const CATEGORIES_AR = ['الكل', 'Advisory', 'Market Updates', 'Regulatory', 'Industry Insights', 'General'];
 const CATEGORIES_EN = ['All', 'Advisory', 'Market Updates', 'Regulatory', 'Industry Insights', 'General'];
 
+// ✅ Helper to get initial language safely for SSR/CSR match
+// Returns 'ar' on the server, and the detected language on the client.
+// This prevents the "Server: ar, Client: en" hydration mismatch.
+const getInitialLang = (): Language => {
+  if (typeof window === 'undefined') return 'ar';
+  return getClientLanguage();
+};
+
 export default function KnowledgePage() {
+  // 1. Initialize with a function to ensure Server and Client initial render match
+  const [lang, setLang] = useState<Language>(getInitialLang);
+  const [isMounted, setIsMounted] = useState(false);
+  
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [lang, setLang] = useState<Language>('ar');
 
+  // 2. After mount, confirm the language (in case client lang differs from default)
   useEffect(() => {
-    setLang(getClientLanguage());
-  }, []);
+    setIsMounted(true);
+    const detectedLang = getClientLanguage();
+    if (detectedLang !== lang) {
+      setLang(detectedLang);
+    }
+  }, [lang]);
 
   const categories = lang === 'ar' ? CATEGORIES_AR : CATEGORIES_EN;
 
+  // 3. Fetch articles ONLY after mounting to prevent fetching with the wrong default language
   useEffect(() => {
+    if (!isMounted) return;
+
     async function fetchArticles() {
       setLoading(true);
       try {
@@ -53,14 +74,14 @@ export default function KnowledgePage() {
           setArticles(data.items || []);
           setTotalPages(data.totalPages || 1);
         }
-      } catch {
-        // fallback to static
+      } catch (err) {
+        console.error('Failed to fetch articles:', err);
       } finally {
         setLoading(false);
       }
     }
     fetchArticles();
-  }, [lang, page, selectedCategory]);
+  }, [lang, page, selectedCategory, isMounted]);
 
   const filteredArticles = searchQuery.length >= 2
     ? articles.filter((a) => a.title.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -133,12 +154,12 @@ export default function KnowledgePage() {
         <section className="bg-surface-light py-20 lg:py-24">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
-              {filteredArticles.map((article) => {
-                const cover =
-                  article.metadata?.featuredImage ||
-                  article.metadata?.featuredImageId;
-                const hasImage =
-                  typeof cover === 'string' && cover.startsWith('/');
+              {filteredArticles.map((article, index) => {
+                const cover = article.metadata?.featuredImage || article.metadata?.featuredImageId;
+                
+                // ✅ FIX: Check for both relative paths (/...) AND absolute URLs (http...)
+                const hasImage = typeof cover === 'string' && (cover.startsWith('/') || cover.startsWith('http'));
+                
                 return (
                   <Link
                     key={article.id}
@@ -147,12 +168,25 @@ export default function KnowledgePage() {
                   >
                     {/* Cover */}
                     {hasImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={cover as string}
-                        alt={article.title}
-                        className="h-40 w-full object-cover"
-                      />
+                      cover.startsWith('http') ? (
+                        // External URL (e.g., Pexels)
+                        <img
+                          src={cover}
+                          alt={article.title}
+                          className="h-40 w-full object-cover"
+                          loading={index === 0 ? 'eager' : 'lazy'}
+                        />
+                      ) : (
+                        // Local path: use Next.js Image for optimization
+                        <Image
+                          src={cover}
+                          alt={article.title}
+                          width={400}
+                          height={160}
+                          className="h-40 w-full object-cover"
+                          loading={index === 0 ? 'eager' : 'lazy'}
+                        />
+                      )
                     ) : (
                       <div
                         className="h-40 flex items-center justify-center font-mono text-xs tracking-wider text-text-muted"
@@ -161,12 +195,12 @@ export default function KnowledgePage() {
                             'repeating-linear-gradient(135deg, #E7EAEF 0px, #E7EAEF 8px, #F1F3F6 8px, #F1F3F6 16px)',
                         }}
                       >
-                        ARTICLE COVER
+                        {lang === 'ar' ? 'بدون صورة' : 'NO IMAGE'}
                       </div>
                     )}
                     <div className="p-7 flex flex-col gap-3">
                       <span className="font-mono text-[10px] tracking-[0.2em] text-brand-gold">
-                        {article.metadata?.category || 'General'}
+                        {article.metadata?.category || (lang === 'ar' ? 'عام' : 'General')}
                       </span>
                       <h3 className="font-cormorant text-xl text-text-dark leading-snug group-hover:text-brand-navy-mid transition-colors">
                         {article.title}
@@ -217,6 +251,8 @@ export default function KnowledgePage() {
       )}
 
       <Footer />
+      <WhatsAppFloat />
+
     </main>
   );
 }

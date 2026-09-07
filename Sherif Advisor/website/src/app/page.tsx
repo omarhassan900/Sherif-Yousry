@@ -12,6 +12,7 @@ import { Contact } from '@/components/sections/Contact';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollProgress } from '@/components/effects/ScrollProgress';
 import { AIChatWidget } from '@/components/chat/AIChatWidget';
+import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 
 export default function Home() {
   return (
@@ -27,7 +28,7 @@ export default function Home() {
       <Knowledge />
       <Contact />
       <Footer />
-      <AIChatWidget />
+      <WhatsAppFloat />
     </main>
   );
 }

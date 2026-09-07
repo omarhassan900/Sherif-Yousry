@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import { getClientLanguage, setLanguagePreference, type Language } from '@/lib/language';
 
-// Root-relative anchors (/#section) so they always resolve to the homepage
-// section, even when the user is on another page like an article or service.
 const navItems = [
+  { href: '/about',       labelAr: 'من نحن',    labelEn: 'About US' },
   { href: '/#services',   labelAr: 'الخدمات',    labelEn: 'Services' },
   { href: '/#markets',    labelAr: 'الأسواق',     labelEn: 'Markets' },
   { href: '/#why-us',     labelAr: 'لماذا نحن',   labelEn: 'Why Us' },
@@ -43,19 +43,22 @@ export function Header() {
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-brand-navy-dark/95 backdrop-blur-md border-b border-brand-gold/10 py-4'
+          ? 'bg-brand-navy-dark/95 backdrop-blur-md border-b border-brand-gold/10 py-3'
           : 'bg-transparent py-6'
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex flex-col leading-none">
-          <span className="font-amiri text-brand-gold text-2xl font-bold">
-            {t(lang, 'شريف يسري', 'Sherif Yousry')}
-          </span>
-          <span className="font-sans text-text-secondary font-light text-xs tracking-wider mt-0.5">
-            {t(lang, 'للاستشارات', 'Advisory')}
-          </span>
+        
+        {/* ✅ LOGO - INCREASED SIZE */}
+        <Link href="/" className="flex items-center gap-3 group">
+          <Image 
+            src="/images/logo.png"
+            alt="Sherif Yousry Advisory Logo"
+            width={70}  // 👈 Increased from 160
+            height={32}  // 👈 Increased from 40
+            priority
+            className="h-20 w-auto object-contain transition-opacity group-hover:opacity-90" // 👈 Increased from h-10 to h-12
+          />
         </Link>
 
         {/* Desktop nav */}
@@ -64,7 +67,7 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="nav-link text-sm after:content-[''] after:absolute after:-bottom-1 after:right-0 after:w-0 after:h-px after:bg-brand-gold after:transition-all after:duration-300 hover:after:w-full"
+              className="nav-link relative text-sm text-text-primary hover:text-brand-gold transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:start-0 after:w-0 after:h-px after:bg-brand-gold after:transition-all after:duration-300 hover:after:w-full"
             >
               {t(lang, item.labelAr, item.labelEn)}
             </Link>

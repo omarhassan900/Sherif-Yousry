@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import InquiryForm from '@/components/forms/InquiryForm';
 import { getClientLanguage, getDirection, type Language } from '@/lib/language';
+import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 
 interface ServiceDetail {
   id: string;
@@ -165,6 +166,8 @@ export default function ServiceDetailPage() {
       )}
 
       <Footer />
+            <WhatsAppFloat />
+      
     </main>
   );
 }
