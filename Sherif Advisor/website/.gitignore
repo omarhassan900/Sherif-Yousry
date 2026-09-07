@@ -27,8 +27,7 @@ yarn-error.log*
 .env*.local
 .env
 
-# prisma
-prisma/dev.db
+
 
 # uploads (user-generated media)
 /public/uploads/
