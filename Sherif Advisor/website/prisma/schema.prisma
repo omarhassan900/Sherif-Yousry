@@ -95,6 +95,21 @@ model MediaReference {
   @@unique([mediaId, contentId, fieldName])
 }
 
+model PageView {
+  id        String   @id @default(cuid())
+  path      String   // e.g. "/", "/services/abc", "/knowledge/xyz"
+  referrer  String?  // document.referrer host, if any
+  country   String?  // coarse country (from header if available)
+  device    String?  // "mobile" | "tablet" | "desktop"
+  lang      String?  // "ar" | "en"
+  // A coarse, cookieless session id (rotates daily) to approximate unique visits.
+  sessionId String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+}
+
 model ServiceInquiry {
   id           String   @id @default(cuid())
   // Link to the service the inquiry was sent from. Nullable + SetNull so

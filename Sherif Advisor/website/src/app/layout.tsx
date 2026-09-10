@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers'; // ✅ Import cookies
 import './globals.css';
 import { DirectionSync } from '@/components/DirectionSync'; // ✅ Import the sync component
+import { PageViewTracker } from '@/components/PageViewTracker';
 
 export const metadata: Metadata = {
   title: 'Sherif Yousry Advisory | استشارات شريف يسري',
@@ -60,6 +61,8 @@ export default function RootLayout({
       <body className="antialiased">
         {/* ✅ This component updates the html tag on the client after mount */}
         <DirectionSync />
+        {/* Cookieless first-party page-view tracking (public pages only) */}
+        <PageViewTracker />
         {children}
       </body>
     </html>

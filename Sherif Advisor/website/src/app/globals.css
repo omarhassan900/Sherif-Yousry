@@ -178,20 +178,59 @@
   background-color: #eef0f4 !important;
 }
 
-/* Gold accent: keep gold but darken a touch for contrast on white */
-.admin-theme .text-brand-gold {
-  color: #a88b3d !important;
+/* ------------------------------------------------------------
+   Admin accent: remap the gold accent to a public-style BLUE
+   throughout the admin portal. Covers text, backgrounds, borders,
+   focus rings and hover states used across admin pages.
+   Blue palette: primary #2563EB, hover #1D4ED8, tint rgba.
+   ------------------------------------------------------------ */
+.admin-theme .text-brand-gold,
+.admin-theme .hover\:text-brand-gold:hover,
+.admin-theme .group:hover .group-hover\:text-brand-gold {
+  color: #2563eb !important;
 }
+
 .admin-theme .bg-brand-gold {
-  background-color: #c9a961 !important;
-  color: #05090f !important;
+  background-color: #2563eb !important;
+  color: #ffffff !important;
 }
+.admin-theme .hover\:bg-brand-gold:hover,
+.admin-theme .hover\:bg-brand-gold-light:hover {
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+.admin-theme .bg-brand-gold\/90 { background-color: #1d4ed8 !important; }
+.admin-theme .bg-brand-gold\/50 { background-color: rgba(37, 99, 235, 0.5) !important; }
+.admin-theme .bg-brand-gold\/15,
 .admin-theme .bg-brand-gold\/10 {
-  background-color: rgba(201, 169, 97, 0.14) !important;
+  background-color: rgba(37, 99, 235, 0.12) !important;
+}
+
+/* Borders + rings */
+.admin-theme .border-brand-gold,
+.admin-theme .hover\:border-brand-gold:hover {
+  border-color: #2563eb !important;
 }
 .admin-theme .border-brand-gold\/20,
+.admin-theme .border-brand-gold\/30,
 .admin-theme .border-brand-gold\/40 {
-  border-color: rgba(168, 139, 61, 0.4) !important;
+  border-color: rgba(37, 99, 235, 0.4) !important;
+}
+.admin-theme .focus\:border-brand-gold\/40:focus,
+.admin-theme .focus\:border-brand-gold:focus {
+  border-color: #2563eb !important;
+}
+.admin-theme .focus\:ring-brand-gold\/40:focus,
+.admin-theme .focus\:ring-brand-gold\/50:focus,
+.admin-theme .focus\:ring-brand-gold\/20:focus {
+  --tw-ring-color: rgba(37, 99, 235, 0.4) !important;
+}
+
+/* Text on gold buttons that assumed dark navy text -> white on blue */
+.admin-theme .text-brand-navy,
+.admin-theme .text-brand-navy-dark {
+  /* leave navy text as-is except where it sat on a gold button;
+     those buttons now force white via .bg-brand-gold rule above */
 }
 
 /* Scrollbar within admin */
@@ -199,7 +238,7 @@
   background-color: #e2e5ea;
 }
 .admin-theme ::-webkit-scrollbar-thumb {
-  background-color: rgba(168, 139, 61, 0.45);
+  background-color: rgba(37, 99, 235, 0.45);
 }
 
 /* ============================================================
@@ -250,3 +289,59 @@
   margin: 1.2em 0;
 }
 .article-body strong { font-weight: 600; color: #0e1729; }
+
+/* ============================================================
+   Admin light-theme fixes for colored badges, status pills and
+   alert boxes. The app was authored for a dark UI (bg-*-900/40 +
+   text-*-300), which looks washed out on the light admin surface.
+   Remap them to readable light tints with darker text.
+   ============================================================ */
+
+/* --- Blue (service / info tags, KPI accents) --- */
+.admin-theme [class*='bg-blue-900\/'] {
+  background-color: #dbeafe !important; /* blue-100 */
+}
+.admin-theme .text-blue-300 { color: #1d4ed8 !important; } /* blue-700 */
+.admin-theme .text-blue-400 { color: #2563eb !important; }
+
+/* --- Purple (helpWith / interested-in tags) --- */
+.admin-theme [class*='bg-purple-900\/'] {
+  background-color: #ede9fe !important; /* violet-100 */
+}
+.admin-theme .text-purple-300 { color: #6d28d9 !important; }
+.admin-theme .text-purple-400 { color: #7c3aed !important; }
+
+/* --- Green (published / active / success) --- */
+.admin-theme [class*='bg-green-900\/'],
+.admin-theme [class*='bg-emerald-900\/'] {
+  background-color: #dcfce7 !important; /* green-100 */
+}
+.admin-theme .text-green-300 { color: #15803d !important; } /* green-700 */
+.admin-theme .text-green-400 { color: #16a34a !important; }
+.admin-theme .text-emerald-400 { color: #059669 !important; }
+
+/* --- Yellow / amber (draft / super-admin / warning) --- */
+.admin-theme [class*='bg-yellow-900\/'] {
+  background-color: #fef9c3 !important; /* yellow-100 */
+}
+.admin-theme .text-yellow-300 { color: #a16207 !important; } /* yellow-700 */
+
+/* --- Red (errors / delete / danger) --- */
+.admin-theme [class*='bg-red-900\/'] {
+  background-color: #fee2e2 !important; /* red-100 */
+}
+.admin-theme .text-red-300 { color: #b91c1c !important; } /* red-700 */
+.admin-theme .text-red-400 { color: #dc2626 !important; }
+.admin-theme .hover\:text-red-400:hover { color: #dc2626 !important; }
+.admin-theme .hover\:bg-red-900\/20:hover { background-color: #fee2e2 !important; }
+.admin-theme [class*='border-red-500\/'] { border-color: #fca5a5 !important; }
+.admin-theme [class*='border-green-500\/'] { border-color: #86efac !important; }
+.admin-theme [class*='border-yellow-500\/'] { border-color: #fde047 !important; }
+
+/* --- Gray / slate neutral pills --- */
+.admin-theme [class*='bg-gray-700\/'],
+.admin-theme [class*='bg-slate-700\/'] {
+  background-color: #e5e7eb !important; /* gray-200 */
+}
+.admin-theme .text-gray-300,
+.admin-theme .text-slate-300 { color: #475569 !important; }

@@ -67,6 +67,8 @@ export default function AdminInquiriesPage() {
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(true);
   const [adminName, setAdminName] = useState('Admin');
+  // Tracks which row is currently performing an action (disables its buttons).
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   const fetchInquiries = useCallback(async () => {
     setLoading(true);
@@ -102,26 +104,69 @@ export default function AdminInquiriesPage() {
       .catch(() => {});
   }, []);
 
+  // Quietly refresh the "new" counter without blanking the list.
+  const refreshCounts = useCallback(async () => {
+    try {
+      const params = new URLSearchParams({ page: String(page) });
+      if (status) params.set('status', status);
+      const res = await fetch(`/api/admin/inquiries?${params.toString()}`);
+      if (res.ok) {
+        const data: ApiResponse = await res.json();
+        setNewCount(data.newCount);
+        setTotal(data.total);
+        setTotalPages(data.totalPages);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [page, status]);
+
   async function updateStatus(id: string, newStatus: Inquiry['status']) {
+    if (busyId) return; // prevent overlapping actions
+    setBusyId(id);
     try {
       const res = await fetch(`/api/admin/inquiries/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
-      if (res.ok) fetchInquiries();
+      if (res.ok) {
+        // Optimistic in-place update. If a status filter is active and the
+        // item no longer matches, drop it from the visible list.
+        setItems((prev) => {
+          const updated = prev.map((it) =>
+            it.id === id ? { ...it, status: newStatus } : it
+          );
+          return status ? updated.filter((it) => it.status === status) : updated;
+        });
+        refreshCounts();
+      } else {
+        console.error('Failed to update inquiry:', res.status);
+      }
     } catch (error) {
       console.error('Failed to update inquiry:', error);
+    } finally {
+      setBusyId(null);
     }
   }
 
   async function deleteInquiry(id: string) {
+    if (busyId) return;
     if (!confirm('Delete this inquiry permanently?')) return;
+    setBusyId(id);
     try {
       const res = await fetch(`/api/admin/inquiries/${id}`, { method: 'DELETE' });
-      if (res.ok) fetchInquiries();
+      if (res.ok) {
+        // Remove from the list immediately.
+        setItems((prev) => prev.filter((it) => it.id !== id));
+        refreshCounts();
+      } else {
+        console.error('Failed to delete inquiry:', res.status);
+      }
     } catch (error) {
       console.error('Failed to delete inquiry:', error);
+    } finally {
+      setBusyId(null);
     }
   }
 
@@ -267,26 +312,41 @@ export default function AdminInquiriesPage() {
                   {item.status !== 'read' && (
                     <button
                       onClick={() => updateStatus(item.id, 'read')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-text-secondary border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
+                      disabled={busyId === item.id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-text-secondary border border-white/10 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Check className="w-3.5 h-3.5" />
+                      {busyId === item.id ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Check className="w-3.5 h-3.5" />
+                      )}
                       Mark read
                     </button>
                   )}
                   {item.status !== 'archived' && (
                     <button
                       onClick={() => updateStatus(item.id, 'archived')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-text-secondary border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
+                      disabled={busyId === item.id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-text-secondary border border-white/10 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Archive className="w-3.5 h-3.5" />
+                      {busyId === item.id ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Archive className="w-3.5 h-3.5" />
+                      )}
                       Archive
                     </button>
                   )}
                   <button
                     onClick={() => deleteInquiry(item.id)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-400 border border-red-500/30 rounded-lg hover:bg-red-900/20 transition-colors"
+                    disabled={busyId === item.id}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-400 border border-red-500/30 rounded-lg hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    {busyId === item.id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3.5 h-3.5" />
+                    )}
                     Delete
                   </button>
                 </div>
