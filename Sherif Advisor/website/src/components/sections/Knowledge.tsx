@@ -3,14 +3,14 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 
 interface Article {
   id: string;
   title: string;
-  body: string;
-  metadata: {
+  body?: string;
+  metadata?: {
     category?: string;
     publishDate?: string;
     featuredImageId?: string;
@@ -18,10 +18,45 @@ interface Article {
   };
 }
 
+// ✅ Added 'category' field to match your database category names (same as KnowledgePage)
+const tabs = [
+  { id: 'all', labelAr: 'الكل', labelEn: 'ALL', category: '' },
+  { id: 'tax', labelAr: 'تنبيهات ضريبية', labelEn: 'TAX ALERTS', category: 'Tax Update' }, // ⚠️ Ensure this matches your DB
+  { id: 'legal', labelAr: 'تنبيهات قانونية', labelEn: 'LEGAL ALERTS', category: 'Regulatory' }, // ⚠️ Ensure this matches your DB
+  { id: 'financial', labelAr: 'تنبيهات مالية', labelEn: 'FINANCIAL ALERTS', category: 'Market Updates' }, // ⚠️ Ensure this matches your DB
+];
+
 const fallback = [
-  { category: 'تحديث ضريبي', catEn: 'Tax Update',         titleAr: 'المرحلة الثانية للفاتورة الإلكترونية: ما يتغيّر للمجموعات المتوسطة في مصر؟', titleEn: 'E-invoicing Phase 2: What changes for mid-size groups in Egypt?', gradient: 'from-brand-navy-mid to-brand-gold/40',  date: '2024' },
-  { category: 'حوكمة',       catEn: 'Governance',          titleAr: 'إطار COSO 2024 — أبرز التحديثات وأثرها على الشركات المصرية.',                 titleEn: 'COSO 2024 Framework — Key updates and impact on Egyptian companies.',         gradient: 'from-brand-navy-dark to-brand-navy-mid', date: '2024' },
-  { category: 'توسّع إقليمي', catEn: 'Regional Expansion', titleAr: 'ضريبة الشركات في الإمارات: دليل الالتزام الأولي والهيكلة.',                   titleEn: 'UAE Corporate Tax: A guide to initial compliance and structuring.',            gradient: 'from-brand-navy to-brand-gold/30',       date: '2024' },
+  {
+    id: '1',
+    category: 'تحديث ضريبي',
+    catEn: 'Tax Update',
+    titleAr: 'المرحلة الثانية للفاتورة الإلكترونية: ما يتغيّر للمجموعات المتوسطة في مصر؟',
+    titleEn: 'E-invoicing Phase 2: What changes for mid-size groups in Egypt?',
+    date: '2024',
+    dateEn: 'April 15, 2025',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: '2',
+    category: 'حوكمة',
+    catEn: 'Regulatory',
+    titleAr: 'إطار COSO 2024 — أبرز التحديثات وأثرها على الشركات المصرية.',
+    titleEn: 'COSO 2024 Framework — Key updates and impact on Egyptian companies.',
+    date: '2024',
+    dateEn: 'April 10, 2025',
+    image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: '3',
+    category: 'توسّع إقليمي',
+    catEn: 'Market Updates',
+    titleAr: 'ضريبة الشركات في الإمارات: دليل الالتزام الأولي والهيكلة.',
+    titleEn: 'UAE Corporate Tax: A guide to initial compliance and structuring.',
+    date: '2024',
+    dateEn: 'April 2, 2025',
+    image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&q=80&w=400',
+  },
 ];
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
@@ -41,58 +76,75 @@ function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: La
   return (
     <div
       ref={ref}
-      className="group border border-white/5 bg-white/[0.02] hover:border-brand-gold hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-300 overflow-hidden cursor-pointer"
+      className="group bg-white rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 cursor-pointer"
       style={{
         opacity: vis ? 1 : 0,
-        transform: vis ? 'translateY(0)' : 'translateY(30px)',
-        transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms, border-color 0.3s, box-shadow 0.3s`,
+        transform: vis ? 'translateY(0)' : 'translateY(20px)',
+        transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
       }}
     >
-      <div className={`h-48 bg-gradient-to-br ${item.gradient} relative overflow-hidden`}>
-        <div className="absolute inset-0 bg-brand-gold/0 group-hover:bg-brand-gold/10 transition-all duration-400" />
-        <span className="absolute top-4 right-4 bg-brand-gold text-brand-navy text-[11px] font-bold px-3 py-1 group-hover:scale-105 transition-transform duration-300">
+      <div className="relative h-28 w-full overflow-hidden">
+        <Image 
+          src={item.image} 
+          alt={t(lang, item.titleAr, item.titleEn)}
+          width={400}
+          height={150}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      </div>
+      <div className="p-4">
+        <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block mb-2">
           {t(lang, item.category, item.catEn)}
         </span>
-      </div>
-
-      <div className="p-6">
-        <span className="font-mono text-text-muted text-xs">{item.date}</span>
-        <h4 className="font-amiri text-text-primary text-lg leading-snug mt-2 group-hover:text-brand-gold transition-colors duration-300">
+        <h3 className="text-[13px] leading-snug font-medium text-[#333333] mb-3 group-hover:text-brand-gold transition-colors">
           {t(lang, item.titleAr, item.titleEn)}
-        </h4>
+        </h3>
+        <div className="flex justify-between items-center text-[11px] text-[#8d8d8d]">
+          <span>{t(lang, item.date, item.dateEn)}</span>
+          <span className="text-[#555555]">→</span>
+        </div>
       </div>
     </div>
   );
 }
 
 export function Knowledge() {
-  // ✅ 1. Start with 'ar' to perfectly match the server's initial render
   const [lang, setLang] = useState<Language>('ar');
   const [isMounted, setIsMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
   
   const [articles, setArticles] = useState<Article[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [heading, setHeading] = useState<{ label: string; title: string } | null>(null);
 
-  // ✅ 2. Detect language ONLY on the client, after hydration is complete
   useEffect(() => {
     setIsMounted(true);
     const detectedLang = getClientLanguage();
     setLang(detectedLang);
   }, []);
 
-  // ✅ 3. Fetch articles only after mounting to avoid fetching with the wrong default
+  // ✅ 3. Fetch articles with category filtering (same logic as KnowledgePage)
   useEffect(() => {
     if (!isMounted) return;
     
     async function fetchArticles() {
       setLoaded(false);
       try {
-        const res = await fetch(`/api/content/articles?lang=${lang}&page=1`);
+        const activeTabObj = tabs.find(t => t.id === activeTab);
+        let url = `/api/content/articles?lang=${lang}&page=1`;
+        
+        // ✅ Append category to URL if a specific tab is selected
+        if (activeTabObj?.category) {
+          url += `&category=${encodeURIComponent(activeTabObj.category)}`;
+        }
+        
+        const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
           if (data.items?.length) {
             setArticles(data.items.slice(0, 3));
+          } else {
+            setArticles([]);
           }
         }
       } catch (err) {
@@ -102,7 +154,7 @@ export function Knowledge() {
       }
     }
     fetchArticles();
-  }, [lang, isMounted]);
+  }, [lang, isMounted, activeTab]); // ✅ Added activeTab to dependencies
 
   // ✅ 4. Fetch heading only after mounting
   useEffect(() => {
@@ -125,80 +177,136 @@ export function Knowledge() {
     };
   }, [lang, isMounted]);
 
+  // Get the active category string for fallback filtering
+  const activeCategory = tabs.find(t => t.id === activeTab)?.category || '';
+
   return (
-    <section className="py-24 bg-brand-navy-dark" id="insights">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <span className="section-label mb-4 block">
-              {heading?.label || t(lang, 'الأفكار والرؤى', 'Insights')}
+    <section className=" bg-[#fbf9f6]" id="insights">
+      <div className="w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-[2.2fr_1fr] gap-8 lg:gap-12">
+          
+          {/* LEFT SECTION: Main Content */}
+          <div className="main-content  mx-4 px-8 py-16">
+            <span className="text-[11px] font-semibold tracking-[1.5px] text-[#7d7d7d] uppercase block mb-2">
+              {heading?.label || t(lang, 'الأفكار والرؤى', 'INSIGHTS')}
             </span>
-            <h2 className="section-title">
-              {heading?.title || t(lang, 'رؤى تزيد وعي عملائنا.', 'Insights that raise our clients’ awareness.')}
-            </h2>
-          </div>
-          <Link href="/knowledge" className="hidden md:flex items-center gap-2 text-sm text-brand-gold hover:text-brand-gold-light transition-colors">
-            {t(lang, 'جميع المقالات', 'All Insights')} <ArrowLeft className="w-4 h-4" />
-          </Link>
-        </div>
+            
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-baseline mb-6 gap-4">
+              <h2 className="font-serif text-2xl md:text-3xl font-normal text-[#1a1a1a]">
+                {heading?.title || t(lang, 'أفكار اليوم. غدٌ أقوى.', 'Ideas today. A stronger tomorrow.')}
+              </h2>
+              <Link 
+                href="/knowledge" 
+                className="text-[11px] font-bold tracking-wider text-[#1a1a1a] hover:text-brand-gold transition-colors inline-flex items-center gap-1.5 group"
+              >
+                {t(lang, 'عرض جميع الرؤى', 'VIEW ALL INSIGHTS')}
+                <span className="transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180">
+                  {lang === 'ar' ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+                </span>
+              </Link>
+            </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {loaded && articles.length > 0
-            ? articles.map((a, index) => {
-                const cover = a.metadata?.featuredImage || a.metadata?.featuredImageId;
-                const hasImage = typeof cover === 'string' && (cover.startsWith('/') || cover.startsWith('http'));
-                
-                return (
-                  <Link 
-                    key={a.id} 
-                    href={`/knowledge/${a.id}`} 
-                    className="group border border-white/5 bg-white/[0.02] overflow-hidden hover:border-brand-gold hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-300 block"
-                  >
-                    {hasImage ? (
-                      cover.startsWith('http') ? (
-                        <img 
-                          src={cover} 
-                          alt={a.title} 
-                          className="h-48 w-full object-cover"
-                          loading={index === 0 ? 'eager' : 'lazy'}
-                        />
-                      ) : (
-                        <Image 
-                          src={cover} 
-                          alt={a.title} 
-                          width={400}
-                          height={200}
-                          className="h-48 w-full object-cover"
-                          loading={index === 0 ? 'eager' : 'lazy'}
-                        />
-                      )
-                    ) : (
-                      <div className="h-48 bg-brand-navy-mid flex items-center justify-center font-mono text-xs text-text-muted">
-                        {t(lang, 'بدون صورة', 'No Image')}
-                      </div>
-                    )}
-                    <div className="p-6">
-                      <span className="font-mono text-brand-gold text-xs">
-                        {a.metadata?.category ? t(lang, a.metadata.category, a.metadata.category) : ''}
-                      </span>
-                      <h4 className="font-amiri text-text-primary text-lg mt-2 leading-snug group-hover:text-brand-gold transition-colors duration-300">
-                        {a.title}
-                      </h4>
-                      <span className="font-mono text-text-muted text-xs mt-2 block">
-                        {a.metadata?.publishDate ? new Date(a.metadata.publishDate).getFullYear() : ''}
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })
-            : fallback.map((item, i) => (
-                <ArticleCard key={item.catEn} item={item} lang={lang} delay={i * 120} />
+            {/* Tabs */}
+            <div className="flex gap-6 border-b border-[#e5e5e5] mb-6 overflow-x-auto pb-px scrollbar-hide">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`text-[12px] font-bold tracking-wider pb-2.5 transition-colors relative whitespace-nowrap ${
+                    activeTab === tab.id 
+                      ? 'text-[#1a1a1a] after:absolute after:bottom-0 after:start-0 after:w-full after:h-0.5 after:bg-[#1a1a1a]' 
+                      : 'text-[#7d7d7d] hover:text-[#1a1a1a]'
+                  }`}
+                >
+                  {t(lang, tab.labelAr, tab.labelEn)}
+                </button>
               ))}
-        </div>
+            </div>
 
-        <Link href="/knowledge" className="md:hidden flex items-center justify-center gap-2 mt-8 text-sm text-brand-gold">
-          {t(lang, 'جميع المقالات', 'All Insights')} <ArrowLeft className="w-4 h-4" />
-        </Link>
+            {/* Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {loaded && articles.length > 0
+                ? articles.map((a, index) => {
+                    const cover = a.metadata?.featuredImage || a.metadata?.featuredImageId;
+                    const hasImage = typeof cover === 'string' && (cover.startsWith('/') || cover.startsWith('http'));
+                    const imageUrl = hasImage 
+                      ? cover 
+                      : 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=400';
+                    
+                    return (
+                      <Link 
+                        key={a.id} 
+                        href={`/knowledge/${a.id}`}
+                        className="group bg-white rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 flex flex-col"
+                      >
+                        {hasImage ? (
+                          cover.startsWith('http') ? (
+                            <img 
+                              src={cover} 
+                              alt={a.title} 
+                              className="h-28 w-full object-cover"
+                              loading={index === 0 ? 'eager' : 'lazy'}
+                            />
+                          ) : (
+                            <Image 
+                              src={cover} 
+                              alt={a.title} 
+                              width={400}
+                              height={150}
+                              className="h-28 w-full object-cover"
+                              loading={index === 0 ? 'eager' : 'lazy'}
+                            />
+                          )
+                        ) : (
+                          <div className="h-28 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                            {t(lang, 'بدون صورة', 'No Image')}
+                          </div>
+                        )}
+                        <div className="p-4 flex flex-col flex-grow justify-between">
+                          {a.metadata?.category && (
+                            <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase mb-2">
+                              {t(lang, a.metadata.category, a.metadata.category)}
+                            </span>
+                          )}
+                          <h3 className="text-[13px] leading-snug font-medium text-[#333333] mb-3 group-hover:text-brand-gold transition-colors">
+                            {a.title}
+                          </h3>
+                          <div className="flex justify-between items-center text-[11px] text-[#8d8d8d]">
+                            <span>{a.metadata?.publishDate ? new Date(a.metadata.publishDate).getFullYear() : ''}</span>
+                            <span className="text-[#555555] group-hover:text-brand-gold transition-colors">
+                              {lang === 'ar' ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })
+                : fallback
+                    // ✅ Filter fallback articles by category if a specific tab is active
+                    .filter(item => !activeCategory || item.catEn === activeCategory || item.category === activeCategory)
+                    .map((item, i) => (
+                      <ArticleCard key={item.id} item={item} lang={lang} delay={i * 120} />
+                    ))}
+            </div>
+          </div>
+
+          {/* RIGHT SECTION: Feature Card */}
+          <Link 
+            href="/about"
+            className="relative min-h-[320px] rounded-sm overflow-hidden flex flex-col justify-end p-8 lg:p-10 bg-cover bg-center group cursor-pointer"
+            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600')" }}
+          >
+            <div className="absolute inset-0 bg-black/35 group-hover:bg-black/45 transition-colors duration-300" />
+            
+            <div className="relative z-10 max-w-xs">
+              <p className="font-serif text-xl md:text-2xl leading-snug text-white mb-5">
+                {t(lang, '"المنظور الصحيح اليوم يخلق غدًا أقوى."', '"The right perspective today creates a stronger tomorrow."')}
+              </p>
+              <div className="w-8 h-0.5 bg-white" />
+            </div>
+          </Link>
+
+        </div>
       </div>
     </section>
   );

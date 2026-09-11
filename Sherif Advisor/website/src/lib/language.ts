@@ -8,7 +8,7 @@
 export type Language = 'ar' | 'en';
 
 const LANGUAGE_COOKIE = 'lang';
-const DEFAULT_LANGUAGE: Language = 'ar';
+const DEFAULT_LANGUAGE: Language = 'en';
 
 /**
  * Get the user's language preference from a cookie string.

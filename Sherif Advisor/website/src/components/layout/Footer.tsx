@@ -1,140 +1,184 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getClientLanguage, type Language } from '@/lib/language';
-
-const services = [
-  // These slugs aren't real routes; link to the services listing which lists
-  // the real CMS services (each linking to its own detail page).
-  { labelAr: 'الاستشارات الضريبية',   labelEn: 'Tax Advisory',            href: '/services' },
-  { labelAr: 'الاستشارات المالية',     labelEn: 'Financial Advisory',      href: '/services/cmtqc4twf000cikzhdpng2wex' },
-  { labelAr: 'المدير المالي بالتعاقد', labelEn: 'Fractional CFO',          href: '/services' },
-  { labelAr: 'المخاطر والحوكمة',       labelEn: 'Risk & Governance',       href: '/services' },
-  { labelAr: 'التوسع الدولي',          labelEn: 'International Expansion',  href: '/services' },
-];
-
-const quickLinks = [
-  { labelAr: 'من نحن',           labelEn: 'About',           href: '/about' },
-  { labelAr: 'الأفكار والرؤى',   labelEn: 'Insights',        href: '/knowledge' },
-  /*{ labelAr: 'بوابة العملاء',    labelEn: 'Client Portal',   href: '/portal' },*/
-  { labelAr: 'سياسة الخصوصية',  labelEn: 'Privacy Policy',  href: '/privacy' },
-  { labelAr: 'الشروط والأحكام', labelEn: 'Terms',            href: '/terms' },
-];
+import { Linkedin, Youtube } from 'lucide-react';
+import Image from 'next/image';
+import { getClientLanguage, setLanguagePreference, type Language } from '@/lib/language';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export function Footer() {
-  const [lang, setLang] = useState<Language>('ar');
-
-  useEffect(() => { setLang(getClientLanguage()); }, []);
-
   return (
-    <footer className="bg-[#03060A] border-t border-white/5 pt-20 pb-8" id="contact" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          {/* Brand */}
-          <div>
-            <Link href="/" className="font-amiri text-brand-gold text-2xl font-bold block mb-4">
-              {t(lang, 'شريف يسري', 'Sherif Yousry')}{' '}
-              <span className="font-sans font-light text-text-secondary text-sm">
-                {t(lang, 'للاستشارات', 'Advisory')}
-              </span>
-            </Link>
-            <p className="text-text-muted text-sm leading-7 mb-5">
-              {t(lang,
-                'استشارات متكاملة للشركات التي تخطّط لما هو قادم. الضرائب والتمويل والمخاطر وإدارة الأعمال.',
-                'Integrated advisory for companies planning for what comes next. Tax, finance, risk and business management.',
-              )}
-            </p>
-            <div className="flex gap-2 flex-wrap">
-              {['ISO 27001', 'SOC 2 Ready', 'GDPR Aware'].map((b) => (
-                <span
-                  key={b}
-                  className="font-mono text-[11px] text-text-muted border border-white/10 px-2 py-1 rounded hover:border-brand-gold hover:text-brand-gold hover:-translate-y-0.5 transition-all duration-300 cursor-default"
-                >
-                  {b}
-                </span>
-              ))}
+    <footer className="bg-white border-t border-gray-200">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] gap-8 lg:gap-12">
+
+          {/* Left Section - Logo & Tagline */}
+          <div className="flex flex-col gap-4">
+            <div>
+              <Image
+                src="/images/logo.png"
+                width={400}
+                height={350}
+                className="invert brightness-100"
+                priority
+              />
+              
+            </div>
+           
+          </div>
+
+          {/* Middle Section - Navigation Links */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+            {/* Services */}
+            <div className="flex flex-col gap-2">
+              <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-1">
+                Services
+              </h4>
+              <Link href="/services/tax" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Tax Advisory
+              </Link>
+              <Link href="/services/audit" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Audit & Assurance
+              </Link>
+              <Link href="/services/financial" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Financial Advisory
+              </Link>
+              <Link href="/services/business" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Business Advisory
+              </Link>
+              <Link href="/services/corporate" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Corporate Services
+              </Link>
+              <Link href="/services/payroll" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Payroll & Social Insurance
+              </Link>
+              <Link href="/services/ecommerce" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                E-Commerce & Digital Business
+              </Link>
+            </div>
+
+            {/* Company */}
+            <div className="flex flex-col gap-2">
+              <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-1">
+                Company
+              </h4>
+              <Link href="/about" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                About
+              </Link>
+              <Link href="/about#approach" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Our Approach
+              </Link>
+              <Link href="/about#people" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Our People
+              </Link>
+              <Link href="/about#international" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Our International Focus
+              </Link>
+              <Link href="/careers" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Careers
+              </Link>
+            </div>
+
+            {/* Insights */}
+            <div className="flex flex-col gap-2">
+              <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-1">
+                Insights
+              </h4>
+              <Link href="/knowledge?category=tax" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Tax Alerts
+              </Link>
+              <Link href="/knowledge?category=legal" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Legal Alerts
+              </Link>
+              <Link href="/knowledge?category=financial" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Financial Alerts
+              </Link>
+            </div>
+
+            {/* Digital Experience */}
+            <div className="flex flex-col gap-2">
+              <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-1">
+                Digital Experience
+              </h4>
+              <Link href="/portal/client" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Client Portal
+              </Link>
+              <Link href="/portal/investor" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Investor Portal
+              </Link>
+            </div>
+
+            {/* Contact */}
+            <div className="flex flex-col gap-2">
+              <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-1">
+                Contact
+              </h4>
+              <Link href="/contact" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Get in Touch
+              </Link>
+              <Link href="/contact#location" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                Location
+              </Link>
+              <a href="tel:01112042098" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+                01112042098
+              </a>
             </div>
           </div>
 
-          {/* Services */}
-          <div>
-            <h5 className="font-mono text-brand-gold text-xs tracking-[0.1em] uppercase mb-5 relative after:content-[''] after:absolute after:-bottom-2 after:right-0 after:w-10 after:h-[2px] after:bg-brand-gold">
-              {t(lang, 'خدماتنا', 'Services')}
-            </h5>
-            <ul className="flex flex-col gap-3">
-              {services.map((s) => (
-                <li key={s.href}>
-                  <Link
-                    href={s.href}
-                    className="text-text-secondary text-sm hover:text-brand-gold hover:pr-3 rtl:hover:pr-3 ltr:hover:pl-3 transition-all duration-300"
-                  >
-                    {t(lang, s.labelAr, s.labelEn)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Right Section - Social & Location */}
+          <div className="flex flex-col gap-6">
+            <div>
+              <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-3">
+                FOLLOW US
+              </h4>
+              <div className="flex gap-3">
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 flex items-center justify-center bg-gray-900 hover:bg-gray-700 transition-colors rounded-sm"
+                >
+                  <Linkedin className="w-4 h-4 text-white" />
+                </a>
+                <a
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 flex items-center justify-center bg-gray-900 hover:bg-gray-700 transition-colors rounded-sm"
+                >
+                  <Youtube className="w-4 h-4 text-white" />
+                </a>
+              </div>
+            </div>
 
-          {/* Quick Links */}
-          <div>
-            <h5 className="font-mono text-brand-gold text-xs tracking-[0.1em] uppercase mb-5 relative after:content-[''] after:absolute after:-bottom-2 after:right-0 after:w-10 after:h-[2px] after:bg-brand-gold">
-              {t(lang, 'روابط سريعة', 'Quick Links')}
-            </h5>
-            <ul className="flex flex-col gap-3">
-              {quickLinks.map((q) => (
-                <li key={q.href}>
-                  <Link
-                    href={q.href}
-                    className="text-text-secondary text-sm hover:text-brand-gold hover:pr-3 rtl:hover:pr-3 ltr:hover:pl-3 transition-all duration-300"
-                  >
-                    {t(lang, q.labelAr, q.labelEn)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h5 className="font-mono text-brand-gold text-xs tracking-[0.1em] uppercase mb-5 relative after:content-[''] after:absolute after:-bottom-2 after:right-0 after:w-10 after:h-[2px] after:bg-brand-gold">
-              {t(lang, 'ابق على اطلاع', 'Stay Informed')}
-            </h5>
-            <p className="text-text-muted text-sm mb-4">
-              {t(lang,
-                'اشترك في نشرتنا لتلقي آخر التحديثات الضريبية والتنظيمية.',
-                'Subscribe for the latest tax and regulatory updates.',
-              )}
-            </p>
-            <form
-              className="flex gap-2"
-              onSubmit={(e) => { e.preventDefault(); }}
-            >
-              <input
-                type="email"
-                required
-                placeholder={t(lang, 'بريدك الإلكتروني', 'Your email')}
-                className="flex-1 bg-white/5 border border-white/10 text-text-primary placeholder:text-text-muted text-sm px-4 py-2.5 outline-none focus:border-brand-gold focus:shadow-[0_0_20px_rgba(201,169,97,0.15)] transition-all duration-300"
-              />
-              <button
-                type="submit"
-                className="bg-brand-gold text-brand-navy font-bold px-4 py-2.5 hover:bg-brand-gold-light hover:-translate-y-0.5 transition-all duration-300"
-              >
-                ←
-              </button>
-            </form>
-            <p className="font-mono text-text-muted text-[11px] mt-2">
-              {t(lang, 'بياناتك مشفرة ومحمية بأعلى معايير الأمان.', 'Your data is encrypted and protected.')}
-            </p>
+            <div className="border-l border-gray-300 pl-4">
+              <p className="text-sm font-semibold text-gray-900">EGYPT</p>
+              <p className="text-xs text-gray-500 mt-1">
+                A BRIDGE TO A BRIGHTER TOMORROW
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-text-muted">
-          <p>© {new Date().getFullYear()} {t(lang, 'شريف يسري للاستشارات. جميع الحقوق محفوظة.', 'Sherif Yousry Advisory. All rights reserved.')}</p>
-          <p>{t(lang, 'القاهرة · الرياض · دبي | info@sherifadvisory.com', 'Cairo · Riyadh · Dubai | info@sherifadvisory.com')}</p>
+        {/* Bottom Bar */}
+        <div className="border-t border-gray-200 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-gray-500">
+            © 2025 Sherif Yousry Advisory. All rights reserved.
+          </p>
+          <div className="flex gap-4">
+            <Link href="/privacy" className="text-xs text-gray-500 hover:text-gray-900 transition-colors">
+              Privacy
+            </Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/terms" className="text-xs text-gray-500 hover:text-gray-900 transition-colors">
+              Terms
+            </Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/sitemap" className="text-xs text-gray-500 hover:text-gray-900 transition-colors">
+              Sitemap
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

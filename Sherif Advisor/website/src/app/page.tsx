@@ -13,6 +13,11 @@ import { Footer } from '@/components/layout/Footer';
 import { ScrollProgress } from '@/components/effects/ScrollProgress';
 import { AIChatWidget } from '@/components/chat/AIChatWidget';
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
+import {Journey} from '@/components/sections/Journey'
+import { ServicesGrid } from '@/components/sections/ServicesGrid';
+import { MarketsBanner } from '@/components/sections/MarketsBanner';
+import { DigitalExperience } from '@/components/sections/DigitalExperience';
+import { CTABanner } from '@/components/sections/CTABanner';
 
 export default function Home() {
   return (
@@ -20,13 +25,13 @@ export default function Home() {
       <ScrollProgress />
       <Header />
       <Hero />
-      <Stats />
-      <WhyUs />
-      <Services />
-      <RegionalMap />
-      <Assessment />
+      <Journey />
+      <ServicesGrid />
+      <MarketsBanner />
+      <DigitalExperience /> 
       <Knowledge />
       <Contact />
+      <CTABanner />
       <Footer />
       <WhatsAppFloat />
     </main>

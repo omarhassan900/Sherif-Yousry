@@ -1,36 +1,87 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { getClientLanguage, setLanguagePreference, type Language } from '@/lib/language';
 
 const navItems = [
-  { href: '/about',       labelAr: 'من نحن',    labelEn: 'About US' },
-  { href: '/#services',   labelAr: 'الخدمات',    labelEn: 'Services' },
-  { href: '/#markets',    labelAr: 'الأسواق',     labelEn: 'Markets' },
-  { href: '/#why-us',     labelAr: 'لماذا نحن',   labelEn: 'Why Us' },
-  { href: '/#insights',   labelAr: 'الأفكار',      labelEn: 'Insights' },
-  { href: '/#contact',    labelAr: 'تواصل معنا',  labelEn: 'Contact' },
+  { href: '/',           labelAr: 'الرئيسية',    labelEn: 'HOME',       id: 'home' },
+  { href: '/#journey',    labelAr: 'رحلتك',       labelEn: 'YOUR JOURNEY', id: 'journey' },
+  { href: '/#services',  labelAr: 'الخدمات',     labelEn: 'SERVICES',   id: 'services' },
+  { href: '/#markets',   labelAr: 'الأسواق',     labelEn: 'MARKETS',    id: 'markets' },
+  { href: '/#insights',  labelAr: 'الأفكار',     labelEn: 'INSIGHTS',   id: 'insights' },
+  { href: '/#contact',   labelAr: 'تواصل معنا',  labelEn: 'CONTACT',    id: 'contact' },
+  { href: '/about',      labelAr: 'من نحن',      labelEn: 'ABOUT US',   id: 'about' },
 ];
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export function Header() {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrolled, setScrolled]     = useState(false);
-  const [lang, setLang]             = useState<Language>('ar');
+  const [scrolled, setScrolled] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
+  
+  const [lang, setLang] = useState<Language>('en'); 
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     setLang(getClientLanguage());
   }, []);
 
+  // 1. Scroll Detection
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // 2. Scroll Spy
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntry = entries.find((entry) => entry.isIntersecting);
+        if (visibleEntry) {
+          setActiveSection(visibleEntry.target.id);
+        }
+      },
+      { rootMargin: '-100px 0px -60% 0px', threshold: 0 }
+    );
+
+    navItems.forEach((item) => {
+      if (item.id) {
+        const el = document.getElementById(item.id);
+        if (el) observer.observe(el);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, [isMounted]);
+
+  // 3. Active State Logic
+  const isActive = (item: typeof navItems[0]) => {
+    if (pathname !== '/') {
+      return item.href === pathname;
+    }
+
+    if (pathname === '/') {
+      if (item.href === '/') {
+        return activeSection === 'home' || activeSection === '';
+      }
+      if (item.href.startsWith('/#')) {
+        const hash = item.href.replace('/#', '');
+        return activeSection === hash;
+      }
+    }
+    return false;
+  };
 
   function toggleLanguage() {
     const next: Language = lang === 'ar' ? 'en' : 'ar';
@@ -39,57 +90,113 @@ export function Header() {
     window.location.reload();
   }
 
+  const showWhiteBg = scrolled || isHovered;
+
   return (
-    <header
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-brand-navy-dark/95 backdrop-blur-md border-b border-brand-gold/10 py-3'
+    <header 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        showWhiteBg 
+          ? 'bg-white/95 shadow-lg py-4' 
           : 'bg-transparent py-6'
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
         
-        {/* ✅ LOGO - INCREASED SIZE */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <Image 
-            src="/images/logo.png"
-            alt="Sherif Yousry Advisory Logo"
-            width={70}  // 👈 Increased from 160
-            height={32}  // 👈 Increased from 40
-            priority
-            className="h-20 w-auto object-contain transition-opacity group-hover:opacity-90" // 👈 Increased from h-10 to h-12
-          />
+        {/* Logo with Company Info */}
+        <Link href="/" className="flex items-center gap-4 group">
+          <div className="relative w-14 h-14 lg:w-16 lg:h-16">
+            <Image
+              src="/images/logo.png"
+              alt="Sherif Yousry Advisory"
+              fill
+              className={`object-contain transition-all duration-300 group-hover:scale-105 ${
+                showWhiteBg ? 'brightness-0' : 'brightness-100'
+              }`}
+              priority
+            />
+          </div>
+          <div className="hidden lg:block">
+            <h3 className={`font-serif text-lg tracking-wide transition-colors duration-300 ${
+              showWhiteBg ? 'text-[#030a12]' : 'text-white'
+            }`}>
+              SHERIF YOUSRY
+            </h3>
+            <p className={`text-xs tracking-[0.2em] uppercase transition-colors duration-300 ${
+              showWhiteBg ? 'text-gray-600' : 'text-gray-400'
+            }`}>
+              ADVISORY
+            </p>
+            <p className={`text-[10px] mt-0.5 transition-colors duration-300 ${
+              showWhiteBg ? 'text-gray-500' : 'text-gray-500'
+            }`}>
+              {t(lang, 'من الخبرة، نبني الثقة.', 'FROM EXPERTISE, WE BUILD TRUST.')}
+            </p>
+          </div>
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-8">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="nav-link relative text-sm text-text-primary hover:text-brand-gold transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:start-0 after:w-0 after:h-px after:bg-brand-gold after:transition-all after:duration-300 hover:after:w-full"
-            >
-              {t(lang, item.labelAr, item.labelEn)}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const active = isActive(item);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`text-xs tracking-widest transition-colors duration-300 relative group ${
+                  active 
+                    ? 'text-brand-gold' 
+                    : showWhiteBg 
+                      ? 'text-gray-700 hover:text-brand-gold' 
+                      : 'text-gray-300 hover:text-brand-gold'
+                }`}
+              >
+                {t(lang, item.labelAr, item.labelEn)}
+                <span 
+                  className={`absolute -bottom-1 left-0 h-px bg-brand-gold transition-all duration-300 ${
+                    active ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`} 
+                />
+              </Link>
+            );
+          })}
         </nav>
 
-        {/* Actions */}
-        <div className="hidden lg:flex items-center gap-3">
-          <button
+        {/* Right Actions - Desktop Only */}
+        <div className="hidden lg:flex items-center gap-6">
+          {/* Language Selector */}
+          <button 
             onClick={toggleLanguage}
-            className="text-xs text-text-muted hover:text-brand-gold border border-white/10 hover:border-brand-gold px-3 py-1.5 rounded transition-all duration-300"
+            className={`flex items-center gap-2 text-xs transition-colors ${
+              showWhiteBg 
+                ? 'text-gray-700 hover:text-brand-gold' 
+                : 'text-gray-300 hover:text-white'
+            }`}
           >
-            {lang === 'ar' ? 'EN' : 'عربي'}
+            {lang === 'ar' ? 'AR' : 'EN'}
+            <ChevronDown className="w-3 h-3" />
           </button>
-          <Link href="/#contact" className="btn-primary !py-3 !px-5 !text-[11px]">
-            {t(lang, 'احجز استشارة', 'Book Consultation')}
+          
+          <div className={`w-px h-4 transition-colors ${
+            showWhiteBg ? 'bg-gray-300' : 'bg-white/20'
+          }`} />
+          
+          {/* Book Consultation Button */}
+          <Link 
+            href="/#contact" 
+            className="inline-flex items-center gap-2 bg-[#f7f3e9] text-[#030a12] px-6 py-2.5 text-[11px] font-bold tracking-[0.15em] uppercase hover:bg-brand-gold transition-all duration-300 group"
+          >
+            {t(lang, 'احجز استشارة', 'BOOK CONSULTATION')}
+            <span className="transition-transform group-hover:translate-x-1">→</span>
           </Link>
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="lg:hidden text-brand-gold z-[1000]"
+        {/* ✅ Mobile Menu Toggle - ONLY visible on mobile */}
+        <button 
+          className={`lg:hidden transition-colors ${
+            showWhiteBg ? 'text-[#030a12] hover:text-brand-gold' : 'text-white hover:text-brand-gold'
+          }`}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle menu"
         >
@@ -97,29 +204,41 @@ export function Header() {
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile Menu - Slide Down */}
       {isMenuOpen && (
-        <div className="lg:hidden fixed inset-0 bg-brand-navy-dark flex flex-col items-center justify-center gap-8 z-[999]">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-text-secondary hover:text-brand-gold text-xl transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {t(lang, item.labelAr, item.labelEn)}
-            </Link>
-          ))}
-          <div className="flex gap-3 mt-4">
-            <button
-              onClick={toggleLanguage}
-              className="text-xs text-text-muted border border-white/10 px-3 py-2 rounded"
-            >
-              {lang === 'ar' ? 'EN' : 'عربي'}
-            </button>
-            <Link href="/#contact" className="btn-primary !py-3 !px-5" onClick={() => setIsMenuOpen(false)}>
-              {t(lang, 'احجز استشارة', 'Book Consultation')}
-            </Link>
+        <div className="lg:hidden absolute top-full left-0 right-0 bg-[#030a12]/98 backdrop-blur-md border-t border-white/10 shadow-2xl">
+          <div className="px-6 py-8 flex flex-col gap-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`text-sm py-3 border-b border-white/5 transition-colors ${
+                  isActive(item) ? 'text-brand-gold' : 'text-gray-300 hover:text-brand-gold'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t(lang, item.labelAr, item.labelEn)}
+              </Link>
+            ))}
+            
+            <div className="border-t border-white/10 pt-6 mt-4 flex flex-col gap-3">
+              <button 
+                onClick={() => {
+                  toggleLanguage();
+                  setIsMenuOpen(false);
+                }}
+                className="text-sm text-gray-300 hover:text-white transition-colors text-left py-2"
+              >
+                {lang === 'ar' ? 'English' : 'العربية'}
+              </button>
+              <Link 
+                href="/#contact" 
+                className="inline-flex items-center justify-center gap-2 bg-[#f7f3e9] text-[#030a12] px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase hover:bg-brand-gold transition-all duration-300 mt-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t(lang, 'احجز استشارة', 'BOOK CONSULTATION')}
+              </Link>
+            </div>
           </div>
         </div>
       )}
