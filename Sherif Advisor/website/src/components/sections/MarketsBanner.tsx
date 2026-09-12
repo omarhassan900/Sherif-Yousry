@@ -1,55 +1,27 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { getClientLanguage, type Language } from '@/lib/language';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export function MarketsBanner() {
     const [lang, setLang] = useState<Language>('en');
-    const [activeNode, setActiveNode] = useState<string | null>(null);
 
-    // Set language on mount
-    useState(() => {
+    useEffect(() => {
         setLang(getClientLanguage());
-    });
+    }, []);
 
     return (
-        <>
-            {/* Custom Animations for SVG */}
-            <style>{`
-        @keyframes flowArc {
-          0% { stroke-dashoffset: 128; }
-          100% { stroke-dashoffset: 0; }
-        }
-        @keyframes pulseGlow {
-          0% { r: 6px; opacity: 0.8; }
-          50% { r: 16px; opacity: 0.15; }
-          100% { r: 6px; opacity: 0.8; }
-        }
-        .animate-flow-arc {
-          animation: flowArc 3s infinite linear;
-        }
-        .animate-pulse-glow {
-          animation: pulseGlow 2.4s infinite ease-in-out;
-          transform-origin: center;
-        }
-        
-      `}</style>
-
-            <section  style={{
-        backgroundImage: 'url("/images/.png")', // Ensure this matches your public folder
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: '62% 102%',
-        backgroundColor: '#eeebe4',
-      }}
-            className="relative w-full mx-auto bg-[#f4f0e8] overflow-hidden grid grid-cols-1 lg:grid-cols-[320px_1fr_220px] rtl:lg:grid-cols-[220px_1fr_320px] items-center p-8 lg:p-12 border-y border-black/5 shadow-[0_12px_32px_rgba(0,0,0,0.05)]"
+        <section
+            className="relative w-full mx-auto overflow-hidden grid grid-cols-1 lg:grid-cols-[300px_1fr_220px] rtl:lg:grid-cols-[220px_1fr_300px] items-center gap-8 lg:gap-6 p-8 lg:p-14 border-y border-black/5"
+            style={{ backgroundColor: '#f4f0e8' }}
             id="markets"
-      >
+        >
             {/* LEFT COLUMN */}
-            <div className={`z-10 flex flex-col gap-4 ${lang === 'ar' ? 'items-start text-right' : 'items-start text-left'}`}>
+            <div className="z-10 flex flex-col gap-4 items-start text-left rtl:text-right">
                 <span className="text-[0.72rem] font-bold tracking-[2.5px] text-[#727e8c] uppercase">
                     {t(lang, 'رؤية أوسع', 'A Broader Perspective')}
                 </span>
@@ -77,20 +49,36 @@ export function MarketsBanner() {
                 </Link>
             </div>
 
-            {/* MIDDLE COLUMN (SVG Map) */}
-            <div className="relative w-full h-full min-h-[220px] flex justify-center items-center py-8 lg:py-0">
-
+            {/* MIDDLE COLUMN — real map backdrop + crisp vector overlay */}
+            <div className="relative w-full h-full min-h-[280px] flex justify-center items-center">
+                <div className="relative w-full h-full aspect-[1436/736]">
+                    {/* Markets world map fills the middle area */}
+                    <Image
+                        src="/images/markets-map.jpeg"
+                        alt={t(lang, 'خريطة الأسواق العالمية', 'Global markets map')}
+                        fill
+                        quality={100}
+                        sizes="(max-width: 1024px) 100vw, 700px"
+                        className="object-contain object-center select-none pointer-events-none"
+                    />
+                    {/* Soft edge fade so the map blends into the section */}
+                    <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                            background:
+                                'radial-gradient(ellipse 80% 90% at 50% 50%, rgba(244,240,232,0) 65%, rgba(244,240,232,0.75) 100%)',
+                        }}
+                    />
+                </div>
             </div>
 
             {/* RIGHT COLUMN */}
-            <div className={`z-10 flex flex-col justify-center h-[60%] lg:h-auto lg:border-l rtl:lg:border-l-0 rtl:lg:border-r border-[#d8d2c6] ${lang === 'ar' ? 'lg:pr-6 rtl:lg:pl-0' : 'lg:pl-6'}`}>
+            <div className="z-10 flex flex-col justify-center h-full lg:border-l rtl:lg:border-l-0 rtl:lg:border-r border-[#d8d2c6] lg:pl-6 rtl:lg:pl-0 rtl:lg:pr-6">
                 <h3 className="text-sm font-bold leading-snug text-[#1c2733] uppercase tracking-wider whitespace-pre-line">
                     {t(lang, 'أسواق مختلفة.\nغدٌ أقوى.', 'Different Markets.\nA Stronger Tomorrow.')}
                 </h3>
-                <div className={`w-8 h-0.5 bg-[#1c2733] mt-4 ${lang === 'ar' ? 'rtl:ml-0 rtl:mr-auto' : ''}`} />
+                <div className="w-8 h-0.5 bg-[#1c2733] mt-4 rtl:ml-auto" />
             </div>
-
-        </section >
-    </>
-  );
+        </section>
+    );
 }

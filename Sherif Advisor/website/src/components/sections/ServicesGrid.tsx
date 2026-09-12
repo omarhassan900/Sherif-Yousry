@@ -150,31 +150,26 @@ export function ServicesGrid() {
               style={{ 
                 transitionDelay: isVisible ? `${index * 100}ms` : '0ms'
               }}
-              className={`group border-r border-white/12 px-5 flex flex-col justify-between min-h-[220px] transition-all duration-500 ease-out hover:bg-white/5
+              className={`group border-r border-white/12 px-5 py-4 flex flex-col gap-4 transition-all duration-500 ease-out hover:bg-white/5
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
             >
-              <div className="flex flex-col gap-6">
-                <span className="text-sm text-gray-400 font-normal">
-                  {service.num}
-                </span>
-                <svg 
-                  className="w-7 h-7 text-white" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  {service.icon}
-                </svg>
-              </div>
-              
-              <div className="flex flex-col gap-4">
-                <h3 className="text-sm font-medium leading-snug text-white whitespace-pre-line">
-                  {t(lang, service.titleAr, service.titleEn)}
-                </h3>
-                <span className="text-base text-gray-400 transition-all duration-200 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 group-hover:text-white">
-                  →
-                </span>
-              </div>
+              <span className="text-sm text-gray-400 font-normal">
+                {service.num}
+              </span>
+              <svg 
+                className="w-6 h-6 text-white" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                {service.icon}
+              </svg>
+              <h3 className="text-sm font-medium leading-snug text-white whitespace-pre-line mt-1">
+                {t(lang, service.titleAr, service.titleEn)}
+              </h3>
+              <span className="text-base text-gray-400 transition-all duration-200 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 group-hover:text-white">
+                →
+              </span>
             </Link>
           ))}
         </div>

@@ -109,6 +109,26 @@
   100% { transform: translate(10px,10px); }
 }
 
+/* ── Markets banner map ── */
+@keyframes marketArcFlow {
+  0%   { stroke-dasharray: 6 200; stroke-dashoffset: 210; opacity: 0.35; }
+  50%  { opacity: 1; }
+  100% { stroke-dasharray: 6 200; stroke-dashoffset: 0; opacity: 0.35; }
+}
+@keyframes marketNodePulse {
+  0%, 100% { transform: scale(1); opacity: 0.18; }
+  50%      { transform: scale(2.1); opacity: 0.04; }
+}
+.market-arc {
+  animation: marketArcFlow 4s ease-in-out infinite;
+}
+.market-node-pulse {
+  animation: marketNodePulse 2.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .market-arc, .market-node-pulse { animation: none; }
+}
+
 /* ── Admin light theme (unchanged) ── */
 
 /* ============================================================
