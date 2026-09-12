@@ -17,8 +17,10 @@ function createPrismaClient() {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-}
+// Cache the client on the global object in every environment. Without this,
+// each module load / serverless invocation could create a brand-new
+// PrismaClient (and a new libSQL connection), adding cold-start latency to
+// requests. The global cache ensures a single reused instance per process.
+globalForPrisma.prisma = prisma;
 
 export default prisma;
