@@ -16,7 +16,7 @@ export function MarketsBanner() {
 
     return (
         <section
-            className="relative w-full mx-auto overflow-hidden grid grid-cols-1 lg:grid-cols-[300px_1fr_220px] rtl:lg:grid-cols-[220px_1fr_300px] items-center gap-8 lg:gap-6 p-8 lg:p-14 border-y border-black/5"
+            className="relative w-full mx-auto overflow-hidden grid grid-cols-1 lg:grid-cols-[300px_1fr_220px] rtl:lg:grid-cols-[220px_1fr_300px] items-center gap-8 lg:gap-6 px-8 lg:px-14 py-0 border-y border-black/5"
             style={{ backgroundColor: '#f4f0e8' }}
             id="markets"
         >
@@ -49,24 +49,39 @@ export function MarketsBanner() {
                 </Link>
             </div>
 
-            {/* MIDDLE COLUMN — real map backdrop + crisp vector overlay */}
+            {/* MIDDLE COLUMN — map blended into the section (not a framed image) */}
             <div className="relative w-full h-full min-h-[280px] flex justify-center items-center">
-                <div className="relative w-full h-full aspect-[1436/736]">
-                    {/* Markets world map fills the middle area */}
+                <div className="relative w-full h-full aspect-[1024/520]">
+                    {/* Markets world map fills the middle area. `mix-blend-multiply`
+                        lets the cream section color show through the light areas of
+                        the map so it reads as part of the background, not a photo. */}
                     <Image
-                        src="/images/markets-map.jpeg"
+                        src="/images/Gemini_Generated_Image_2hx3c2hx3c2hx3c2.jpeg"
                         alt={t(lang, 'خريطة الأسواق العالمية', 'Global markets map')}
                         fill
                         quality={100}
                         sizes="(max-width: 1024px) 100vw, 700px"
-                        className="object-contain object-center select-none pointer-events-none"
+                        className="object-contain object-center select-none pointer-events-none mix-blend-multiply opacity-95"
                     />
-                    {/* Soft edge fade so the map blends into the section */}
+                    {/* Warm tint pulls the cold blue toward the section's cream tone */}
+                    <div
+                        className="absolute inset-0 pointer-events-none mix-blend-soft-light"
+                        style={{ backgroundColor: '#f4f0e8' }}
+                    />
+                    {/* Strong edge fade so the image borders dissolve into the section */}
                     <div
                         className="absolute inset-0 pointer-events-none"
                         style={{
                             background:
-                                'radial-gradient(ellipse 80% 90% at 50% 50%, rgba(244,240,232,0) 65%, rgba(244,240,232,0.75) 100%)',
+                                'radial-gradient(ellipse 70% 78% at 50% 50%, rgba(244,240,232,0) 45%, rgba(244,240,232,0.85) 78%, rgba(244,240,232,1) 100%)',
+                        }}
+                    />
+                    {/* Extra linear fades on the vertical edges to kill the hard rectangle sides */}
+                    <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                            background:
+                                'linear-gradient(to right, #f4f0e8 0%, rgba(244,240,232,0) 12%, rgba(244,240,232,0) 88%, #f4f0e8 100%)',
                         }}
                     />
                 </div>
