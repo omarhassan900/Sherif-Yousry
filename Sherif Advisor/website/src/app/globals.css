@@ -82,6 +82,41 @@
   .text-pretty   { text-wrap: pretty; }
 }
 
+/* ============================================================
+   Arabic / RTL typography
+   The Latin display fonts (Cormorant Garamond) and the mono font
+   (IBM Plex Mono) have no Arabic glyphs, so Arabic text falls back
+   to an inconsistent system font. When the document is RTL, remap
+   those families to proper Arabic faces:
+     - serif / cormorant headings  -> Amiri (Arabic serif)
+     - mono labels                 -> IBM Plex Sans Arabic
+   Amiri stays Amiri. This keeps Arabic looking cohesive site-wide.
+   ============================================================ */
+[dir='rtl'] .font-serif,
+[dir='rtl'] .font-cormorant {
+  font-family: 'Amiri', serif;
+}
+
+[dir='rtl'] .font-mono {
+  font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  /* mono tracking looks cramped in Arabic; relax it slightly */
+  letter-spacing: 0.02em;
+}
+
+/* Arabic reads better with a touch more line-height and normal weight
+   emphasis; nudge headings so long Arabic titles don't feel tight. */
+[dir='rtl'] h1,
+[dir='rtl'] h2,
+[dir='rtl'] h3 {
+  line-height: 1.5;
+}
+
+/* Uppercase has no meaning in Arabic and can distort letterforms —
+   disable it for RTL so Arabic labels render naturally. */
+[dir='rtl'] .uppercase {
+  text-transform: none;
+}
+
 /* ── Scroll progress bar ── */
 #scrollProgress {
   position: fixed;

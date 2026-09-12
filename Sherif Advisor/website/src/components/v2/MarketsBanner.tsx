@@ -16,7 +16,7 @@ export function MarketsBanner() {
 
     return (
         <section
-            className="relative w-full mx-auto overflow-hidden grid grid-cols-1 lg:grid-cols-[300px_1fr_220px] rtl:lg:grid-cols-[220px_1fr_300px] items-center gap-8 lg:gap-6 px-8 lg:px-14 py-0 border-y border-black/5"
+            className="relative w-full mx-auto overflow-hidden grid grid-cols-1 lg:grid-cols-[300px_1fr_220px] rtl:lg:grid-cols-[220px_1fr_300px] items-center gap-6 lg:gap-6 px-6 sm:px-8 lg:px-14 py-10 lg:py-0 border-y border-black/5"
             style={{ backgroundColor: '#f4f0e8' }}
             id="markets"
         >
@@ -26,7 +26,11 @@ export function MarketsBanner() {
                     {t(lang, 'رؤية أوسع', 'A Broader Perspective')}
                 </span>
 
-                <h2 className="font-serif text-2xl md:text-3xl font-bold leading-tight text-[#1c2733] uppercase tracking-wide whitespace-pre-line">
+                <h2
+                  className={`text-2xl md:text-3xl font-bold leading-tight text-[#1c2733] tracking-wide whitespace-pre-line ${
+                    lang === 'ar' ? 'font-sans' : 'font-serif uppercase'
+                  }`}
+                >
                     {t(lang, 'ربط الأسواق.\nصنع الفرص.', 'Connecting Markets.\nCreating Opportunity.')}
                 </h2>
 
@@ -50,8 +54,8 @@ export function MarketsBanner() {
             </div>
 
             {/* MIDDLE COLUMN — map blended into the section (not a framed image) */}
-            <div className="relative w-full self-stretch flex justify-center items-stretch">
-                <div className="relative w-full h-full min-h-[300px] aspect-[1024/520] my-auto">
+            <div className="relative w-full self-stretch flex justify-center items-stretch order-first lg:order-none">
+                <div className="relative w-full h-full min-h-[200px] sm:min-h-[260px] lg:min-h-[300px] aspect-[1024/520] my-auto">
                     {/* Markets world map fills the middle area. `mix-blend-multiply`
                         lets the cream section color show through the light areas of
                         the map so it reads as part of the background, not a photo. */}
@@ -88,8 +92,8 @@ export function MarketsBanner() {
             </div>
 
             {/* RIGHT COLUMN */}
-            <div className="z-10 flex flex-col justify-center h-full lg:border-l rtl:lg:border-l-0 rtl:lg:border-r border-[#d8d2c6] lg:pl-6 rtl:lg:pl-0 rtl:lg:pr-6">
-                <h3 className="text-sm font-bold leading-snug text-[#1c2733] uppercase tracking-wider whitespace-pre-line">
+            <div className="z-10 flex flex-col justify-center h-full border-t lg:border-t-0 lg:border-l rtl:lg:border-l-0 rtl:lg:border-r border-[#d8d2c6] pt-6 lg:pt-0 lg:pl-6 rtl:lg:pl-0 rtl:lg:pr-6">
+                <h3 className="text-sm font-bold leading-snug text-[#1c2733] uppercase tracking-wider whitespace-pre-line font-sans">
                     {t(lang, 'أسواق مختلفة.\nغدٌ أقوى.', 'Different Markets.\nA Stronger Tomorrow.')}
                 </h3>
                 <div className="w-8 h-0.5 bg-[#1c2733] mt-4 rtl:ml-auto" />

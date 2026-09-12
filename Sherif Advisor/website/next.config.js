@@ -52,7 +52,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             // Note: 'unsafe-inline' and 'unsafe-eval' are often required by Next.js in production, 
             // but your img-src and connect-src are properly secured.
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https:; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com;",
           },
           {
             key: 'Permissions-Policy',
