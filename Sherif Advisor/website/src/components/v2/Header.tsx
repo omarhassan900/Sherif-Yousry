@@ -10,6 +10,7 @@ import {
   Heart, Route, MapPin, Building2, Users2, Landmark
 } from 'lucide-react';
 import { getClientLanguage, setLanguagePreference, type Language } from '@/lib/language';
+import { SearchOverlay } from '@/components/v2/SearchOverlay';
 
 const navItems = [
   { href: '/v2',          labelAr: 'الرئيسية',    labelEn: 'Home',       id: 'home' },
@@ -72,8 +73,8 @@ export function Header() {
   const [isHovered, setIsHovered] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [isServicesOpen, setIsServicesOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  // Controls the full-screen search overlay (services + insights).
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   
   const [lang, setLang] = useState<Language>('en'); 
   const [isMounted, setIsMounted] = useState(false);
@@ -339,7 +340,11 @@ export function Header() {
             <span className="text-xs font-medium tracking-wide">{lang === 'ar' ? 'AR' : 'EN'}</span>
           </button>
           
-          <button className={`${iconBtnClass} w-11 h-11`} aria-label="Search">
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className={`${iconBtnClass} w-11 h-11`}
+            aria-label="Search"
+          >
             <Search className="w-4 h-4" />
           </button>
         
@@ -359,13 +364,34 @@ export function Header() {
         </button>
       </div>
 
-      {/* ✅ FULL-SCREEN MOBILE MENU - Abu Dhabi Style */}
+      {/* ✅ FULL-SCREEN MOBILE MENU */}
       {isMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-[100] bg-[#030a12] overflow-y-auto">
+        <div
+          className="lg:hidden fixed inset-0 z-[100] overflow-y-auto"
+          style={{ animation: 'menuFade 0.35s ease both' }}
+          dir={lang === 'ar' ? 'rtl' : 'ltr'}
+        >
+          {/* Layered branded background: deep navy + gold radial glow + arc */}
+          <div className="absolute inset-0 -z-10 bg-[#030a12]" />
+          <div
+            className="absolute inset-0 -z-10 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(ellipse 80% 50% at 80% 0%, rgba(191,161,74,0.18) 0%, rgba(3,10,18,0) 60%)',
+            }}
+          />
+          <div
+            className="absolute inset-0 -z-10 pointer-events-none opacity-[0.06]"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle at 100% 25%, #fff 0 2px, transparent 3px), radial-gradient(circle at 100% 25%, transparent 38%, #fff 39%, transparent 40%), radial-gradient(circle at 100% 25%, transparent 58%, #fff 59%, transparent 60%)',
+            }}
+          />
+
           {/* Mobile Menu Header */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+          <div className="flex items-center justify-between px-6 py-5">
             <Link href="/v2" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3">
-              <div className="relative w-12 h-12">
+              <div className="relative w-11 h-11">
                 <Image
                   src="/images/logo.png"
                   alt="Sherif Yousry Advisory"
@@ -379,26 +405,39 @@ export function Header() {
                 <p className="text-gray-400 text-[10px] tracking-[0.2em] uppercase">ADVISORY</p>
               </div>
             </Link>
-            
-            {/* Language Button */}
-            <button 
-              onClick={toggleLanguage}
-              className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/30 text-white text-xs font-medium hover:bg-white/10 transition-colors"
-            >
-              <Globe className="w-4 h-4" />
-              <span>{lang === 'ar' ? 'AR' : 'EN'}</span>
-            </button>
+
+            <div className="flex items-center gap-2">
+              {/* Language Button */}
+              <button
+                onClick={toggleLanguage}
+                className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/25 text-white text-xs font-medium hover:bg-white/10 transition-colors"
+              >
+                <Globe className="w-4 h-4" />
+                <span>{lang === 'ar' ? 'AR' : 'EN'}</span>
+              </button>
+              {/* Close */}
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                aria-label={t(lang, 'إغلاق القائمة', 'Close menu')}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
-                    {/* Main Navigation Items */}
-          <div className="px-6 py-6">
+          {/* Main Navigation Items — large serif rows */}
+          <nav className="px-6 pt-2 pb-4">
             {navItems.map((item, index) => {
               const isServices = item.id === 'services';
               const active = isActive(item);
-              
+
               return (
-                <div key={item.href} style={{ animation: `slideIn 0.4s ease ${index * 0.05}s both` }}>
-                  {/* ✅ FIXED: Use a button for the whole row to handle clicks cleanly */}
+                <div
+                  key={item.href}
+                  className="border-b border-white/10"
+                  style={{ animation: `menuRowIn 0.45s cubic-bezier(0.16,1,0.3,1) ${index * 0.05}s both` }}
+                >
                   <button
                     onClick={() => {
                       if (isServices) {
@@ -407,41 +446,42 @@ export function Header() {
                         setIsMenuOpen(false);
                       }
                     }}
-                    className={`w-full flex items-center justify-between py-4 border-b border-white/5 transition-colors ${
-                      active ? 'text-brand-gold' : 'text-white hover:text-brand-gold'
+                    className={`w-full flex items-center justify-between py-4 group transition-colors ${
+                      active ? 'text-brand-gold' : 'text-white'
                     }`}
                   >
-                    {/* ✅ FIXED: Conditionally render Link or Span to avoid undefined href */}
                     {isServices ? (
-                      <span className="text-lg font-medium flex-1 text-left">
+                      <span className="font-serif text-2xl tracking-wide flex-1 text-start group-hover:text-brand-gold transition-colors">
                         {t(lang, item.labelAr, item.labelEn)}
                       </span>
                     ) : (
                       <Link
                         href={item.href}
-                        className="text-lg font-medium flex-1 text-left"
+                        className="font-serif text-2xl tracking-wide flex-1 text-start group-hover:text-brand-gold transition-colors"
                       >
                         {t(lang, item.labelAr, item.labelEn)}
                       </Link>
                     )}
-                    
-                    {/* Chevron Arrow */}
-                    {(isServices || item.href === '/#journey' || item.href === '/#markets') && (
-                      <ChevronRight className={`w-5 h-5 transition-transform duration-300 ${
-                        (isServices && isServicesOpen) ? 'rotate-90' : ''
-                      }`} />
+
+                    {/* Chevron — only for the expandable Services row; RTL-aware */}
+                    {isServices && (
+                      <ChevronRight
+                        className={`w-6 h-6 shrink-0 text-brand-gold/70 transition-transform duration-300 rtl:rotate-180 ${
+                          isServicesOpen ? 'rotate-90 rtl:-rotate-90' : ''
+                        }`}
+                      />
                     )}
                   </button>
-                  
+
                   {/* Services Submenu */}
                   {isServices && isServicesOpen && (
-                    <div className="pl-4 pb-2 space-y-3" style={{ animation: 'slideDown 0.3s ease' }}>
+                    <div className="pb-3 ps-2 space-y-4" style={{ animation: 'slideDown 0.3s ease' }}>
                       {groupedServices.map((cat) => (
                         <div key={cat.id}>
                           {/* Category heading */}
                           <div className="flex items-center gap-2 py-1.5 border-b border-brand-gold/30 mb-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-brand-gold" />
-                            <span className="text-sm font-bold tracking-wide uppercase text-brand-gold">
+                            <span className="text-xs font-bold tracking-wide uppercase text-brand-gold">
                               {t(lang, cat.categoryAr, cat.categoryEn)}
                             </span>
                           </div>
@@ -454,10 +494,10 @@ export function Header() {
                               <Link
                                 key={service.id}
                                 href={`/services/${service.id}`}
-                                className="flex items-center gap-3 py-2.5 pl-3 text-sm text-gray-400 hover:text-brand-gold transition-colors"
+                                className="flex items-center gap-3 py-2.5 ps-3 text-sm text-gray-300 hover:text-brand-gold transition-colors"
                                 onClick={() => setIsMenuOpen(false)}
                               >
-                                {Icon && <Icon className="w-4 h-4" />}
+                                {Icon && <Icon className="w-4 h-4 shrink-0" />}
                                 {service.title}
                               </Link>
                             );
@@ -469,100 +509,88 @@ export function Header() {
                 </div>
               );
             })}
-          </div>
+          </nav>
 
-          {/* ✅ Glassmorphism Action Buttons (2x2 Grid) */}
+          {/* Glassmorphism Action Buttons (2x2 Grid) */}
           <div className="px-6 pb-6">
             <div className="grid grid-cols-2 gap-3">
-              {/* Log In */}
-              <Link 
-                href="/admin/login"
-                onClick={() => setIsMenuOpen(false)}
-                className="flex flex-col items-center justify-center gap-2 py-5 rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 group"
+              {/* Search */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsSearchOpen(true);
+                }}
+                className="flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border border-white/15 bg-white/5 backdrop-blur-md hover:bg-white/10 hover:border-brand-gold/40 transition-all duration-300 group"
                 style={{ animation: 'slideUp 0.4s ease 0.2s both' }}
               >
-                <User className="w-6 h-6 text-white group-hover:text-brand-gold transition-colors" />
+                <Search className="w-6 h-6 text-white group-hover:text-brand-gold transition-colors" />
                 <span className="text-xs font-bold tracking-wider text-white uppercase">
-                  {t(lang, 'تسجيل الدخول', 'LOG IN')}
+                  {t(lang, 'بحث', 'SEARCH')}
                 </span>
-              </Link>
+              </button>
 
-              {/* Client Portal */}
-              <Link 
-                href="/portal"
+              {/* Maps */}
+              <Link
+                href="/v2#markets"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex flex-col items-center justify-center gap-2 py-5 rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 group"
+                className="flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border border-white/15 bg-white/5 backdrop-blur-md hover:bg-white/10 hover:border-brand-gold/40 transition-all duration-300 group"
                 style={{ animation: 'slideUp 0.4s ease 0.25s both' }}
               >
-                <Route className="w-6 h-6 text-white group-hover:text-brand-gold transition-colors" />
+                <Map className="w-6 h-6 text-white group-hover:text-brand-gold transition-colors" />
                 <span className="text-xs font-bold tracking-wider text-white uppercase">
-                  {t(lang, 'البوابة', 'PORTAL')}
+                  {t(lang, 'الخريطة', 'MAPS')}
                 </span>
               </Link>
-
-            
-             
             </div>
           </div>
 
           {/* Secondary Links */}
-          <div className="px-6 pb-6">
-            <div className="space-y-3">
-              <Link href="/about" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-400 hover:text-white transition-colors">
+          <div className="px-6 pb-28">
+            <div className="flex flex-wrap gap-x-6 gap-y-3">
+              <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-sm text-gray-400 hover:text-white transition-colors">
                 {t(lang, 'من نحن', 'About Us')}
               </Link>
-              <Link href="/v2#contact" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-400 hover:text-white transition-colors">
+              <Link href="/v2#contact" onClick={() => setIsMenuOpen(false)} className="text-sm text-gray-400 hover:text-white transition-colors">
                 {t(lang, 'تواصل معنا', 'Contact')}
               </Link>
-              <Link href="/careers" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-400 hover:text-white transition-colors">
+              <Link href="/careers" onClick={() => setIsMenuOpen(false)} className="text-sm text-gray-400 hover:text-white transition-colors">
                 {t(lang, 'الوظائف', 'Careers')}
               </Link>
-              <Link href="/privacy" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-400 hover:text-white transition-colors">
+              <Link href="/privacy" onClick={() => setIsMenuOpen(false)} className="text-sm text-gray-400 hover:text-white transition-colors">
                 {t(lang, 'الخصوصية', 'Privacy')}
               </Link>
-              <Link href="/terms" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-400 hover:text-white transition-colors">
+              <Link href="/terms" onClick={() => setIsMenuOpen(false)} className="text-sm text-gray-400 hover:text-white transition-colors">
                 {t(lang, 'الشروط', 'Terms')}
               </Link>
             </div>
           </div>
 
-          {/* ✅ Bottom Search Bar */}
-          <div className="sticky bottom-0 left-0 right-0 px-6 py-4 bg-gradient-to-t from-[#030a12] via-[#030a12] to-transparent">
-            <div className="flex items-center justify-center gap-3">
-              <div className={`flex items-center gap-3 px-5 py-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 transition-all duration-300 ${
-                searchOpen ? 'w-full max-w-md' : 'w-auto'
-              }`}>
-                <Search className="w-5 h-5 text-white" />
-                {searchOpen && (
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={t(lang, 'ابحث...', 'Search...')}
-                    className="bg-transparent text-white text-sm outline-none w-full placeholder:text-gray-400"
-                    autoFocus
-                  />
-                )}
-                <button 
-                  onClick={() => setSearchOpen(!searchOpen)}
-                  className="text-white hover:text-brand-gold transition-colors"
-                >
-                  {searchOpen ? <X className="w-5 h-5" /> : <span className="text-xs font-medium">|</span>}
-                </button>
-              </div>
-            </div>
+          {/* Floating search pill (fixed to viewport bottom) */}
+          <div className="fixed bottom-0 left-0 right-0 px-6 pb-6 pt-10 bg-gradient-to-t from-[#030a12] via-[#030a12]/90 to-transparent">
+            <button
+              type="button"
+              onClick={() => {
+                setIsMenuOpen(false);
+                setIsSearchOpen(true);
+              }}
+              className="w-full flex items-center gap-3 px-5 py-3.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-gray-300 hover:bg-white/15 hover:border-brand-gold/40 transition-colors shadow-lg"
+            >
+              <Search className="w-5 h-5 text-brand-gold shrink-0" />
+              <span className="text-sm">
+                {t(lang, 'ابحث في الخدمات والرؤى...', 'Search services & insights...')}
+              </span>
+            </button>
           </div>
-
-          {/* Close Button (Floating) */}
-          <button
-            onClick={() => setIsMenuOpen(false)}
-            className="fixed top-5 right-5 z-10 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-            aria-label="Close menu"
-          >
-            <X className="w-5 h-5" />
-          </button>
         </div>
       )}
+
+      {/* Full-screen search overlay (services + insights) */}
+      <SearchOverlay
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        lang={lang}
+      />
 
       <style jsx>{`
         @keyframes slideIn {
@@ -575,6 +603,14 @@ export function Header() {
         }
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes menuFade {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes menuRowIn {
+          from { opacity: 0; transform: translateY(14px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>

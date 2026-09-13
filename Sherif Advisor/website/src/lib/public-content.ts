@@ -247,3 +247,108 @@ export async function getPageSection(
 
   return resolveLanguageFallback(section, lang);
 }
+
+// ============================================
+// SEARCH
+// ============================================
+
+export type SearchResultType = 'service' | 'article';
+
+export interface SearchResult extends PublicContentResponse {
+  type: SearchResultType;
+  /** Category for articles (from metadata), if present. */
+  category?: string;
+  /** Public URL to the item. */
+  url: string;
+}
+
+/** Strip HTML tags so body text can be matched/snippeted as plain text. */
+function toPlainText(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Search published services and articles by keyword.
+ *
+ * Matching is case-insensitive and spans BOTH languages' title and body plus
+ * article category, so a query finds content regardless of the visitor's
+ * current display language. Returned title/body are resolved to `lang` (with
+ * fallback). Services rank above articles, then by title match.
+ *
+ * @param query  The search keywords (min 2 chars recommended).
+ * @param lang   Display language for the returned title/body.
+ * @param limit  Max results to return (default 8).
+ */
+export async function searchPublicContent(
+  query: string,
+  lang: Language,
+  limit: number = 8
+): Promise<SearchResult[]> {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+
+  const items = await prisma.contentItem.findMany({
+    where: {
+      type: { in: ['service', 'article'] },
+      status: 'published',
+    },
+  });
+
+  const now = new Date();
+  const results: (SearchResult & { score: number })[] = [];
+
+  for (const item of items) {
+    let meta: Record<string, unknown> = {};
+    try {
+      meta = JSON.parse(item.metadata);
+    } catch {
+      meta = {};
+    }
+
+    // Respect scheduled/future article publish dates.
+    if (item.type === 'article') {
+      const publishDate = meta.publishDate as string | undefined;
+      if (publishDate && new Date(publishDate) > now) continue;
+    }
+
+    // Build a haystack across both languages + category so keyword search is
+    // language-agnostic.
+    const category = typeof meta.category === 'string' ? meta.category : '';
+    const haystack = [
+      item.titleAr,
+      item.titleEn,
+      toPlainText(item.bodyAr || ''),
+      toPlainText(item.bodyEn || ''),
+      category,
+    ]
+      .join(' ')
+      .toLowerCase();
+
+    if (!haystack.includes(q)) continue;
+
+    const resolved = resolveLanguageFallback(item, lang);
+    const type = item.type as SearchResultType;
+
+    // Rank: title matches beat body matches; services beat articles.
+    const titleMatch =
+      item.titleAr.toLowerCase().includes(q) ||
+      item.titleEn.toLowerCase().includes(q);
+    let score = titleMatch ? 100 : 50;
+    if (type === 'service') score += 10;
+
+    results.push({
+      ...resolved,
+      type,
+      category: category || undefined,
+      url: type === 'service' ? `/services/${item.id}` : `/knowledge/${item.id}`,
+      score,
+    });
+  }
+
+  results.sort((a, b) => b.score - a.score);
+
+  return results.slice(0, limit).map(({ score, ...rest }) => {
+    void score;
+    return rest;
+  });
+}
