@@ -31,8 +31,8 @@ export default function HomeV2() {
       <ServicesGrid />
       <MarketsBanner />
       <DigitalExperience />
-      <Knowledge />
       <Packages />
+      <Knowledge />
       <Contact />
       <Footer />
       <WhatsAppFloat />
