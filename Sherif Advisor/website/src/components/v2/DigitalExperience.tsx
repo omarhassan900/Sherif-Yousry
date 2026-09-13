@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getClientLanguage, type Language } from '@/lib/language';
 import { Sparkles, Bell, CheckCircle2, Smartphone, ShieldCheck, Zap } from 'lucide-react';
 import Image from 'next/image';
+import { useV2Section } from '@/lib/use-v2-section';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
@@ -17,6 +18,9 @@ export function DigitalExperience() {
   const [lang, setLang] = useState<Language>('en');
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+
+  // CMS-backed content (falls back to the hardcoded copy).
+  const section = useV2Section('digital', lang);
 
   useEffect(() => {
     setLang(getClientLanguage());
@@ -50,20 +54,20 @@ export function DigitalExperience() {
             {/* Coming soon badge */}
             <span className="inline-flex items-center gap-2 rounded-full border border-brand-gold/40 bg-brand-gold/10 px-4 py-1.5 text-[0.65rem] font-bold tracking-[2px] uppercase text-brand-gold">
               <Sparkles className="w-3.5 h-3.5" />
-              {t(lang, 'قريباً', 'Coming Soon')}
+              {section.field('badge', 'قريباً', 'Coming Soon')}
             </span>
 
             <div>
               <span className="text-[0.7rem] font-bold tracking-[2.2px] text-[#8ea3b8] uppercase block mb-2">
-                {t(lang, 'التطبيق الجديد للعملاء', 'The New Client App')}
+                {section.field('eyebrow', 'التطبيق الجديد للعملاء', 'The New Client App')}
               </span>
               <h2 className="font-serif text-3xl lg:text-4xl font-bold leading-tight text-white uppercase tracking-wide">
-                {t(lang, 'أعمالك. متصلة.', 'Your Business. Connected.')}
+                {section.title || t(lang, 'أعمالك. متصلة.', 'Your Business. Connected.')}
               </h2>
             </div>
 
             <p className="text-sm leading-relaxed text-[#9cb1c9] font-light max-w-md">
-              {t(
+              {section.body || t(
                 lang,
                 'نطلق قريباً تطبيقنا الرقمي الجديد — مساحة آمنة وسلسة تجمع مهامك ومستنداتك وتقاريرك ومواعيدك الضريبية في مكان واحد. كن أول من يعرف.',
                 'We’re launching our new digital app soon — a secure, seamless space that brings your engagements, documents, reports, and tax deadlines together in one place. Be the first to know.'
@@ -92,7 +96,7 @@ export function DigitalExperience() {
                     className="inline-flex items-center gap-2 rounded-full bg-brand-gold px-5 py-2.5 text-[0.65rem] font-bold tracking-[1.5px] uppercase text-[#031427] hover:bg-white transition-colors duration-300 whitespace-nowrap"
                   >
                     <Bell className="w-3.5 h-3.5" />
-                    {t(lang, 'أعلمني', 'Notify Me')}
+                    {section.field('notifyCta', 'أعلمني', 'Notify Me')}
                   </button>
                 </div>
               </form>
@@ -117,7 +121,7 @@ export function DigitalExperience() {
             {/* Coming Soon overlay across the whole preview */}
             <div className="absolute inset-0 z-30 flex flex-col items-center justify-center rounded-xl bg-[#020c18]/55 backdrop-blur-[2px] pointer-events-none">
               <span className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold uppercase tracking-[0.15em] text-white text-center drop-shadow-lg">
-                {t(lang, 'قريباً', 'Coming Soon')}
+                {section.field('badge', 'قريباً', 'Coming Soon')}
               </span>
               <span className="mt-2 h-0.5 w-12 bg-brand-gold" />
             </div>

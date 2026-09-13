@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { getClientLanguage, type Language } from '@/lib/language';
+import { useV2Section } from '@/lib/use-v2-section';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
@@ -73,6 +74,9 @@ export function ServicesGrid() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
+  // CMS-backed heading/eyebrow/intro/CTA (falls back to hardcoded copy).
+  const section = useV2Section('services', lang);
+
   useEffect(() => {
     setLang(getClientLanguage());
   }, []);
@@ -115,18 +119,22 @@ export function ServicesGrid() {
         >
           <div className="flex-1">
             <span className="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-3">
-              {t(lang, 'خدماتنا', 'Our Services')}
+              {section.body || t(lang, 'خدماتنا', 'Our Services')}
             </span>
-            <h2 className="font-serif text-3xl md:text-4xl font-normal leading-tight tracking-wide text-white">
-              {t(lang, 'خبرة متكاملة.', 'INTEGRATED EXPERTISE.')}<br/>
-              {t(lang, 'أثر حقيقي.', 'REAL-WORLD IMPACT.')}
+            <h2 className="font-serif text-3xl md:text-4xl font-normal leading-tight tracking-wide text-white whitespace-pre-line">
+              {section.title || (
+                <>
+                  {t(lang, 'خبرة متكاملة.', 'INTEGRATED EXPERTISE.')}<br/>
+                  {t(lang, 'أثر حقيقي.', 'REAL-WORLD IMPACT.')}
+                </>
+              )}
             </h2>
           </div>
           
           <div className="flex-1 max-w-[520px] flex flex-col items-start gap-4">
             <p className="text-sm text-gray-400 leading-relaxed">
-              {t(
-                lang,
+              {section.field(
+                'intro',
                 'نقدم خدمات استشارية وإدارية شاملة، نجمع فيها بين الخبرة الفنية العميقة والفهم العملي لطبيعة الأعمال.',
                 'We provide end-to-end advisory and business management services, combining deep technical expertise with practical business understanding.'
               )}
@@ -135,7 +143,7 @@ export function ServicesGrid() {
               href="/v2/services" 
               className="text-white text-xs font-semibold tracking-wider no-underline uppercase inline-flex items-center gap-2 hover:text-sky-400 transition-colors"
             >
-              {t(lang, 'استكشف خدماتنا', 'Explore Our Services')} 
+              {section.field('cta', 'استكشف خدماتنا', 'Explore Our Services')} 
               <span className="rtl:rotate-180">→</span>
             </Link>
           </div>

@@ -12,6 +12,7 @@ import { Header } from '@/components/v2/Header';
 import { Hero } from '@/components/v2/Hero';
 import { Journey } from '@/components/v2/Journey';
 import { ServicesGrid } from '@/components/v2/ServicesGrid';
+import { Packages } from '@/components/v2/Packages';
 import { MarketsBanner } from '@/components/v2/MarketsBanner';
 import { DigitalExperience } from '@/components/v2/DigitalExperience';
 import { Knowledge } from '@/components/v2/Knowledge';
@@ -31,6 +32,7 @@ export default function HomeV2() {
       <MarketsBanner />
       <DigitalExperience />
       <Knowledge />
+      <Packages />
       <Contact />
       <Footer />
       <WhatsAppFloat />

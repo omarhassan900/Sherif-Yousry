@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
+import { useV2Section } from '@/lib/use-v2-section';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
@@ -64,6 +65,9 @@ export function Journey() {
   const [active, setActive] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
 
+  // CMS-backed heading/eyebrow/CTA (falls back to hardcoded copy).
+  const section = useV2Section('journey', lang);
+
   useEffect(() => {
     setLang(getClientLanguage());
   }, []);
@@ -96,10 +100,10 @@ export function Journey() {
           }`}
         >
           <span className="text-xs font-bold tracking-widest text-brand-gold uppercase mb-2 block">
-            {t(lang, 'رحلتك معنا', 'YOUR JOURNEY')}
+            {section.body || t(lang, 'رحلتك معنا', 'YOUR JOURNEY')}
           </span>
           <h2 className="font-amiri text-2xl md:text-3xl text-brand-navy leading-tight">
-            {t(lang, 'أين أنت الآن؟ سنوضّح لك كيف نساعدك.', 'Where are you now? See exactly how we help.')}
+            {section.title || t(lang, 'أين أنت الآن؟ سنوضّح لك كيف نساعدك.', 'Where are you now? See exactly how we help.')}
           </h2>
         </div>
 
@@ -172,7 +176,7 @@ export function Journey() {
               href="/v2/services"
               className="mt-5 self-start text-xs font-bold uppercase tracking-wider text-brand-navy hover:text-brand-gold transition-colors inline-flex items-center gap-2 group"
             >
-              {t(lang, 'استكشف جميع الخدمات', 'Explore All Services')}
+              {section.field('exploreCta', 'استكشف جميع الخدمات', 'Explore All Services')}
               <span className="transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180">
                 →
               </span>

@@ -35,25 +35,25 @@ export function Footer() {
               <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-1">
                 Services
               </h4>
-              <Link href="/services/tax" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/v2/services" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
                 Tax Advisory
               </Link>
-              <Link href="/services/audit" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/v2/services" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
                 Audit & Assurance
               </Link>
-              <Link href="/services/financial" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/v2/services" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
                 Financial Advisory
               </Link>
-              <Link href="/services/business" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/v2/services" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
                 Business Advisory
               </Link>
-              <Link href="/services/corporate" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/v2/services" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
                 Corporate Services
               </Link>
-              <Link href="/services/payroll" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/v2/services" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
                 Payroll & Social Insurance
               </Link>
-              <Link href="/services/ecommerce" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/v2/services" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
                 E-Commerce & Digital Business
               </Link>
             </div>
@@ -114,10 +114,10 @@ export function Footer() {
               <h4 className="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-1">
                 Contact
               </h4>
-              <Link href="/contact" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/v2#contact" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
                 Get in Touch
               </Link>
-              <Link href="/contact#location" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/v2#contact" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">
                 Location
               </Link>
               <a href="tel:01112042098" className="text-xs text-gray-600 hover:text-gray-900 transition-colors">

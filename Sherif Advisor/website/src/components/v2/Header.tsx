@@ -12,13 +12,14 @@ import {
 import { getClientLanguage, setLanguagePreference, type Language } from '@/lib/language';
 
 const navItems = [
-  { href: '/',           labelAr: 'الرئيسية',    labelEn: 'Home',       id: 'home' },
-  { href: '/#journey',    labelAr: 'رحلتك',       labelEn: 'Your Journey', id: 'journey' },
-  { href: '/#services',  labelAr: 'الخدمات',     labelEn: 'Services',   id: 'services' },
-  { href: '/#markets',   labelAr: 'الأسواق',     labelEn: 'Markets',    id: 'markets' },
-  { href: '/#insights',  labelAr: 'الأفكار',     labelEn: 'Insights',   id: 'insights' },
-  { href: '/#contact',   labelAr: 'تواصل معنا',  labelEn: 'Contact',    id: 'contact' },
-  { href: '/about',      labelAr: 'من نحن',      labelEn: 'About Us',   id: 'about' },
+  { href: '/v2',          labelAr: 'الرئيسية',    labelEn: 'Home',       id: 'home' },
+  { href: '/v2#journey',  labelAr: 'رحلتك',       labelEn: 'Your Journey', id: 'journey' },
+  { href: '/v2#services', labelAr: 'الخدمات',     labelEn: 'Services',   id: 'services' },
+  { href: '/v2#packages', labelAr: 'الباقات',     labelEn: 'Packages',   id: 'packages' },
+  { href: '/v2#markets',  labelAr: 'الأسواق',     labelEn: 'Markets',    id: 'markets' },
+  { href: '/v2#insights', labelAr: 'الأفكار',     labelEn: 'Insights',   id: 'insights' },
+  { href: '/v2#contact',  labelAr: 'تواصل معنا',  labelEn: 'Contact',    id: 'contact' },
+  { href: '/about',       labelAr: 'من نحن',      labelEn: 'About Us',   id: 'about' },
 ];
 
 // A CMS service item (from /api/content/services).
@@ -144,14 +145,14 @@ export function Header() {
     return () => { document.body.style.overflow = ''; };
   }, [isMenuOpen]);
 
-  // Treat both the homepage and the /v2 playground as single-page layouts
-  // so the nav scroll-spy marks the section currently in view.
-  const isSinglePage = pathname === '/' || pathname === '/v2';
+  // The /v2 playground is a single-page layout, so the nav scroll-spy marks
+  // the section currently in view.
+  const isSinglePage = pathname === '/v2';
 
   const isActive = (item: typeof navItems[0]) => {
     if (!isSinglePage) return item.href === pathname;
-    if (item.href === '/') return activeSection === 'home' || activeSection === '';
-    if (item.href.startsWith('/#')) return activeSection === item.href.replace('/#', '');
+    if (item.href === '/v2') return activeSection === 'home' || activeSection === '';
+    if (item.href.startsWith('/v2#')) return activeSection === item.href.replace('/v2#', '');
     return false;
   };
 
@@ -192,7 +193,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
         
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-4 group">
+        <Link href="/v2" className="flex items-center gap-4 group">
           <div className="relative w-14 h-14 lg:w-16 lg:h-16">
             <Image
               src="/images/logo.png"
@@ -363,7 +364,7 @@ export function Header() {
         <div className="lg:hidden fixed inset-0 z-[100] bg-[#030a12] overflow-y-auto">
           {/* Mobile Menu Header */}
           <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
-            <Link href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3">
+            <Link href="/v2" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3">
               <div className="relative w-12 h-12">
                 <Image
                   src="/images/logo.png"
@@ -510,7 +511,7 @@ export function Header() {
               <Link href="/about" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-400 hover:text-white transition-colors">
                 {t(lang, 'من نحن', 'About Us')}
               </Link>
-              <Link href="/#contact" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-400 hover:text-white transition-colors">
+              <Link href="/v2#contact" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-400 hover:text-white transition-colors">
                 {t(lang, 'تواصل معنا', 'Contact')}
               </Link>
               <Link href="/careers" onClick={() => setIsMenuOpen(false)} className="block text-sm text-gray-400 hover:text-white transition-colors">

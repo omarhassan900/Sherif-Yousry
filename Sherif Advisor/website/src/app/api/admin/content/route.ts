@@ -31,6 +31,14 @@ export async function GET(request: NextRequest) {
     const pageParam = searchParams.get('page');
     const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
 
+    // Parse pageSize (optional; clamped to a sane max so callers like the
+    // Page Sections screen can request the full fixed set in one call).
+    const pageSizeParam = searchParams.get('pageSize');
+    const pageSize = Math.min(
+      100,
+      Math.max(1, parseInt(pageSizeParam ?? '', 10) || PAGE_SIZE)
+    );
+
     // Parse type filter
     const typeParam = searchParams.get('type');
     const type =
@@ -64,8 +72,8 @@ export async function GET(request: NextRequest) {
       prisma.contentItem.findMany({
         where,
         orderBy: { updatedAt: 'desc' },
-        skip: (page - 1) * PAGE_SIZE,
-        take: PAGE_SIZE,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
       }),
       prisma.contentItem.count({ where }),
     ]);
@@ -76,13 +84,13 @@ export async function GET(request: NextRequest) {
       metadata: JSON.parse(item.metadata),
     }));
 
-    const totalPages = Math.ceil(total / PAGE_SIZE);
+    const totalPages = Math.ceil(total / pageSize);
 
     return NextResponse.json({
       items: parsedItems,
       total,
       page,
-      pageSize: PAGE_SIZE,
+      pageSize,
       totalPages,
     });
   } catch (error) {

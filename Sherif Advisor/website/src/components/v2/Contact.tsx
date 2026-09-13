@@ -3,13 +3,16 @@
 import { useState, useEffect } from 'react';
 import { Phone, Mail, MapPin } from 'lucide-react';
 import InquiryForm from '@/components/v2/InquiryForm';
-import type { InquiryFormProps } from '@/components/v2/InquiryForm';
 import { getClientLanguage, type Language } from '@/lib/language';
+import { useV2Section } from '@/lib/use-v2-section';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export function Contact() {
   const [lang, setLang] = useState<Language>('ar');
+
+  // CMS-backed content (falls back to the hardcoded copy).
+  const section = useV2Section('contact', lang);
 
   useEffect(() => {
     setLang(getClientLanguage());
@@ -27,10 +30,10 @@ export function Contact() {
           <div className="flex flex-col gap-6">
             <div>
               <span className="section-label mb-3 block text-sm md:text-base tracking-[0.25em]">
-                {t(lang, 'تواصل معنا', 'Contact Us')}
+                {section.body || t(lang, 'تواصل معنا', 'Contact Us')}
               </span>
               <h2 className="font-amiri text-5xl md:text-6xl leading-tight text-text-primary">
-                {t(
+                {section.title || t(
                   lang,
                   'نحن هنا لمساعدتك في التخطيط لما هو قادم.',
                   'We are here to help you plan for what comes next.'
@@ -45,10 +48,10 @@ export function Contact() {
                 </div>
                 <div>
                   <p className="text-base text-text-muted">
-                    {t(lang, 'اتصل بنا', 'Call us')}
+                    {section.field('callLabel', 'اتصل بنا', 'Call us')}
                   </p>
                   <p className="text-lg text-text-primary" dir="ltr">
-                    <a href="tel:+201112042098"> {t(lang, '+۲۰ ۱۱۱ ۲۰٤ ۲۰۹۸', '+20 111 204 2098')}
+                    <a href="tel:+201112042098"> {section.field('phone', '+۲۰ ۱۱۱ ۲۰٤ ۲۰۹۸', '+20 111 204 2098')}
                     </a>
                   </p>
                 </div>
@@ -60,10 +63,12 @@ export function Contact() {
                 </div>
                 <div>
                   <p className="text-base text-text-muted">
-                    {t(lang, 'البريد الإلكتروني', 'Email')}
+                    {section.field('emailLabel', 'البريد الإلكتروني', 'Email')}
                   </p>
                   <p className="text-lg text-text-primary">
-                    <a href="mailto:info@sherifadvisory.com">info@sherifadvisory.com</a>
+                    <a href={`mailto:${section.field('email', 'info@sherifadvisory.com', 'info@sherifadvisory.com')}`}>
+                      {section.field('email', 'info@sherifadvisory.com', 'info@sherifadvisory.com')}
+                    </a>
                   </p>
                 </div>
               </div>
@@ -74,10 +79,10 @@ export function Contact() {
                 </div>
                 <div>
                   <p className="text-base text-text-muted">
-                    {t(lang, 'المقر الرئيسي', 'Headquarters')}
+                    {section.field('hqLabel', 'المقر الرئيسي', 'Headquarters')}
                   </p>
                   <p className="text-lg text-text-primary">
-                    {t(lang, 'القاهرة الجديدة، القاهرة، مصر', 'New Cairo, Cairo, Egypt')}
+                    {section.field('hqValue', 'القاهرة الجديدة، القاهرة، مصر', 'New Cairo, Cairo, Egypt')}
                   </p>
                 </div>
               </div>
@@ -88,7 +93,7 @@ export function Contact() {
           <InquiryForm
             lang={lang}
             source="contact"
-            title={t(lang, 'لنبدأ العمل', "Let's get you started")}
+            title={section.field('formTitle', 'لنبدأ العمل', "Let's get you started")}
           />
         </div>
       </div>

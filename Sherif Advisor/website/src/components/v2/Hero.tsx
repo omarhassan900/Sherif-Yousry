@@ -6,24 +6,18 @@ import Image from 'next/image';
 import { Menu, X, ChevronDown, Play, XCircle } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 import { ScrollProgress } from '@/components/v2/ScrollProgress';
+import { useV2Section } from '@/lib/use-v2-section';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
-
-const navItems = [
-  { href: '/#home', labelAr: 'الرئيسية', labelEn: 'HOME' },
-  { href: '/about', labelAr: 'من نحن', labelEn: 'ABOUT US' },
-  { href: '/#services', labelAr: 'الخدمات', labelEn: 'SERVICES' },
-  { href: '/industries', labelAr: 'القطاعات', labelEn: 'INDUSTRIES' },
-  { href: '/knowledge', labelAr: 'الرؤى', labelEn: 'INSIGHTS' },
-  { href: '/#digital', labelAr: 'التجربة الرقمية', labelEn: 'DIGITAL EXPERIENCE' },
-  { href: '/contact', labelAr: 'تواصل معنا', labelEn: 'CONTACT' },
-];
 
 export function Hero() {
   const [lang, setLang] = useState<Language>('en');
   const [isMounted, setIsMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  // CMS-backed content (falls back to the hardcoded copy when unset).
+  const section = useV2Section('hero', lang);
   
   // ✅ New state for the video modal
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -95,30 +89,36 @@ export function Hero() {
           {/* Left Content */}
           <div className="space-y-8">
             <div className="flex items-center gap-4 font-mono text-sm tracking-[0.3em] text-brand-gold" style={{ animation: 'fadeInRight 0.8s ease 0.4s both' }}>
-              {t(lang, 'الناس • الرؤى • الفرص', 'PEOPLE • INSIGHT • OPPORTUNITY')}
+              {section.field('eyebrow', 'الناس • الرؤى • الفرص', 'PEOPLE • INSIGHT • OPPORTUNITY')}
             </div>
 
             <h1 className="font-serif text-white leading-tight" style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', animation: 'fadeInUp 0.8s ease 0.6s both', textShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
-              {t(lang, 'حيث تخلق الخبرة', 'WHERE EXPERTISE')}<br />
-              <span className="text-brand-gold">{t(lang, 'القيمة.', 'CREATES VALUE.')}</span>
+              {section.title ? (
+                <span className="text-brand-gold">{section.title}</span>
+              ) : (
+                <>
+                  {t(lang, 'حيث تخلق الخبرة', 'WHERE EXPERTISE')}<br />
+                  <span className="text-brand-gold">{t(lang, 'القيمة.', 'CREATES VALUE.')}</span>
+                </>
+              )}
             </h1>
 
             <p className="text-gray-300 text-lg max-w-xl leading-relaxed" style={{ animation: 'fadeInUp 0.8s ease 0.8s both', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-              {t(lang, 'خدمات استشارية وإدارية متكاملة لغد أكثر مرونة.', 'Integrated Advisory & Business Management Services for a more resilient tomorrow.')}
+              {section.body || t(lang, 'خدمات استشارية وإدارية متكاملة لغد أكثر مرونة.', 'Integrated Advisory & Business Management Services for a more resilient tomorrow.')}
             </p>
 
             <div className="flex flex-wrap gap-4" style={{ animation: 'fadeInUp 0.8s ease 1s both' }}>
               <Link href="/about#approach" className="inline-flex items-center gap-2 bg-[#f7f3e9] text-[#030a12] px-8 py-4 text-xs font-bold tracking-[0.15em] uppercase hover:bg-white transition-all duration-300 group">
-                {t(lang, 'استكشف نهجنا', 'EXPLORE OUR APPROACH')} <span className="transition-transform group-hover:translate-x-1">→</span>
+                {section.field('ctaPrimary', 'استكشف نهجنا', 'EXPLORE OUR APPROACH')} <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
-              <Link href="/contact" className="inline-flex items-center gap-2 border border-white/30 text-white px-8 py-4 text-xs font-bold tracking-[0.15em] uppercase hover:bg-white/10 hover:border-white transition-all duration-300 group">
-                {t(lang, 'ابدأ محادثة', 'START A CONVERSATION')} <span className="transition-transform group-hover:translate-x-1">→</span>
+              <Link href="/v2#contact" className="inline-flex items-center gap-2 border border-white/30 text-white px-8 py-4 text-xs font-bold tracking-[0.15em] uppercase hover:bg-white/10 hover:border-white transition-all duration-300 group">
+                {section.field('ctaSecondary', 'ابدأ محادثة', 'START A CONVERSATION')} <span className="transition-transform group-hover:translate-x-1">→</span>
               </Link>
             </div>
 
             <div className="flex items-center gap-4 pt-4" style={{ animation: 'fadeInUp 0.8s ease 1.2s both' }}>
               <div className="w-2 h-2 bg-brand-gold rounded-full animate-pulse" />
-              <span className="font-mono text-gray-400 text-xs tracking-[0.15em]">{t(lang, 'مصر · العاصمة الإدارية الجديدة', 'EGYPT — NEW ADMINISTRATIVE CAPITAL')}</span>
+              <span className="font-mono text-gray-400 text-xs tracking-[0.15em]">{section.field('location', 'مصر · العاصمة الإدارية الجديدة', 'EGYPT — NEW ADMINISTRATIVE CAPITAL')}</span>
             </div>
           </div>
 
@@ -126,9 +126,18 @@ export function Hero() {
           <div className="lg:flex flex-col justify-end items-stretch gap-4">
             <div className="space-y-3" style={{ animation: 'fadeInRight 0.8s ease 1s both' }}>
               {[
-                { titleAr: 'خبرة محلية', titleEn: 'LOCAL EXPERTISE', descAr: 'فهم عميق للأسواق المحلية', descEn: 'Deep understanding of local markets' },
-                { titleAr: 'منظور دولي', titleEn: 'INTERNATIONAL PERSPECTIVE', descAr: 'رؤية عالمية لأعمالك', descEn: 'Global vision for your business' },
-                { titleAr: 'أثر دائم', titleEn: 'LASTING IMPACT', descAr: 'نتائج مستدامة وطويلة الأمد', descEn: 'Sustainable and long-term results' },
+                {
+                  title: section.field('card1Title', 'خبرة محلية', 'LOCAL EXPERTISE'),
+                  desc: section.field('card1Desc', 'فهم عميق للأسواق المحلية', 'Deep understanding of local markets'),
+                },
+                {
+                  title: section.field('card2Title', 'منظور دولي', 'INTERNATIONAL PERSPECTIVE'),
+                  desc: section.field('card2Desc', 'رؤية عالمية لأعمالك', 'Global vision for your business'),
+                },
+                {
+                  title: section.field('card3Title', 'أثر دائم', 'LASTING IMPACT'),
+                  desc: section.field('card3Desc', 'نتائج مستدامة وطويلة الأمد', 'Sustainable and long-term results'),
+                },
               ].map((item, i) => (
                 <div
                   key={i}
@@ -137,10 +146,10 @@ export function Hero() {
                   {/* Gold accent bar */}
                   <span className="absolute inset-y-0 start-0 w-1 bg-brand-gold/70 rounded-full" aria-hidden="true" />
                   <h3 className="text-white text-sm font-bold tracking-[0.2em] uppercase mb-1.5">
-                    {t(lang, item.titleAr, item.titleEn)}
+                    {item.title}
                   </h3>
                   <p className="text-gray-200 text-xs leading-relaxed">
-                    {t(lang, item.descAr, item.descEn)}
+                    {item.desc}
                   </p>
                 </div>
               ))}
@@ -156,7 +165,7 @@ export function Hero() {
                 <Play className="w-5 h-5 text-white ml-0.5 group-hover:text-brand-gold transition-colors" fill="currentColor" />
               </div>
               <p className="text-white text-xs font-bold tracking-[0.15em] uppercase">
-                {t(lang, 'شاهد قصتنا', 'WATCH OUR STORY')}
+                {section.field('watchStory', 'شاهد قصتنا', 'WATCH OUR STORY')}
               </p>
             </button>
           </div>

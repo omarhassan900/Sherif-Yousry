@@ -50,8 +50,8 @@ export function MarketsBanner() {
             </div>
 
             {/* MIDDLE COLUMN — map blended into the section (not a framed image) */}
-            <div className="relative w-full self-stretch flex justify-center items-stretch">
-                <div className="relative w-full h-full min-h-[300px] aspect-[1024/520] my-auto">
+            <div className="relative w-full h-full min-h-[280px] flex justify-center items-center">
+                <div className="relative w-full h-full aspect-[1024/520]">
                     {/* Markets world map fills the middle area. `mix-blend-multiply`
                         lets the cream section color show through the light areas of
                         the map so it reads as part of the background, not a photo. */}

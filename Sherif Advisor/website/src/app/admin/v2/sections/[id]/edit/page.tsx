@@ -259,7 +259,7 @@ export default function EditSectionPage() {
       <AdminShell adminName={adminName}>
         <div className="max-w-4xl mx-auto space-y-6">
           <Link
-            href="/admin/sections"
+            href="/admin/v2/sections"
             className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -272,7 +272,7 @@ export default function EditSectionPage() {
               The section you are looking for does not exist or has been deleted.
             </p>
             <Link
-              href="/admin/sections"
+              href="/admin/v2/sections"
               className="px-4 py-2 text-sm font-medium rounded bg-brand-gold text-brand-navy hover:bg-brand-gold/90 transition-colors"
             >
               Return to Sections
@@ -289,7 +289,7 @@ export default function EditSectionPage() {
         {/* Back link + heading */}
         <div className="space-y-4">
           <Link
-            href="/admin/sections"
+            href="/admin/v2/sections"
             className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -306,7 +306,7 @@ export default function EditSectionPage() {
           </div>
         </div>
 
-        {/* Quick-jump navigation across all page sections */}
+        {/* Quick-jump navigation across all V2 sections */}
         <SectionNavBar currentId={sectionId} />
 
         {/* General error */}
@@ -529,7 +529,7 @@ export default function EditSectionPage() {
               </span>
             )}
             <Link
-              href="/admin/sections"
+              href="/admin/v2/sections"
               className="px-4 py-2 text-sm font-medium rounded border border-white/10 text-text-secondary hover:bg-white/5 transition-colors"
             >
               Done

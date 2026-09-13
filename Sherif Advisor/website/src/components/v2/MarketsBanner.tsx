@@ -4,11 +4,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { getClientLanguage, type Language } from '@/lib/language';
+import { useV2Section } from '@/lib/use-v2-section';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export function MarketsBanner() {
     const [lang, setLang] = useState<Language>('en');
+
+    // CMS-backed content (falls back to the hardcoded copy).
+    const section = useV2Section('markets', lang);
 
     useEffect(() => {
         setLang(getClientLanguage());
@@ -23,7 +27,7 @@ export function MarketsBanner() {
             {/* LEFT COLUMN */}
             <div className="z-10 flex flex-col gap-4 items-start text-left rtl:text-right">
                 <span className="text-[0.72rem] font-bold tracking-[2.5px] text-[#727e8c] uppercase">
-                    {t(lang, 'رؤية أوسع', 'A Broader Perspective')}
+                    {section.body || t(lang, 'رؤية أوسع', 'A Broader Perspective')}
                 </span>
 
                 <h2
@@ -31,12 +35,12 @@ export function MarketsBanner() {
                     lang === 'ar' ? 'font-sans' : 'font-serif uppercase'
                   }`}
                 >
-                    {t(lang, 'ربط الأسواق.\nصنع الفرص.', 'Connecting Markets.\nCreating Opportunity.')}
+                    {section.title || t(lang, 'ربط الأسواق.\nصنع الفرص.', 'Connecting Markets.\nCreating Opportunity.')}
                 </h2>
 
                 <p className="text-sm leading-relaxed text-[#4a5664] max-w-[290px]">
-                    {t(
-                        lang,
+                    {section.field(
+                        'description',
                         'ندعم المستثمرين والشركات في مصر ومنطقة الشرق الأوسط وشمال أفريقيا للوصول إلى الأسواق الأوروبية، من خلال الخبرة المحلية والمنظور الدولي.',
                         'Supporting investors and businesses in Egypt and across the MENA region, with access to European markets, through local expertise and international perspective.'
                     )}
@@ -46,7 +50,7 @@ export function MarketsBanner() {
                     href="/about"
                     className="inline-flex items-center gap-2 mt-2 px-4 py-2 border border-[#1c2733] text-[#1c2733] text-[0.7rem] font-bold tracking-wider uppercase hover:bg-[#1c2733] hover:text-white transition-all duration-300 group w-fit"
                 >
-                    {t(lang, 'نهجنا', 'Our Approach')}
+                    {section.field('cta', 'نهجنا', 'Our Approach')}
                     <span className="text-base transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180">
                         →
                     </span>
@@ -94,7 +98,7 @@ export function MarketsBanner() {
             {/* RIGHT COLUMN */}
             <div className="z-10 flex flex-col justify-center h-full border-t lg:border-t-0 lg:border-l rtl:lg:border-l-0 rtl:lg:border-r border-[#d8d2c6] pt-6 lg:pt-0 lg:pl-6 rtl:lg:pl-0 rtl:lg:pr-6">
                 <h3 className="text-sm font-bold leading-snug text-[#1c2733] uppercase tracking-wider whitespace-pre-line font-sans">
-                    {t(lang, 'أسواق مختلفة.\nغدٌ أقوى.', 'Different Markets.\nA Stronger Tomorrow.')}
+                    {section.field('rightHeading', 'أسواق مختلفة.\nغدٌ أقوى.', 'Different Markets.\nA Stronger Tomorrow.')}
                 </h3>
                 <div className="w-8 h-0.5 bg-[#1c2733] mt-4 rtl:ml-auto" />
             </div>
