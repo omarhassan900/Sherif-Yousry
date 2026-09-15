@@ -15,6 +15,7 @@ import { AIChatWidget } from '@/components/chat/AIChatWidget';
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 import {Journey} from '@/components/sections/Journey'
 import { ServicesGrid } from '@/components/sections/ServicesGrid';
+import { Packages } from '@/components/sections/Packages';
 import { MarketsBanner } from '@/components/sections/MarketsBanner';
 import { DigitalExperience } from '@/components/sections/DigitalExperience';
 import { CTABanner } from '@/components/sections/CTABanner';
@@ -30,8 +31,9 @@ export default function Home() {
       <MarketsBanner />
       <DigitalExperience /> 
       <Knowledge />
-      <Contact />
+      <Packages />
       <CTABanner />
+      <Contact />
       <Footer />
       <WhatsAppFloat />
     </main>

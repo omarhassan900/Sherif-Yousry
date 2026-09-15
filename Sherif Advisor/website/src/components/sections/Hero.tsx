@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X, ChevronDown, Play, XCircle } from 'lucide-react';
+import { Menu, X, ChevronDown, Play, XCircle, ArrowRight } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 import { ScrollProgress } from '@/components/effects/ScrollProgress';
 
@@ -55,22 +55,38 @@ export function Hero() {
     };
   }, [isVideoOpen]);
 
-  // Replace this with your actual YouTube/Vimeo ID or video URL
-  const videoUrl = "https://www.youtube.com/watch?v=TC8Un-PCnlU&t=30s"; 
+  // YouTube embed URL. Use the privacy-friendly nocookie domain and the
+  // /embed/ form (required to play inside an iframe). A plain /watch?v= URL
+  // is blocked by YouTube when embedded. No autoplay so the browser doesn't
+  // block/blank the frame — the user presses play.
+  const videoUrl = "https://www.youtube-nocookie.com/embed/GYBuD3JpxOI?rel=0"; 
 
   return (
     <section id="home" className="relative min-h-screen flex items-center overflow-hidden">
       <ScrollProgress />
       
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: 'url("/images/bg.jpeg")' }}
+      {/* Background Image — direction-aware. In LTR it sits on the right and
+          fades to the left; in RTL (Arabic) it mirrors, sits on the left, and
+          fades to the right so it stays behind the text and off the content. */}
+      <div
+        className={`absolute inset-y-0 w-full md:w-[83.333%] lg:w-[83.333%] bg-cover bg-no-repeat ${
+          lang === 'ar' ? 'left-0' : 'right-0'
+        }`}
+        style={{
+          backgroundImage: 'url("/images/bg.jpeg")',
+          backgroundPosition: lang === 'ar' ? 'left center' : 'right center',
+          // Mirror the image in Arabic. The flip also reverses the mask below,
+          // so the fade correctly points toward the text side in each language.
+          transform: lang === 'ar' ? 'scaleX(-1)' : 'none',
+          WebkitMaskImage:
+            'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 30%, #000 60%, #000 100%)',
+          maskImage:
+            'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 30%, #000 60%, #000 100%)',
+        }}
       />
-      
-      {/* Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#030a12]/95 via-[#030a12]/70 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#030a12]/40 via-transparent to-transparent" />
+
+      {/* Soft bottom fade for polish */}
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#030a12]/45 via-transparent to-transparent" />
 
     
       {/* Main Content */}
@@ -93,11 +109,17 @@ export function Hero() {
             </p>
 
             <div className="flex flex-wrap gap-4" style={{ animation: 'fadeInUp 0.8s ease 1s both' }}>
-              <Link href="/about#approach" className="inline-flex items-center gap-2 bg-[#f7f3e9] text-[#030a12] px-8 py-4 text-xs font-bold tracking-[0.15em] uppercase hover:bg-white transition-all duration-300 group">
-                {t(lang, 'استكشف نهجنا', 'EXPLORE OUR APPROACH')} <span className="transition-transform group-hover:translate-x-1">→</span>
+              <Link href="/about#approach" className="inline-flex items-center gap-3 bg-[#f7f3e9] text-[#030a12] pl-3 pr-8 py-3 rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:bg-white transition-all duration-300 group">
+                <span className="flex items-center justify-center w-9 h-9 rounded-full bg-[#030a12] text-[#f7f3e9] transition-transform duration-300 group-hover:translate-x-1">
+                  <ArrowRight className="w-4 h-4" />
+                </span>
+                {t(lang, 'استكشف نهجنا', 'EXPLORE OUR APPROACH')}
               </Link>
-              <Link href="/contact" className="inline-flex items-center gap-2 border border-white/30 text-white px-8 py-4 text-xs font-bold tracking-[0.15em] uppercase hover:bg-white/10 hover:border-white transition-all duration-300 group">
-                {t(lang, 'ابدأ محادثة', 'START A CONVERSATION')} <span className="transition-transform group-hover:translate-x-1">→</span>
+              <Link href="/contact" className="inline-flex items-center gap-3 border border-white/30 text-white pl-3 pr-8 py-3 rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:bg-white/10 hover:border-white transition-all duration-300 group">
+                <span className="flex items-center justify-center w-9 h-9 rounded-full bg-white text-[#030a12] transition-transform duration-300 group-hover:translate-x-1">
+                  <ArrowRight className="w-4 h-4" />
+                </span>
+                {t(lang, 'ابدأ محادثة', 'START A CONVERSATION')}
               </Link>
             </div>
 
@@ -123,23 +145,24 @@ export function Hero() {
                 <p className="text-gray-400 text-xs leading-relaxed">{t(lang, 'نتائج مستدامة وطويلة الأمد', 'Sustainable and long-term results')}</p>
               </div>
             </div>
-
-            {/* ✅ WATCH OUR STORY BUTTON */}
-            <button 
-              onClick={() => setIsVideoOpen(true)}
-              className="flex items-center gap-4 mt-8 group cursor-pointer"
-              style={{ animation: 'fadeInRight 0.8s ease 1.2s both' }}
-            >
-              <div className="w-16 h-16 rounded-full border-2 border-white/30 flex items-center justify-center group-hover:border-brand-gold group-hover:bg-brand-gold/10 transition-all duration-300">
-                <Play className="w-6 h-6 text-white ml-1 group-hover:text-brand-gold transition-colors" fill="currentColor" />
-              </div>
-              <div className="text-right">
-                <p className="text-white text-xs font-bold tracking-[0.15em] uppercase">{t(lang, 'شاهد قصتنا', 'WATCH OUR STORY')}</p>
-              </div>
-            </button>
           </div>
         </div>
       </div>
+
+      {/* ✅ WATCH OUR STORY BUTTON — pinned to the bottom-right of the hero */}
+      <button
+        onClick={() => setIsVideoOpen(true)}
+        className="absolute bottom-10 right-24 lg:right-32 z-20 flex items-center gap-4 group cursor-pointer"
+        style={{ animation: 'fadeInRight 0.8s ease 1.2s both' }}
+      >
+        <div className="w-14 h-14 rounded-full border-2 border-white/30 flex items-center justify-center group-hover:border-brand-gold group-hover:bg-brand-gold/10 transition-all duration-300">
+          <Play className="w-5 h-5 text-white ml-1 group-hover:text-brand-gold transition-colors" fill="currentColor" />
+        </div>
+        <div className="text-left leading-tight">
+          <p className="text-white text-xs font-bold tracking-[0.15em] uppercase">{t(lang, 'شاهد', 'WATCH')}</p>
+          <p className="text-white text-xs font-bold tracking-[0.15em] uppercase">{t(lang, 'قصتنا', 'OUR STORY')}</p>
+        </div>
+      </button>
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-60" style={{ animation: 'fadeInUp 0.8s ease 1.4s both' }}>
@@ -168,12 +191,23 @@ export function Hero() {
             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the video itself
           >
             <iframe
+              key={videoUrl}
               src={videoUrl}
               title="Sherif Yousry Advisory Story"
               className="absolute inset-0 w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
               allowFullScreen
             />
+            {/* Fallback: if the video can't be embedded, open it on YouTube */}
+            <a
+              href="https://www.youtube.com/watch?v=GYBuD3JpxOI"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-3 right-3 z-10 text-[11px] text-white/70 hover:text-white underline"
+            >
+              {t(lang, 'مشاهدة على يوتيوب', 'Watch on YouTube')}
+            </a>
           </div>
         </div>
       )}

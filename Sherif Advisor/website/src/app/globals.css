@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
+/* Web fonts are loaded via <link> tags in the root layout <head>
+   (src/app/layout.tsx). A CSS @import placed after @tailwind is ignored by
+   browsers, so it must not be relied on here. */
 
 @layer base {
   html {
@@ -92,17 +94,15 @@
      - mono labels                 -> IBM Plex Sans Arabic
    Amiri stays Amiri. This keeps Arabic looking cohesive site-wide.
    ============================================================ */
-/* Elegant Arabic display serif to pair with Cormorant Garamond headings.
-   Aref Ruqaa has a similar refined, high-contrast serif character. */
+/* Elegant, modern Arabic display face to pair with Cormorant Garamond
+   headings. El Messiri is a refined, premium Arabic serif/display with clean,
+   readable letterforms — a better match for the site's advisory look than the
+   more ornate Aref Ruqaa (kept as a fallback). */
 [dir='rtl'] .font-serif,
-[dir='rtl'] .font-cormorant {
-  font-family: 'Aref Ruqaa', 'Amiri', serif;
-}
-
-/* Amiri stays as the dedicated font-amiri (used for softer body-style
-   Arabic headings), so both faces remain available. */
+[dir='rtl'] .font-cormorant,
 [dir='rtl'] .font-amiri {
-  font-family: 'Amiri', serif;
+  font-family: 'El Messiri', 'Amiri', serif;
+  font-weight: 600;
 }
 
 [dir='rtl'] .font-mono {

@@ -233,50 +233,67 @@ export function Knowledge() {
                       ? cover 
                       : 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=400';
                     
+                    const snippet = (a.body || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
                     return (
                       <Link 
                         key={a.id} 
                         href={`/knowledge/${a.id}`}
-                        className="group bg-white rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 flex flex-col"
+                        className="group relative rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-300 flex flex-col h-64"
                       >
+                        {/* Full-bleed image */}
                         {hasImage ? (
                           cover.startsWith('http') ? (
                             <img 
                               src={cover} 
                               alt={a.title} 
-                              className="h-28 w-full object-cover"
+                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                               loading={index === 0 ? 'eager' : 'lazy'}
                             />
                           ) : (
                             <Image 
                               src={cover} 
                               alt={a.title} 
-                              width={400}
-                              height={150}
-                              className="h-28 w-full object-cover"
+                              fill
+                              className="object-cover transition-transform duration-700 group-hover:scale-105"
                               loading={index === 0 ? 'eager' : 'lazy'}
                             />
                           )
                         ) : (
-                          <div className="h-28 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                          <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
                             {t(lang, 'بدون صورة', 'No Image')}
                           </div>
                         )}
-                        <div className="p-4 flex flex-col flex-grow justify-between">
+
+                        {/* Colored panel that slides up on hover (Apollo-style).
+                            Rests showing category+title; on hover it rises just
+                            enough to reveal the description while keeping the top
+                            of the image visible (capped, not full-height). */}
+                        <div className="absolute inset-x-0 bottom-0 z-10 max-h-[75%] overflow-hidden bg-brand-navy/95 p-4 transition-all duration-500 ease-out translate-y-[calc(100%-5rem)] group-hover:translate-y-0">
                           {a.metadata?.category && (
-                            <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase mb-2">
+                            <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block mb-1.5">
                               {t(lang, a.metadata.category, a.metadata.category)}
                             </span>
                           )}
-                          <h3 className="text-[13px] leading-snug font-medium text-[#333333] mb-3 group-hover:text-brand-gold transition-colors">
+                          <h3 className="text-[15px] leading-snug font-semibold text-white mb-3 line-clamp-2">
                             {a.title}
                           </h3>
-                          <div className="flex justify-between items-center text-[11px] text-[#8d8d8d]">
-                            <span>{a.metadata?.publishDate ? new Date(a.metadata.publishDate).getFullYear() : ''}</span>
-                            <span className="text-[#555555] group-hover:text-brand-gold transition-colors">
-                              {lang === 'ar' ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
+
+                          {/* Description — fades in on hover */}
+                          {snippet && (
+                            <p className="text-[12px] leading-relaxed text-gray-300 mb-4 line-clamp-3 opacity-0 -translate-y-1 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
+                              {snippet}
+                            </p>
+                          )}
+
+                          {/* Learn More with circular arrow */}
+                          <span className="inline-flex items-center gap-2.5 text-[11px] font-bold tracking-wider text-white uppercase">
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/15">
+                              {lang === 'ar'
+                                ? <ArrowLeft className="w-3.5 h-3.5 transition-colors group-hover:text-brand-gold" />
+                                : <ArrowRight className="w-3.5 h-3.5 transition-colors group-hover:text-brand-gold" />}
                             </span>
-                          </div>
+                            {t(lang, 'اقرأ المزيد', 'Learn More')}
+                          </span>
                         </div>
                       </Link>
                     );

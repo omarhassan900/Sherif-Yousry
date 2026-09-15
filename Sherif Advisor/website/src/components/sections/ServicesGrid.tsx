@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
+import { useV2Section } from '@/lib/use-v2-section';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
@@ -73,6 +75,9 @@ export function ServicesGrid() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
+  // CMS-backed heading/eyebrow/intro/CTA (falls back to hardcoded copy).
+  const section = useV2Section('services', lang);
+
   useEffect(() => {
     setLang(getClientLanguage());
   }, []);
@@ -95,7 +100,7 @@ export function ServicesGrid() {
   return (
     <section 
       ref={sectionRef}
-      className="w-full py-16 px-6 md:px-10 border-t border-b border-white/12"
+      className="w-full py-10 px-6 md:px-10 border-t border-b border-white/12"
       style={{
         backgroundColor: '#030a12',
         backgroundImage: `
@@ -109,40 +114,46 @@ export function ServicesGrid() {
         
         {/* Header */}
         <div 
-          className={`flex flex-col lg:flex-row justify-between items-start gap-10 mb-12 transition-all duration-1000 ease-out ${
+          className={`flex flex-col lg:flex-row justify-between items-start gap-6 mb-8 transition-all duration-1000 ease-out ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
         >
           <div className="flex-1">
             <span className="text-xs font-semibold tracking-widest text-gray-400 uppercase block mb-3">
-              {t(lang, 'خدماتنا', 'Our Services')}
+              {section.body || t(lang, 'خدماتنا', 'Our Services')}
             </span>
-            <h2 className="font-serif text-3xl md:text-4xl font-normal leading-tight tracking-wide text-white">
-              {t(lang, 'خبرة متكاملة.', 'INTEGRATED EXPERTISE.')}<br/>
-              {t(lang, 'أثر حقيقي.', 'REAL-WORLD IMPACT.')}
+            <h2 className="font-serif text-3xl md:text-4xl font-normal leading-tight tracking-wide text-white whitespace-pre-line">
+              {section.title || (
+                <>
+                  {t(lang, 'خبرة متكاملة.', 'INTEGRATED EXPERTISE.')}<br/>
+                  {t(lang, 'أثر حقيقي.', 'REAL-WORLD IMPACT.')}
+                </>
+              )}
             </h2>
           </div>
           
           <div className="flex-1 max-w-[520px] flex flex-col items-start gap-4">
             <p className="text-sm text-gray-400 leading-relaxed">
-              {t(
-                lang,
+              {section.field(
+                'intro',
                 'نقدم خدمات استشارية وإدارية شاملة، نجمع فيها بين الخبرة الفنية العميقة والفهم العملي لطبيعة الأعمال.',
                 'We provide end-to-end advisory and business management services, combining deep technical expertise with practical business understanding.'
               )}
             </p>
             <Link 
               href="/services" 
-              className="text-white text-xs font-semibold tracking-wider no-underline uppercase inline-flex items-center gap-2 hover:text-sky-400 transition-colors"
+              className="group text-white text-xs font-semibold tracking-wider no-underline uppercase inline-flex items-center gap-3 hover:text-brand-gold transition-colors"
             >
-              {t(lang, 'استكشف خدماتنا', 'Explore Our Services')} 
-              <span className="rtl:rotate-180">→</span>
+              <span className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-white/30 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/10 group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
+                <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-colors group-hover:text-brand-gold" />
+              </span>
+              {section.field('cta', 'استكشف خدماتنا', 'Explore Our Services')}
             </Link>
           </div>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 border-l border-white/12">
+        {/* Services Grid — borderless, separated by gap */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
           {servicesData.map((service, index) => (
             <Link
               key={index}
@@ -150,25 +161,25 @@ export function ServicesGrid() {
               style={{ 
                 transitionDelay: isVisible ? `${index * 100}ms` : '0ms'
               }}
-              className={`group border-r border-white/12 px-5 py-4 flex flex-col gap-4 transition-all duration-500 ease-out hover:bg-white/5
+              className={`group rounded-lg px-4 py-4 flex flex-col gap-2 transition-all duration-500 ease-out hover:bg-white/5
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
             >
-              <span className="text-sm text-gray-400 font-normal">
+              <span className="text-xs text-gray-400 font-normal">
                 {service.num}
               </span>
               <svg 
-                className="w-6 h-6 text-white" 
+                className="icon-anim w-9 h-9 text-white transition-all duration-300 ease-out group-hover:text-brand-gold group-hover:scale-110 group-hover:-translate-y-0.5" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
               >
                 {service.icon}
               </svg>
-              <h3 className="text-sm font-medium leading-snug text-white whitespace-pre-line mt-1">
+              <h3 className="text-[13px] font-medium leading-snug text-white whitespace-pre-line origin-left rtl:origin-right transition-all duration-300 ease-out group-hover:scale-110 group-hover:text-brand-gold">
                 {t(lang, service.titleAr, service.titleEn)}
               </h3>
-              <span className="text-base text-gray-400 transition-all duration-200 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 group-hover:text-white">
-                →
+              <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/30 text-gray-400 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/10 group-hover:text-brand-gold group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
+                <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
               </span>
             </Link>
           ))}
