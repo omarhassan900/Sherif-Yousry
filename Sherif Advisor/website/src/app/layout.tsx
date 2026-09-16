@@ -58,6 +58,17 @@ export default function RootLayout({
       dir={initialDir} 
       suppressHydrationWarning // ✅ Prevents hydration warnings when client syncs
     >
+      <head>
+        {/* Load web fonts here (not via a CSS @import placed after @tailwind,
+            which browsers ignore). This guarantees Arabic (El Messiri / Amiri)
+            and Latin (Cormorant Garamond) display faces actually download. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=El+Messiri:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className="antialiased">
         {/* ✅ This component updates the html tag on the client after mount */}
         <DirectionSync />

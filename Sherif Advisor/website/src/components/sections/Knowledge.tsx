@@ -33,6 +33,8 @@ const fallback = [
     catEn: 'Tax Update',
     titleAr: 'المرحلة الثانية للفاتورة الإلكترونية: ما يتغيّر للمجموعات المتوسطة في مصر؟',
     titleEn: 'E-invoicing Phase 2: What changes for mid-size groups in Egypt?',
+    descAr: 'نظرة على متطلبات المرحلة الثانية للفاتورة الإلكترونية وأثرها على التزام المجموعات المتوسطة.',
+    descEn: 'A look at the Phase 2 e-invoicing requirements and their impact on mid-size group compliance.',
     date: '2024',
     dateEn: 'April 15, 2025',
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400',
@@ -43,6 +45,8 @@ const fallback = [
     catEn: 'Regulatory',
     titleAr: 'إطار COSO 2024 — أبرز التحديثات وأثرها على الشركات المصرية.',
     titleEn: 'COSO 2024 Framework — Key updates and impact on Egyptian companies.',
+    descAr: 'أهم التحديثات في إطار COSO 2024 وما تعنيه للرقابة الداخلية في الشركات المصرية.',
+    descEn: 'The key updates in the COSO 2024 framework and what they mean for internal control in Egyptian companies.',
     date: '2024',
     dateEn: 'April 10, 2025',
     image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&q=80&w=400',
@@ -53,6 +57,8 @@ const fallback = [
     catEn: 'Market Updates',
     titleAr: 'ضريبة الشركات في الإمارات: دليل الالتزام الأولي والهيكلة.',
     titleEn: 'UAE Corporate Tax: A guide to initial compliance and structuring.',
+    descAr: 'دليل عملي للالتزام الأولي بضريبة الشركات في الإمارات وأفضل ممارسات الهيكلة.',
+    descEn: 'A practical guide to initial UAE corporate tax compliance and structuring best practices.',
     date: '2024',
     dateEn: 'April 2, 2025',
     image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&q=80&w=400',
@@ -62,7 +68,7 @@ const fallback = [
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: Language; delay: number }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLAnchorElement>(null);
   const [vis, setVis] = useState(false);
 
   useEffect(() => {
@@ -74,37 +80,48 @@ function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: La
   }, []);
 
   return (
-    <div
+    <Link
       ref={ref}
-      className="group bg-white rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 cursor-pointer"
+      href={`/knowledge/${item.id}`}
+      className="group relative rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-300 flex flex-col h-64"
       style={{
         opacity: vis ? 1 : 0,
         transform: vis ? 'translateY(0)' : 'translateY(20px)',
         transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
       }}
     >
-      <div className="relative h-28 w-full overflow-hidden">
-        <Image 
-          src={item.image} 
-          alt={t(lang, item.titleAr, item.titleEn)}
-          width={400}
-          height={150}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      </div>
-      <div className="p-4">
-        <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block mb-2">
+      {/* Full-bleed image */}
+      <img
+        src={item.image}
+        alt={t(lang, item.titleAr, item.titleEn)}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+
+      {/* Colored panel — same design as the CMS cards */}
+      <div className="absolute inset-x-0 bottom-0 z-10 bg-brand-navy/95 p-4 flex flex-col gap-2">
+        <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block">
           {t(lang, item.category, item.catEn)}
         </span>
-        <h3 className="text-[13px] leading-snug font-medium text-[#333333] mb-3 group-hover:text-brand-gold transition-colors">
+        <h3 className="text-[15px] leading-snug font-semibold text-white line-clamp-2">
           {t(lang, item.titleAr, item.titleEn)}
         </h3>
-        <div className="flex justify-between items-center text-[11px] text-[#8d8d8d]">
-          <span>{t(lang, item.date, item.dateEn)}</span>
-          <span className="text-[#555555]">→</span>
-        </div>
+
+        {/* Description — collapsed at rest, expands + fades in on hover */}
+        <p className="text-[12px] leading-relaxed text-gray-300 line-clamp-3 max-h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:max-h-24 group-hover:opacity-100">
+          {t(lang, item.descAr, item.descEn)}
+        </p>
+
+        {/* Learn More with circular arrow — always visible */}
+        <span className="inline-flex items-center gap-2.5 text-[11px] font-bold tracking-wider text-white uppercase">
+          <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/15">
+            {lang === 'ar'
+              ? <ArrowLeft className="w-3.5 h-3.5 transition-colors group-hover:text-brand-gold" />
+              : <ArrowRight className="w-3.5 h-3.5 transition-colors group-hover:text-brand-gold" />}
+          </span>
+          {t(lang, 'اقرأ المزيد', 'Learn More')}
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -233,50 +250,68 @@ export function Knowledge() {
                       ? cover 
                       : 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=400';
                     
+                    const snippet = (a.body || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
                     return (
                       <Link 
                         key={a.id} 
                         href={`/knowledge/${a.id}`}
-                        className="group bg-white rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 flex flex-col"
+                        className="group relative rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-300 flex flex-col h-64"
                       >
+                        {/* Full-bleed image */}
                         {hasImage ? (
                           cover.startsWith('http') ? (
                             <img 
                               src={cover} 
                               alt={a.title} 
-                              className="h-28 w-full object-cover"
+                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                               loading={index === 0 ? 'eager' : 'lazy'}
                             />
                           ) : (
                             <Image 
                               src={cover} 
                               alt={a.title} 
-                              width={400}
-                              height={150}
-                              className="h-28 w-full object-cover"
+                              fill
+                              className="object-cover transition-transform duration-700 group-hover:scale-105"
                               loading={index === 0 ? 'eager' : 'lazy'}
                             />
                           )
                         ) : (
-                          <div className="h-28 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                          <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-xs text-gray-500">
                             {t(lang, 'بدون صورة', 'No Image')}
                           </div>
                         )}
-                        <div className="p-4 flex flex-col flex-grow justify-between">
+
+                        {/* Colored panel that slides up on hover (Apollo-style).
+                            Order: category, title, Learn More (always visible),
+                            then the description which only appears on hover. The
+                            description is height-collapsed at rest so the arrow
+                            stays visible on every card. */}
+                        <div className="absolute inset-x-0 bottom-0 z-10 bg-brand-navy/95 p-4 flex flex-col gap-2">
                           {a.metadata?.category && (
-                            <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase mb-2">
+                            <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block">
                               {t(lang, a.metadata.category, a.metadata.category)}
                             </span>
                           )}
-                          <h3 className="text-[13px] leading-snug font-medium text-[#333333] mb-3 group-hover:text-brand-gold transition-colors">
+                          <h3 className="text-[15px] leading-snug font-semibold text-white line-clamp-2">
                             {a.title}
                           </h3>
-                          <div className="flex justify-between items-center text-[11px] text-[#8d8d8d]">
-                            <span>{a.metadata?.publishDate ? new Date(a.metadata.publishDate).getFullYear() : ''}</span>
-                            <span className="text-[#555555] group-hover:text-brand-gold transition-colors">
-                              {lang === 'ar' ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
+
+                          {/* Description — collapsed at rest, expands + fades in on hover */}
+                          {snippet && (
+                            <p className="text-[12px] leading-relaxed text-gray-300 line-clamp-3 max-h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:max-h-24 group-hover:opacity-100">
+                              {snippet}
+                            </p>
+                          )}
+
+                          {/* Learn More with circular arrow — always visible */}
+                          <span className="inline-flex items-center gap-2.5 text-[11px] font-bold tracking-wider text-white uppercase">
+                            <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/15">
+                              {lang === 'ar'
+                                ? <ArrowLeft className="w-3.5 h-3.5 transition-colors group-hover:text-brand-gold" />
+                                : <ArrowRight className="w-3.5 h-3.5 transition-colors group-hover:text-brand-gold" />}
                             </span>
-                          </div>
+                            {t(lang, 'اقرأ المزيد', 'Learn More')}
+                          </span>
                         </div>
                       </Link>
                     );

@@ -23,6 +23,11 @@ interface ServiceDetail {
   };
 }
 
+interface ServiceListItem {
+  id: string;
+  title: string;
+}
+
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export default function ServiceDetailPage() {
@@ -32,6 +37,7 @@ export default function ServiceDetailPage() {
   const [lang, setLang] = useState<Language>('ar');
   const [langReady, setLangReady] = useState(false);
   const [service, setService] = useState<ServiceDetail | null>(null);
+  const [allServices, setAllServices] = useState<ServiceListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -39,6 +45,23 @@ export default function ServiceDetailPage() {
     setLang(getClientLanguage());
     setLangReady(true);
   }, []);
+
+  // Load the full services list for the left sidebar navigation.
+  useEffect(() => {
+    if (!langReady) return;
+    let cancelled = false;
+    fetch(`/api/content/services?lang=${lang}`)
+      .then((res) => (res.ok ? res.json() : { items: [] }))
+      .then((data) => {
+        if (!cancelled && Array.isArray(data.items)) {
+          setAllServices(data.items.map((s: { id: string; title: string }) => ({ id: s.id, title: s.title })));
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, langReady]);
 
   useEffect(() => {
     if (!id || !langReady) return;
@@ -132,33 +155,68 @@ export default function ServiceDetailPage() {
             </div>
           </div>
 
-          {/* Body */}
+          {/* Body — left services sidebar + main content (Andersen-style) */}
           <section className="bg-surface-light py-16 lg:py-20">
-            <div className="max-w-4xl mx-auto px-6 lg:px-8 grid lg:grid-cols-5 gap-10">
-              {/* Content */}
-              <div className="lg:col-span-3 space-y-6">
-                {service.metadata?.image && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={service.metadata.image}
-                    alt={service.title}
-                    className="w-full rounded-lg shadow-sm object-cover max-h-80"
-                  />
-                )}
-                <div
-                  className="text-text-dark-secondary leading-8 whitespace-pre-line text-[15px]"
-                  dangerouslySetInnerHTML={{ __html: fullDescription }}
-                />
-              </div>
+            <div className="max-w-6xl mx-auto px-6 lg:px-8 grid lg:grid-cols-[260px_1fr] gap-10 lg:gap-14 items-start">
+              {/* Left sidebar: list of all services */}
+              <aside className="lg:sticky lg:top-28">
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                  <div className="bg-brand-navy px-5 py-4">
+                    <h2 className="text-white font-semibold text-sm tracking-wide">
+                      {t(lang, 'خدماتنا', 'Our Services')}
+                    </h2>
+                  </div>
+                  <nav className="p-2">
+                    {allServices.map((s) => {
+                      const active = s.id === service.id;
+                      return (
+                        <Link
+                          key={s.id}
+                          href={`/services/${s.id}`}
+                          className={`flex items-center gap-2 px-3 py-2.5 rounded-md text-sm transition-colors ${
+                            active
+                              ? 'bg-brand-gold/10 text-brand-navy font-semibold'
+                              : 'text-text-dark-secondary hover:bg-gray-50 hover:text-brand-gold'
+                          }`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${active ? 'bg-brand-gold' : 'bg-gray-300'}`} />
+                          {s.title}
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                </div>
+              </aside>
 
-              {/* Inquiry form */}
-              <div className="lg:col-span-2">
-                <InquiryForm
-                  lang={lang}
-                  source="service"
-                  lockedService={{ id: service.id, name: service.title }}
-                  title={t(lang, 'اطلب هذه الخدمة', 'Request This Service')}
-                />
+              {/* Main content + inquiry form */}
+              <div className="min-w-0 space-y-10">
+                <div className="space-y-6">
+                  <h2 className="font-amiri text-2xl md:text-3xl text-brand-navy leading-relaxed">
+                    {service.title}
+                  </h2>
+                  {service.metadata?.image && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={service.metadata.image}
+                      alt={service.title}
+                      className="w-full rounded-lg shadow-sm object-cover max-h-80"
+                    />
+                  )}
+                  <div
+                    className="text-text-dark-secondary leading-8 whitespace-pre-line text-[15px]"
+                    dangerouslySetInnerHTML={{ __html: fullDescription }}
+                  />
+                </div>
+
+                {/* Inquiry form */}
+                <div className="max-w-xl">
+                  <InquiryForm
+                    lang={lang}
+                    source="service"
+                    lockedService={{ id: service.id, name: service.title }}
+                    title={t(lang, 'اطلب هذه الخدمة', 'Request This Service')}
+                  />
+                </div>
               </div>
             </div>
           </section>
