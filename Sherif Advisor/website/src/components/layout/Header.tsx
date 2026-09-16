@@ -565,16 +565,32 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <button 
-          className={`lg:hidden transition-colors ${
-            showWhiteBg ? 'text-[#030a12]' : 'text-white'
-          }`}
-          onClick={() => setIsMenuOpen(true)}
-        >
-          <Menu className="w-6 h-6" />
-        </button>
       </div>
+
+      {/* Mobile floating pill (bottom-center): search | menu */}
+      {!isMenuOpen && (
+        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[90]">
+          <div className="flex items-center gap-1 rounded-full bg-brand-navy/95 backdrop-blur-md border border-white/10 shadow-xl shadow-black/30 px-2 py-1.5">
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className="flex items-center justify-center w-11 h-11 rounded-full text-white hover:text-brand-gold transition-colors"
+              aria-label={t(lang, 'بحث', 'Search')}
+            >
+              <Search className="w-5 h-5" />
+            </button>
+            <span className="w-px h-6 bg-white/20" />
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen(true)}
+              className="flex items-center justify-center w-11 h-11 rounded-full text-white hover:text-brand-gold transition-colors"
+              aria-label={t(lang, 'القائمة', 'Menu')}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ✅ FULL-SCREEN MOBILE MENU */}
       {isMenuOpen && (

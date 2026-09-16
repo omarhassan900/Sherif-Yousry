@@ -33,6 +33,8 @@ const fallback = [
     catEn: 'Tax Update',
     titleAr: 'المرحلة الثانية للفاتورة الإلكترونية: ما يتغيّر للمجموعات المتوسطة في مصر؟',
     titleEn: 'E-invoicing Phase 2: What changes for mid-size groups in Egypt?',
+    descAr: 'نظرة على متطلبات المرحلة الثانية للفاتورة الإلكترونية وأثرها على التزام المجموعات المتوسطة.',
+    descEn: 'A look at the Phase 2 e-invoicing requirements and their impact on mid-size group compliance.',
     date: '2024',
     dateEn: 'April 15, 2025',
     image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400',
@@ -43,6 +45,8 @@ const fallback = [
     catEn: 'Regulatory',
     titleAr: 'إطار COSO 2024 — أبرز التحديثات وأثرها على الشركات المصرية.',
     titleEn: 'COSO 2024 Framework — Key updates and impact on Egyptian companies.',
+    descAr: 'أهم التحديثات في إطار COSO 2024 وما تعنيه للرقابة الداخلية في الشركات المصرية.',
+    descEn: 'The key updates in the COSO 2024 framework and what they mean for internal control in Egyptian companies.',
     date: '2024',
     dateEn: 'April 10, 2025',
     image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&q=80&w=400',
@@ -53,6 +57,8 @@ const fallback = [
     catEn: 'Market Updates',
     titleAr: 'ضريبة الشركات في الإمارات: دليل الالتزام الأولي والهيكلة.',
     titleEn: 'UAE Corporate Tax: A guide to initial compliance and structuring.',
+    descAr: 'دليل عملي للالتزام الأولي بضريبة الشركات في الإمارات وأفضل ممارسات الهيكلة.',
+    descEn: 'A practical guide to initial UAE corporate tax compliance and structuring best practices.',
     date: '2024',
     dateEn: 'April 2, 2025',
     image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&q=80&w=400',
@@ -62,7 +68,7 @@ const fallback = [
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: Language; delay: number }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLAnchorElement>(null);
   const [vis, setVis] = useState(false);
 
   useEffect(() => {
@@ -74,37 +80,48 @@ function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: La
   }, []);
 
   return (
-    <div
+    <Link
       ref={ref}
-      className="group bg-white rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-all duration-300 cursor-pointer"
+      href={`/knowledge/${item.id}`}
+      className="group relative rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-300 flex flex-col h-64"
       style={{
         opacity: vis ? 1 : 0,
         transform: vis ? 'translateY(0)' : 'translateY(20px)',
         transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
       }}
     >
-      <div className="relative h-28 w-full overflow-hidden">
-        <Image 
-          src={item.image} 
-          alt={t(lang, item.titleAr, item.titleEn)}
-          width={400}
-          height={150}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      </div>
-      <div className="p-4">
-        <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block mb-2">
+      {/* Full-bleed image */}
+      <img
+        src={item.image}
+        alt={t(lang, item.titleAr, item.titleEn)}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+
+      {/* Colored panel — same design as the CMS cards */}
+      <div className="absolute inset-x-0 bottom-0 z-10 bg-brand-navy/95 p-4 flex flex-col gap-2">
+        <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block">
           {t(lang, item.category, item.catEn)}
         </span>
-        <h3 className="text-[13px] leading-snug font-medium text-[#333333] mb-3 group-hover:text-brand-gold transition-colors">
+        <h3 className="text-[15px] leading-snug font-semibold text-white line-clamp-2">
           {t(lang, item.titleAr, item.titleEn)}
         </h3>
-        <div className="flex justify-between items-center text-[11px] text-[#8d8d8d]">
-          <span>{t(lang, item.date, item.dateEn)}</span>
-          <span className="text-[#555555]">→</span>
-        </div>
+
+        {/* Description — collapsed at rest, expands + fades in on hover */}
+        <p className="text-[12px] leading-relaxed text-gray-300 line-clamp-3 max-h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:max-h-24 group-hover:opacity-100">
+          {t(lang, item.descAr, item.descEn)}
+        </p>
+
+        {/* Learn More with circular arrow — always visible */}
+        <span className="inline-flex items-center gap-2.5 text-[11px] font-bold tracking-wider text-white uppercase">
+          <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/15">
+            {lang === 'ar'
+              ? <ArrowLeft className="w-3.5 h-3.5 transition-colors group-hover:text-brand-gold" />
+              : <ArrowRight className="w-3.5 h-3.5 transition-colors group-hover:text-brand-gold" />}
+          </span>
+          {t(lang, 'اقرأ المزيد', 'Learn More')}
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -265,27 +282,28 @@ export function Knowledge() {
                         )}
 
                         {/* Colored panel that slides up on hover (Apollo-style).
-                            Rests showing category+title; on hover it rises just
-                            enough to reveal the description while keeping the top
-                            of the image visible (capped, not full-height). */}
-                        <div className="absolute inset-x-0 bottom-0 z-10 max-h-[75%] overflow-hidden bg-brand-navy/95 p-4 transition-all duration-500 ease-out translate-y-[calc(100%-5rem)] group-hover:translate-y-0">
+                            Order: category, title, Learn More (always visible),
+                            then the description which only appears on hover. The
+                            description is height-collapsed at rest so the arrow
+                            stays visible on every card. */}
+                        <div className="absolute inset-x-0 bottom-0 z-10 bg-brand-navy/95 p-4 flex flex-col gap-2">
                           {a.metadata?.category && (
-                            <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block mb-1.5">
+                            <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block">
                               {t(lang, a.metadata.category, a.metadata.category)}
                             </span>
                           )}
-                          <h3 className="text-[15px] leading-snug font-semibold text-white mb-3 line-clamp-2">
+                          <h3 className="text-[15px] leading-snug font-semibold text-white line-clamp-2">
                             {a.title}
                           </h3>
 
-                          {/* Description — fades in on hover */}
+                          {/* Description — collapsed at rest, expands + fades in on hover */}
                           {snippet && (
-                            <p className="text-[12px] leading-relaxed text-gray-300 mb-4 line-clamp-3 opacity-0 -translate-y-1 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
+                            <p className="text-[12px] leading-relaxed text-gray-300 line-clamp-3 max-h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:max-h-24 group-hover:opacity-100">
                               {snippet}
                             </p>
                           )}
 
-                          {/* Learn More with circular arrow */}
+                          {/* Learn More with circular arrow — always visible */}
                           <span className="inline-flex items-center gap-2.5 text-[11px] font-bold tracking-wider text-white uppercase">
                             <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/15">
                               {lang === 'ar'

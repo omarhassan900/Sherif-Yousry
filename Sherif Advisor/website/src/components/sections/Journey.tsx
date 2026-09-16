@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
@@ -102,14 +103,17 @@ export function Journey() {
 
           {/* 3rd Column: SAME SIZE, JUSTIFIED END (Starts aligned left on mobile, right on desktop) */}
           <div className="lg:col-span-3 flex justify-start lg:justify-end items-end">
+            {/* Hero-style pill frame with a leading circular arrow badge */}
             <Link 
               href="/services" 
-              className="text-xs font-bold uppercase tracking-wider text-brand-navy hover:text-brand-gold transition-colors inline-flex items-center gap-2 group"
+              className="group inline-flex items-center gap-3 border border-brand-navy/30 text-brand-navy pl-2 pr-6 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:border-brand-gold hover:text-brand-gold transition-all duration-300"
             >
-              {t(lang, 'استكشف جميع الخدمات', 'Explore All Services')} 
-              <span className="transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180">
-                →
+              <span className="flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white transition-all duration-300 group-hover:bg-brand-gold group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
+                {lang === 'ar'
+                  ? <ArrowLeft className="w-4 h-4" />
+                  : <ArrowRight className="w-4 h-4" />}
               </span>
+              {t(lang, 'استكشف جميع الخدمات', 'Explore All Services')}
             </Link>
           </div>
         </div>
@@ -120,7 +124,6 @@ export function Journey() {
             <Link 
               key={index} 
               href={card.href}
-              // ✅ Staggered delay for each card (0ms, 150ms, 300ms, 450ms)
               style={{ transitionDelay: isVisible ? `${index * 150}ms` : '0ms' }}
               className={`group bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-brand-gold/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-700 ease-out
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
@@ -143,9 +146,11 @@ export function Journey() {
                     {t(lang, card.descAr, card.descEn)}
                   </p>
                 </div>
-                {/* flex-shrink-0 prevents the arrow from squishing on small screens */}
-                <span className="text-brand-gold text-2xl transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 mt-1 flex-shrink-0">
-                  →
+                {/* Hero-style circular arrow badge; flex-shrink-0 keeps it from squishing */}
+                <span className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-brand-navy/30 text-brand-navy mt-1 flex-shrink-0 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/10 group-hover:text-brand-gold group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
+                  {lang === 'ar'
+                    ? <ArrowLeft className="w-4 h-4" />
+                    : <ArrowRight className="w-4 h-4" />}
                 </span>
               </div>
             </Link>
