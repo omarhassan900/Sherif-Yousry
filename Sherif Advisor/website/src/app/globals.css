@@ -101,8 +101,9 @@
 [dir='rtl'] .font-serif,
 [dir='rtl'] .font-cormorant,
 [dir='rtl'] .font-amiri {
-  font-family: 'El Messiri', 'Amiri', serif;
+  font-family: 'IBM Plex Sans Arabic', 'El Messiri', 'Amiri', sans-serif;
   font-weight: 600;
+  font-style: normal; /* Arabic has no italics — avoid faux-oblique on the hero */
 }
 
 [dir='rtl'] .font-mono {

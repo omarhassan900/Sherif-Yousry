@@ -55,7 +55,7 @@ function stripHtml(value: string): string {
   return value.replace(/<[^>]*>/g, '').trim();
 }
 
-export function useV2Section(sectionKey: string, lang: Language): V2Section {
+export function useV2Section(sectionKey: string, lang: Language, page: string = 'v2'): V2Section {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [fields, setFields] = useState<Record<string, BilingualField>>({});
@@ -65,7 +65,7 @@ export function useV2Section(sectionKey: string, lang: Language): V2Section {
     let cancelled = false;
     setLoaded(false);
 
-    fetch(`/api/content/sections/v2/${sectionKey}?lang=${lang}`)
+    fetch(`/api/content/sections/${page}/${sectionKey}?lang=${lang}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data: SectionResponse | null) => {
         if (cancelled) return;
@@ -83,7 +83,7 @@ export function useV2Section(sectionKey: string, lang: Language): V2Section {
     return () => {
       cancelled = true;
     };
-  }, [sectionKey, lang]);
+  }, [sectionKey, lang, page]);
 
   const field = (key: string, fallbackAr: string, fallbackEn: string): string => {
     const f = fields[key];
