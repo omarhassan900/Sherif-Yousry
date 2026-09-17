@@ -1,4 +1,5 @@
-$r = Invoke-WebRequest -Uri 'http://localhost:3000/services' -UseBasicParsing
-if ($r.Content -match 'No services listed yet') { Write-Output 'FOUND_EMPTY_MESSAGE' } else { Write-Output 'NO_EMPTY_MESSAGE' }
-$m = ([regex]::Matches($r.Content, '/services/[a-z0-9]+')).Count
-Write-Output "service_links=$m"
+$en = (Invoke-WebRequest -Uri 'http://localhost:3000/api/content/sections/homepage/hero?lang=en' -UseBasicParsing).Content | ConvertFrom-Json
+Write-Output ("EN title: " + $en.title)
+Write-Output ("EN body:  " + $en.body)
+Write-Output ("EN fields eyebrow: " + $en.metadata.fields.eyebrow.en)
+Write-Output ("EN fields ctaPrimary: " + $en.metadata.fields.ctaPrimary.en)
