@@ -161,7 +161,7 @@ export function ServicesGrid() {
               style={{ 
                 transitionDelay: isVisible ? `${index * 100}ms` : '0ms'
               }}
-              className={`group rounded-lg px-4 py-4 flex flex-col gap-2 transition-all duration-500 ease-out hover:bg-white/5
+              className={`group border-l px-4 py-4 flex flex-col gap-2 transition-all duration-500 ease-out hover:bg-white/5
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
             >
               <span className="text-xs text-gray-400 font-normal">

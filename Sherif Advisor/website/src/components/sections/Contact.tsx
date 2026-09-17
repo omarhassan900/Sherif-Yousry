@@ -292,7 +292,7 @@ export function Contact() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center gap-2 bg-[#b01e28] text-white font-semibold text-sm py-2.5 px-8 rounded-md hover:bg-[#951821] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 mt-4 inline-flex items-center justify-center gap-2 rounded-full px-6 py-2 text-[11px] font-bold tracking-[1.5px] uppercase transition-colors duration-300 bg-brand-navy text-white hover:bg-brand-navy-mid bg-[#b01e28] text-white font-semibold text-sm py-2.5 px-8 rounded-md hover:bg-[#951821] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? (
                   <>

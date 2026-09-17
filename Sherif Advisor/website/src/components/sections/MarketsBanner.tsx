@@ -16,83 +16,68 @@ export function MarketsBanner() {
 
     return (
         <section
-            className="relative w-full mx-auto overflow-hidden grid grid-cols-1 lg:grid-cols-[300px_1fr_220px] rtl:lg:grid-cols-[220px_1fr_300px] items-center gap-8 lg:gap-6 px-8 lg:px-14 py-0 border-y border-black/5"
-            style={{ backgroundColor: '#f4f0e8' }}
+            className="relative w-full mx-auto overflow-hidden border-y border-black/5 bg-[#f4f0e8]"
             id="markets"
         >
-            {/* LEFT COLUMN */}
-            <div className="z-10 flex flex-col gap-4 items-start text-left rtl:text-right">
-                <span className="text-[0.72rem] font-bold tracking-[2.5px] text-[#727e8c] uppercase">
-                    {t(lang, 'رؤية أوسع', 'A Broader Perspective')}
-                </span>
+            {/* ✅ Background Image Layer */}
+            <div className="absolute inset-0 z-0">
+                <Image
+                    src="/images/worldmap.jpeg"
+                    alt="Global markets connection map showing Europe, MENA, and Egypt"
+                    fill
+                    className="object-contain object-center opacity-90" // Increased opacity for clarity
+                    priority
+                />
+                
+                {/* Gradient Fade: Hides the map behind the left text for readability */}
+                <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#f4f0e8] via-[#f4f0e8]/80 to-transparent z-10" />
+                
+                {/* Subtle Fade on the right edge to blend smoothly */}
+                <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-[#f4f0e8] to-transparent z-10" />
+            </div>
 
-                <h2 className="font-serif text-2xl md:text-3xl font-bold leading-tight text-[#1c2733] uppercase tracking-wide whitespace-pre-line">
-                    {t(lang, 'ربط الأسواق.\nصنع الفرص.', 'Connecting Markets.\nCreating Opportunity.')}
-                </h2>
-
-                <p className="text-sm leading-relaxed text-[#4a5664] max-w-[290px]">
-                    {t(
-                        lang,
-                        'ندعم المستثمرين والشركات في مصر ومنطقة الشرق الأوسط وشمال أفريقيا للوصول إلى الأسواق الأوروبية، من خلال الخبرة المحلية والمنظور الدولي.',
-                        'Supporting investors and businesses in Egypt and across the MENA region, with access to European markets, through local expertise and international perspective.'
-                    )}
-                </p>
-
-                <Link
-                    href="/about"
-                    className="inline-flex items-center gap-2 mt-2 px-4 py-2 border border-[#1c2733] text-[#1c2733] text-[0.7rem] font-bold tracking-wider uppercase hover:bg-[#1c2733] hover:text-white transition-all duration-300 group w-fit"
-                >
-                    {t(lang, 'نهجنا', 'Our Approach')}
-                    <span className="text-base transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180">
-                        →
+            {/* ✅ Content Layer */}
+            <div className="relative z-20 grid grid-cols-1 lg:grid-cols-[1.2fr_1.5fr_0.8fr] items-center gap-12 lg:gap-8 px-8 lg:px-16 py-10 lg:py-10">
+                
+                {/* LEFT COLUMN */}
+                <div className="flex flex-col gap-4 items-start text-left rtl:text-right">
+                    <span className="text-[0.65rem] font-bold tracking-[0.25em] text-[#727e8c] uppercase">
+                        {t(lang, 'رؤية أوسع', 'A Broader Perspective')}
                     </span>
-                </Link>
-            </div>
 
-            {/* MIDDLE COLUMN — map blended into the section (not a framed image) */}
-            <div className="relative w-full h-full min-h-[280px] flex justify-center items-center">
-                <div className="relative w-full h-full aspect-[1024/520]">
-                    {/* Markets world map fills the middle area. `mix-blend-multiply`
-                        lets the cream section color show through the light areas of
-                        the map so it reads as part of the background, not a photo. */}
-                    <Image
-                        src="/images/Gemini_Generated_Image_2hx3c2hx3c2hx3c2.jpeg"
-                        alt={t(lang, 'خريطة الأسواق العالمية', 'Global markets map')}
-                        fill
-                        quality={100}
-                        sizes="(max-width: 1024px) 100vw, 700px"
-                        className="object-contain object-center select-none pointer-events-none mix-blend-multiply opacity-95"
-                    />
-                    {/* Warm tint pulls the cold blue toward the section's cream tone */}
-                    <div
-                        className="absolute inset-0 pointer-events-none mix-blend-soft-light"
-                        style={{ backgroundColor: '#f4f0e8' }}
-                    />
-                    {/* Strong edge fade so the image borders dissolve into the section */}
-                    <div
-                        className="absolute inset-0 pointer-events-none"
-                        style={{
-                            background:
-                                'radial-gradient(ellipse 70% 78% at 50% 50%, rgba(244,240,232,0) 45%, rgba(244,240,232,0.85) 78%, rgba(244,240,232,1) 100%)',
-                        }}
-                    />
-                    {/* Extra linear fades on the vertical edges to kill the hard rectangle sides */}
-                    <div
-                        className="absolute inset-0 pointer-events-none"
-                        style={{
-                            background:
-                                'linear-gradient(to right, #f4f0e8 0%, rgba(244,240,232,0) 12%, rgba(244,240,232,0) 88%, #f4f0e8 100%)',
-                        }}
-                    />
+                    <h2 className="font-serif text-2xl md:text-3xl font-bold leading-[1.15] text-[#1c2733] uppercase tracking-wide">
+                        {t(lang, 'ربط الأسواق.\nصنع الفرص.', 'Connecting Markets.\nCreating Opportunity.')}
+                    </h2>
+
+                    <p className="text-xs leading-relaxed text-[#4a5664] max-w-[280px]">
+                        {t(
+                            lang,
+                            'ندعم المستثمرين والشركات في مصر ومنطقة الشرق الأوسط وشمال أفريقيا للوصول إلى الأسواق الأوروبية، من خلال الخبرة المحلية والمنظور الدولي.',
+                            'Supporting investors and businesses in Egypt and across the MENA region, with access to European markets, through local expertise and international perspective.'
+                        )}
+                    </p>
+
+                    <Link
+                        href="/about"
+                        className="inline-flex items-center gap-2 mt-2 px-5 py-2.5 border border-[#1c2733] text-[#1c2733] text-[0.65rem] font-bold tracking-[0.15em] uppercase hover:bg-[#1c2733] hover:text-white transition-all duration-300 group"
+                    >
+                        {t(lang, 'نهجنا', 'Our Approach')}
+                        <span className="text-base transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180">
+                            &rarr;
+                        </span>
+                    </Link>
                 </div>
-            </div>
 
-            {/* RIGHT COLUMN */}
-            <div className="z-10 flex flex-col justify-center h-full lg:border-l rtl:lg:border-l-0 rtl:lg:border-r border-[#d8d2c6] lg:pl-6 rtl:lg:pl-0 rtl:lg:pr-6">
-                <h3 className="text-sm font-bold leading-snug text-[#1c2733] uppercase tracking-wider whitespace-pre-line">
-                    {t(lang, 'أسواق مختلفة.\nغدٌ أقوى.', 'Different Markets.\nA Stronger Tomorrow.')}
-                </h3>
-                <div className="w-8 h-0.5 bg-[#1c2733] mt-4 rtl:ml-auto" />
+                {/* MIDDLE COLUMN (Spacer) */}
+                <div className="hidden lg:block"></div>
+
+                {/* RIGHT COLUMN */}
+                <div className="flex flex-col justify-center h-full lg:border-l rtl:lg:border-l-0 rtl:lg:border-r border-[#d8d2c6] lg:pl-8 rtl:lg:pl-0 rtl:lg:pr-8 py-8 lg:py-0">
+                    <h3 className="text-xs md:text-sm font-bold leading-snug text-[#1c2733] uppercase tracking-wider whitespace-pre-line">
+                        {t(lang, 'أسواق مختلفة.\nغدٌ أقوى.', 'Different Markets.\nA Stronger Tomorrow.')}
+                    </h3>
+                    <div className="w-8 h-[1.5px] bg-[#1c2733] mt-4 rtl:ml-auto" />
+                </div>
             </div>
         </section>
     );
