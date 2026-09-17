@@ -22,7 +22,7 @@ export function MarketsBanner() {
             {/* ✅ Background Image Layer */}
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="/images/worldmap.jpeg"
+                    src="/images/worldmap.png"
                     alt="Global markets connection map showing Europe, MENA, and Egypt"
                     fill
                     className="object-contain object-center opacity-90" // Increased opacity for clarity
