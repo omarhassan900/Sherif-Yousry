@@ -1,7 +1,7 @@
 'use client';
 
 import { Header } from '@/components/layout/Header';
-import { Hero } from '@/components/sections/Hero';
+import { Hero } from '@/components/sections/slideshow';
 import { Stats } from '@/components/sections/Stats';
 import { WhyUs } from '@/components/sections/WhyUs';
 import { Services } from '@/components/sections/Services';

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 
 interface Article {
@@ -18,12 +18,33 @@ interface Article {
   };
 }
 
-// ✅ Added 'category' field to match your database category names (same as KnowledgePage)
+// ✅ Slideshow data for the right section
+const featureSlides = [
+  {
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600',
+    quoteAr: '"المنظور الصحيح اليوم يخلق غدًا أقوى."',
+    quoteEn: '"The right perspective today creates a stronger tomorrow."',
+    link: '/about',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&q=80&w=600',
+    quoteAr: '"الخبرة المحلية بمنظور عالمي."',
+    quoteEn: '"Local expertise with a global perspective."',
+    link: '/services',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&q=80&w=600',
+    quoteAr: '"شريكك نحو غدٍ أقوى."',
+    quoteEn: '"Your partner for a stronger tomorrow."',
+    link: '/contact',
+  },
+];
+
 const tabs = [
   { id: 'all', labelAr: 'الكل', labelEn: 'ALL', category: '' },
-  { id: 'tax', labelAr: 'تنبيهات ضريبية', labelEn: 'TAX ALERTS', category: 'Tax Update' }, // ⚠️ Ensure this matches your DB
-  { id: 'legal', labelAr: 'تنبيهات قانونية', labelEn: 'LEGAL ALERTS', category: 'Regulatory' }, // ⚠️ Ensure this matches your DB
-  { id: 'financial', labelAr: 'تنبيهات مالية', labelEn: 'FINANCIAL ALERTS', category: 'Market Updates' }, // ⚠️ Ensure this matches your DB
+  { id: 'tax', labelAr: 'تنبيهات ضريبية', labelEn: 'TAX ALERTS', category: 'Tax Update' },
+  { id: 'legal', labelAr: 'تنبيهات قانونية', labelEn: 'LEGAL ALERTS', category: 'Regulatory' },
+  { id: 'financial', labelAr: 'تنبيهات مالية', labelEn: 'FINANCIAL ALERTS', category: 'Market Updates' },
 ];
 
 const fallback = [
@@ -90,14 +111,12 @@ function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: La
         transition: `opacity 0.6s ease ${delay}ms, transform 0.6s ease ${delay}ms`,
       }}
     >
-      {/* Full-bleed image */}
       <img
         src={item.image}
         alt={t(lang, item.titleAr, item.titleEn)}
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
 
-      {/* Colored panel — same design as the CMS cards */}
       <div className="absolute inset-x-0 bottom-0 z-10 bg-brand-navy/95 p-4 flex flex-col gap-2">
         <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block">
           {t(lang, item.category, item.catEn)}
@@ -106,12 +125,10 @@ function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: La
           {t(lang, item.titleAr, item.titleEn)}
         </h3>
 
-        {/* Description — collapsed at rest, expands + fades in on hover */}
         <p className="text-[12px] leading-relaxed text-gray-300 line-clamp-3 max-h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:max-h-24 group-hover:opacity-100">
           {t(lang, item.descAr, item.descEn)}
         </p>
 
-        {/* Learn More — circle fills white with a dark arrow on card hover */}
         <span className="inline-flex items-center gap-2.5 text-[11px] font-bold tracking-wider text-white uppercase">
           <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-white group-hover:bg-white group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
             {lang === 'ar'
@@ -129,6 +146,8 @@ export function Knowledge() {
   const [lang, setLang] = useState<Language>('ar');
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   
   const [articles, setArticles] = useState<Article[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -140,7 +159,17 @@ export function Knowledge() {
     setLang(detectedLang);
   }, []);
 
-  // ✅ 3. Fetch articles with category filtering (same logic as KnowledgePage)
+  // Auto-advance slideshow
+  useEffect(() => {
+    if (isPaused) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % featureSlides.length);
+    }, 6000); // Change slide every 6 seconds
+
+    return () => clearInterval(interval);
+  }, [isPaused]);
+
   useEffect(() => {
     if (!isMounted) return;
     
@@ -150,7 +179,6 @@ export function Knowledge() {
         const activeTabObj = tabs.find(t => t.id === activeTab);
         let url = `/api/content/articles?lang=${lang}&page=1`;
         
-        // ✅ Append category to URL if a specific tab is selected
         if (activeTabObj?.category) {
           url += `&category=${encodeURIComponent(activeTabObj.category)}`;
         }
@@ -171,9 +199,8 @@ export function Knowledge() {
       }
     }
     fetchArticles();
-  }, [lang, isMounted, activeTab]); // ✅ Added activeTab to dependencies
+  }, [lang, isMounted, activeTab]);
 
-  // ✅ 4. Fetch heading only after mounting
   useEffect(() => {
     if (!isMounted) return;
     
@@ -194,16 +221,23 @@ export function Knowledge() {
     };
   }, [lang, isMounted]);
 
-  // Get the active category string for fallback filtering
   const activeCategory = tabs.find(t => t.id === activeTab)?.category || '';
 
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % featureSlides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + featureSlides.length) % featureSlides.length);
+  };
+
   return (
-    <section className=" bg-[#fbf9f6]" id="insights">
+    <section className="bg-[#fbf9f6]" id="insights">
       <div className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-[2.2fr_1fr] gap-8 lg:gap-12">
           
           {/* LEFT SECTION: Main Content */}
-          <div className="main-content  mx-4 px-8 py-16">
+          <div className="main-content mx-4 px-8 py-16">
             <span className="text-[11px] font-semibold tracking-[1.5px] text-[#7d7d7d] uppercase block mb-2">
               {heading?.label || t(lang, 'الأفكار والرؤى', 'INSIGHTS')}
             </span>
@@ -246,9 +280,6 @@ export function Knowledge() {
                 ? articles.map((a, index) => {
                     const cover = a.metadata?.featuredImage || a.metadata?.featuredImageId;
                     const hasImage = typeof cover === 'string' && (cover.startsWith('/') || cover.startsWith('http'));
-                    const imageUrl = hasImage 
-                      ? cover 
-                      : 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=400';
                     
                     const snippet = (a.body || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
                     return (
@@ -257,7 +288,6 @@ export function Knowledge() {
                         href={`/knowledge/${a.id}`}
                         className="group relative rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-300 flex flex-col h-64"
                       >
-                        {/* Full-bleed image */}
                         {hasImage ? (
                           cover.startsWith('http') ? (
                             <img 
@@ -281,11 +311,6 @@ export function Knowledge() {
                           </div>
                         )}
 
-                        {/* Colored panel that slides up on hover (Apollo-style).
-                            Order: category, title, Learn More (always visible),
-                            then the description which only appears on hover. The
-                            description is height-collapsed at rest so the arrow
-                            stays visible on every card. */}
                         <div className="absolute inset-x-0 bottom-0 z-10 bg-brand-navy/95 p-4 flex flex-col gap-2">
                           {a.metadata?.category && (
                             <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block">
@@ -296,14 +321,12 @@ export function Knowledge() {
                             {a.title}
                           </h3>
 
-                          {/* Description — collapsed at rest, expands + fades in on hover */}
                           {snippet && (
                             <p className="text-[12px] leading-relaxed text-gray-300 line-clamp-3 max-h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:max-h-24 group-hover:opacity-100">
                               {snippet}
                             </p>
                           )}
 
-                          {/* Learn More with circular arrow — always visible */}
                           <span className="inline-flex items-center gap-2.5 text-[11px] font-bold tracking-wider text-white uppercase">
                             <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/15">
                               {lang === 'ar'
@@ -317,7 +340,6 @@ export function Knowledge() {
                     );
                   })
                 : fallback
-                    // ✅ Filter fallback articles by category if a specific tab is active
                     .filter(item => !activeCategory || item.catEn === activeCategory || item.category === activeCategory)
                     .map((item, i) => (
                       <ArticleCard key={item.id} item={item} lang={lang} delay={i * 120} />
@@ -325,21 +347,95 @@ export function Knowledge() {
             </div>
           </div>
 
-          {/* RIGHT SECTION: Feature Card */}
-          <Link 
-            href="/about"
-            className="relative min-h-[320px] rounded-sm overflow-hidden flex flex-col justify-end p-8 lg:p-10 bg-cover bg-center group cursor-pointer"
-            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600')" }}
+          {/* ✅ RIGHT SECTION: Feature Slideshow (Fixed) */}
+          <div 
+            className="relative min-h-[320px] rounded-sm overflow-hidden flex flex-col justify-end p-8 lg:p-10 group"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
           >
+            {/* Slideshow Images with Fade Transition */}
+            {featureSlides.map((slide, index) => (
+              <div
+                key={index}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  index === currentSlide ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{ 
+                  backgroundImage: `url('${slide.image}')`,
+                  backgroundSize: 'cover',       // ✅ Ensures it covers the area
+                  backgroundPosition: 'center',  // ✅ Centers the image
+                  backgroundRepeat: 'no-repeat'  // ✅ Prevents repeating
+                }}
+              />
+            ))}
+            
+            {/* Overlay */}
             <div className="absolute inset-0 bg-black/35 group-hover:bg-black/45 transition-colors duration-300" />
             
+            {/* Content (Only the text is clickable now) */}
             <div className="relative z-10 max-w-xs">
-              <p className="font-serif text-xl md:text-2xl leading-snug text-white mb-5">
-                {t(lang, '"المنظور الصحيح اليوم يخلق غدًا أقوى."', '"The right perspective today creates a stronger tomorrow."')}
-              </p>
-              <div className="w-8 h-0.5 bg-white" />
+              {featureSlides.map((slide, index) => (
+                <Link
+                  key={index}
+                  href={slide.link}
+                  className={`block transition-all duration-700 ${
+                    index === currentSlide 
+                      ? 'opacity-100 translate-y-0' 
+                      : 'opacity-0 translate-y-4 absolute pointer-events-none'
+                  }`}
+                >
+                  <p className="font-serif text-xl md:text-2xl leading-snug text-white mb-5">
+                    {t(lang, slide.quoteAr, slide.quoteEn)}
+                  </p>
+                  <div className="w-8 h-0.5 bg-white" />
+                </Link>
+              ))}
             </div>
-          </Link>
+
+            {/* ✅ Navigation Arrows (z-20 ensures they are above the link and don't trigger navigation) */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                prevSlide();
+              }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-white/30 bg-black/20 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:border-white/60 transition-all duration-300 z-20"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                nextSlide();
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full border border-white/30 bg-black/20 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 hover:bg-white/20 hover:border-white/60 transition-all duration-300 z-20"
+              aria-label="Next slide"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            {/* ✅ Dots Indicator */}
+            <div className="absolute bottom-4 right-4 flex gap-2 z-20">
+              {featureSlides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setCurrentSlide(index);
+                  }}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    index === currentSlide 
+                      ? 'bg-white w-6' 
+                      : 'bg-white/40 hover:bg-white/70'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
 
         </div>
       </div>
