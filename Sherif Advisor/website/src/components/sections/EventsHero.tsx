@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowRight, ArrowLeft, ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 
 interface Event {
   id: string;
@@ -66,7 +66,7 @@ export function EventsHero() {
   }, []);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-[#009086]">
+    <section className="relative h-screen w-full overflow-hidden bg-brand-navy">
       {/* Background Video/Image */}
       <div className="absolute inset-0">
         <video
@@ -81,16 +81,16 @@ export function EventsHero() {
           <source src="/videos/back-to-back-events.mp4" type="video/mp4" />
         </video>
         {!isVideoLoaded && (
-          <div className="absolute inset-0" />
+          <div className="absolute inset-0 bg-brand-navy" />
         )}
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#009086]/80 via-[#009086]/60 to-transparent" />
+        {/* Overlay gradient using brand colors */}
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-navy/90 via-brand-navy/70 to-transparent" />
       </div>
 
       {/* Decorative SVG Overlay */}
       <div className="absolute inset-0 pointer-events-none">
         <svg
-          className="absolute top-0 right-0 w-1/2 h-full opacity-20"
+          className="absolute top-0 right-0 w-1/2 h-full opacity-10"
           viewBox="0 0 1000 1000"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -110,19 +110,10 @@ export function EventsHero() {
             {/* Left Panel */}
             <div className="space-y-8">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
-                Back to back<br />events
+                Sherif Yousry<br />events
               </h1>
-              
-              <a
-                href="/events/calendar"
-                className="inline-flex items-center gap-2 bg-[#009086] hover:bg-[#007a72] text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 group"
-              >
-                Explore more
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </a>
+            
             </div>
-
-
           </div>
         </div>
       </div>
@@ -130,7 +121,7 @@ export function EventsHero() {
       {/* Scroll Down Button */}
       <button
         onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 text-white/60 hover:text-white transition-colors duration-300"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 text-white/60 hover:text-brand-gold transition-colors duration-300"
         aria-label="Scroll down"
       >
         <ChevronDown className="w-8 h-8 animate-bounce" />

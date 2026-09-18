@@ -19,6 +19,7 @@ export interface PublicContentResponse {
   body: string;
   metadata: Record<string, unknown>;
   updatedAt: Date;
+  createdAt?: Date; // Added for event sorting
 }
 
 export interface PaginatedPublicResult {
@@ -38,7 +39,7 @@ export interface PaginatedPublicResult {
  * return the alternative language version instead.
  */
 export function resolveLanguageFallback(
-  item: { titleAr: string; titleEn: string; bodyAr: string; bodyEn: string; id: string; metadata: string; updatedAt: Date },
+  item: { titleAr: string; titleEn: string; bodyAr: string; bodyEn: string; id: string; metadata: string; updatedAt: Date; createdAt?: Date },
   lang: Language
 ): PublicContentResponse {
   let title: string;
@@ -65,6 +66,7 @@ export function resolveLanguageFallback(
     body,
     metadata,
     updatedAt: item.updatedAt,
+    createdAt: item.createdAt,
   };
 }
 
@@ -82,9 +84,6 @@ export async function getPublishedServices(lang: Language): Promise<PublicConten
       type: 'service',
       status: 'published',
     },
-    orderBy: [
-      { createdAt: 'asc' },
-    ],
   });
 
   // Sort by displayOrder from metadata, then createdAt
@@ -113,15 +112,13 @@ export async function getPublishedArticles(
   const pageSize = 20;
   const now = new Date().toISOString();
 
-  // Fetch all published articles (we need to filter by publishDate in metadata)
   const allArticles = await prisma.contentItem.findMany({
     where: {
       type: 'article',
       status: 'published',
     },
-    orderBy: { updatedAt: 'desc' },
   });
-  // Filter by publishDate and category from metadata
+  
   const filtered = allArticles.filter((item) => {
     let meta: Record<string, unknown> = {};
     try {
@@ -130,13 +127,11 @@ export async function getPublishedArticles(
       return false;
     }
 
-    // Check publish date
     const publishDate = meta.publishDate as string | undefined;
     if (publishDate && new Date(publishDate) > new Date(now)) {
       return false;
     }
 
-    // Check category
     if (category && meta.category !== category) {
       return false;
     }
@@ -144,7 +139,6 @@ export async function getPublishedArticles(
     return true;
   });
 
-  // Sort by publishDate descending
   filtered.sort((a, b) => {
     const metaA = JSON.parse(a.metadata);
     const metaB = JSON.parse(b.metadata);
@@ -169,7 +163,6 @@ export async function getPublishedArticles(
 
 /**
  * Get a single published article by id, with language fallback applied.
- * Returns null if not found, unpublished, or its publishDate is in the future.
  */
 export async function getPublishedArticleById(
   id: string,
@@ -185,7 +178,6 @@ export async function getPublishedArticleById(
 
   if (!item) return null;
 
-  // Respect a future publishDate (scheduled articles stay hidden).
   try {
     const meta = JSON.parse(item.metadata);
     const publishDate = meta.publishDate as string | undefined;
@@ -201,7 +193,6 @@ export async function getPublishedArticleById(
 
 /**
  * Get a single published service by id, with language fallback applied.
- * Returns null if not found or not published.
  */
 export async function getPublishedServiceById(
   id: string,
@@ -220,6 +211,91 @@ export async function getPublishedServiceById(
   return resolveLanguageFallback(item, lang);
 }
 
+// ============================================
+// NEW: EVENTS FUNCTIONS
+// ============================================
+
+/**
+ * Get published events with pagination, sorted by start date ascending (upcoming first).
+ * Optionally filters by category (e.g., 'workshop', 'seminar', 'webinar', 'conference').
+ */
+export async function getPublishedEvents(
+  lang: Language,
+  page: number = 1,
+  category?: string
+): Promise<PaginatedPublicResult> {
+  const pageSize = 12; // Typical grid size for events
+
+  const allEvents = await prisma.contentItem.findMany({
+    where: {
+      type: 'event',
+      status: 'published',
+    },
+  });
+
+  const filtered = allEvents.filter((item) => {
+    let meta: Record<string, unknown> = {};
+    try {
+      meta = JSON.parse(item.metadata);
+    } catch {
+      return false;
+    }
+
+    // Check category filter (e.g., 'workshop', 'seminar')
+    if (category && meta.category !== category) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // Sort by startDate ascending (upcoming events first), fallback to createdAt
+  filtered.sort((a, b) => {
+    const metaA = JSON.parse(a.metadata);
+    const metaB = JSON.parse(b.metadata);
+    const dateA = metaA.startDate ? new Date(metaA.startDate as string).getTime() : new Date(a.createdAt).getTime();
+    const dateB = metaB.startDate ? new Date(metaB.startDate as string).getTime() : new Date(b.createdAt).getTime();
+    return dateA - dateB;
+  });
+
+  const total = filtered.length;
+  const totalPages = Math.ceil(total / pageSize);
+  const offset = (Math.max(1, page) - 1) * pageSize;
+  const paged = filtered.slice(offset, offset + pageSize);
+
+  return {
+    items: paged.map((item) => resolveLanguageFallback(item, lang)),
+    total,
+    page: Math.max(1, page),
+    pageSize,
+    totalPages,
+  };
+}
+
+/**
+ * Get a single published event by id, with language fallback applied.
+ */
+export async function getPublishedEventById(
+  id: string,
+  lang: Language
+): Promise<PublicContentResponse | null> {
+  const item = await prisma.contentItem.findFirst({
+    where: {
+      id,
+      type: 'event',
+      status: 'published',
+    },
+  });
+
+  if (!item) return null;
+
+  return resolveLanguageFallback(item, lang);
+}
+
+// ============================================
+// PAGE SECTIONS
+// ============================================
+
 /**
  * Get a specific page section by page name and section key.
  */
@@ -228,7 +304,6 @@ export async function getPageSection(
   sectionKey: string,
   lang: Language
 ): Promise<PublicContentResponse | null> {
-  // Page sections are stored with metadata containing page and sectionKey
   const items = await prisma.contentItem.findMany({
     where: {
       type: 'page_section',
@@ -252,32 +327,20 @@ export async function getPageSection(
 // SEARCH
 // ============================================
 
-export type SearchResultType = 'service' | 'article';
+export type SearchResultType = 'service' | 'article' | 'event';
 
 export interface SearchResult extends PublicContentResponse {
   type: SearchResultType;
-  /** Category for articles (from metadata), if present. */
   category?: string;
-  /** Public URL to the item. */
   url: string;
 }
 
-/** Strip HTML tags so body text can be matched/snippeted as plain text. */
 function toPlainText(html: string): string {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 /**
- * Search published services and articles by keyword.
- *
- * Matching is case-insensitive and spans BOTH languages' title and body plus
- * article category, so a query finds content regardless of the visitor's
- * current display language. Returned title/body are resolved to `lang` (with
- * fallback). Services rank above articles, then by title match.
- *
- * @param query  The search keywords (min 2 chars recommended).
- * @param lang   Display language for the returned title/body.
- * @param limit  Max results to return (default 8).
+ * Search published services, articles, and events by keyword.
  */
 export async function searchPublicContent(
   query: string,
@@ -289,7 +352,7 @@ export async function searchPublicContent(
 
   const items = await prisma.contentItem.findMany({
     where: {
-      type: { in: ['service', 'article'] },
+      type: { in: ['service', 'article', 'event'] },
       status: 'published',
     },
   });
@@ -311,8 +374,6 @@ export async function searchPublicContent(
       if (publishDate && new Date(publishDate) > now) continue;
     }
 
-    // Build a haystack across both languages + category so keyword search is
-    // language-agnostic.
     const category = typeof meta.category === 'string' ? meta.category : '';
     const haystack = [
       item.titleAr,
@@ -329,18 +390,25 @@ export async function searchPublicContent(
     const resolved = resolveLanguageFallback(item, lang);
     const type = item.type as SearchResultType;
 
-    // Rank: title matches beat body matches; services beat articles.
+    // Rank: title matches beat body matches; services beat events, events beat articles.
     const titleMatch =
       item.titleAr.toLowerCase().includes(q) ||
       item.titleEn.toLowerCase().includes(q);
+    
     let score = titleMatch ? 100 : 50;
-    if (type === 'service') score += 10;
+    if (type === 'service') score += 20;
+    else if (type === 'event') score += 10;
+
+    let url = '';
+    if (type === 'service') url = `/services/${item.id}`;
+    else if (type === 'event') url = `/events/${item.id}`;
+    else url = `/knowledge/${item.id}`;
 
     results.push({
       ...resolved,
       type,
       category: category || undefined,
-      url: type === 'service' ? `/services/${item.id}` : `/knowledge/${item.id}`,
+      url,
       score,
     });
   }

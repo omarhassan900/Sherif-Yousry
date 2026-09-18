@@ -69,8 +69,6 @@ async function main() {
       metadata: JSON.stringify({ page: 'homepage', sectionKey: 'stats' }),
     },
     {
-      // "Why Us" section heading (label / title). The 5 reason cards below
-      // it remain fixed in the design for now.
       type: 'page_section' as const,
       titleAr: 'انضباط المكاتب الكبرى. ومرونة المكاتب المتخصصة.',
       titleEn: 'Big-firm discipline. Boutique agility.',
@@ -79,7 +77,6 @@ async function main() {
       metadata: JSON.stringify({ page: 'homepage', sectionKey: 'why-us' }),
     },
     {
-      // Regional map / markets section heading.
       type: 'page_section' as const,
       titleAr: 'أسواق استراتيجية في الشرق الأوسط',
       titleEn: 'Strategic Markets in the Middle East',
@@ -88,7 +85,6 @@ async function main() {
       metadata: JSON.stringify({ page: 'homepage', sectionKey: 'markets' }),
     },
     {
-      // Assessment CTA section heading + intro.
       type: 'page_section' as const,
       titleAr: 'لست متأكداً من موقعك؟ ابدأ التقييم المجاني لأعمالك.',
       titleEn: 'Not sure where you stand? Start your free business assessment.',
@@ -97,7 +93,6 @@ async function main() {
       metadata: JSON.stringify({ page: 'homepage', sectionKey: 'assessment' }),
     },
     {
-      // Services section heading on the homepage (the cards come from CMS Services).
       type: 'page_section' as const,
       titleAr: 'استشارات شاملة مبنية على التزاماتك.',
       titleEn: 'Comprehensive advisory built on your commitments.',
@@ -106,7 +101,6 @@ async function main() {
       metadata: JSON.stringify({ page: 'homepage', sectionKey: 'services' }),
     },
     {
-      // Insights section heading on the homepage (the cards come from CMS Articles).
       type: 'page_section' as const,
       titleAr: 'رؤى تزيد وعي عملائنا.',
       titleEn: 'Insights that raise our clients’ awareness.',
@@ -130,15 +124,7 @@ async function main() {
       bodyEn: 'Contact us for a consultation',
       metadata: JSON.stringify({ page: 'contact', sectionKey: 'main' }),
     },
-
-    // ─────────────────────────────────────────────────────────────
-    // V2 PAGE SECTIONS — editable content for the /v2 landing page.
-    // `title`/`body` are the two primary bilingual strings; everything
-    // else lives in `metadata.fields` as { ar, en } pairs so the V2
-    // components can resolve them per-language on the client.
-    // ─────────────────────────────────────────────────────────────
     {
-      // Hero — headline, subtitle, CTAs, eyebrow, location, feature cards.
       type: 'page_section' as const,
       titleAr: 'حيث تخلق الخبرة القيمة.',
       titleEn: 'WHERE EXPERTISE CREATES VALUE.',
@@ -163,7 +149,6 @@ async function main() {
       }),
     },
     {
-      // Journey — section heading + eyebrow.
       type: 'page_section' as const,
       titleAr: 'أين أنت الآن؟ سنوضّح لك كيف نساعدك.',
       titleEn: 'Where are you now? See exactly how we help.',
@@ -178,7 +163,6 @@ async function main() {
       }),
     },
     {
-      // Services grid — heading, eyebrow, intro paragraph, CTA.
       type: 'page_section' as const,
       titleAr: 'خبرة متكاملة. أثر حقيقي.',
       titleEn: 'INTEGRATED EXPERTISE. REAL-WORLD IMPACT.',
@@ -197,7 +181,6 @@ async function main() {
       }),
     },
     {
-      // Markets banner — heading, eyebrow, description, right heading, CTA.
       type: 'page_section' as const,
       titleAr: 'ربط الأسواق.\nصنع الفرص.',
       titleEn: 'Connecting Markets.\nCreating Opportunity.',
@@ -217,7 +200,6 @@ async function main() {
       }),
     },
     {
-      // Digital experience — heading, subtitle, badge, section eyebrow.
       type: 'page_section' as const,
       titleAr: 'أعمالك. متصلة.',
       titleEn: 'Your Business. Connected.',
@@ -234,7 +216,6 @@ async function main() {
       }),
     },
     {
-      // Packages — heading + eyebrow + custom note.
       type: 'page_section' as const,
       titleAr: 'باقات مصممة لكل مرحلة من مراحل أعمالك.',
       titleEn: 'Packages built for every stage of your business.',
@@ -250,7 +231,6 @@ async function main() {
       }),
     },
     {
-      // Contact — heading, eyebrow, contact detail labels/values.
       type: 'page_section' as const,
       titleAr: 'نحن هنا لمساعدتك في التخطيط لما هو قادم.',
       titleEn: 'We are here to help you plan for what comes next.',
@@ -273,12 +253,11 @@ async function main() {
   ];
 
   // Load all existing page sections once so we can match by page+sectionKey
-  // (robust against JSON string/whitespace differences that caused duplicates).
   const existingSections = await prisma.contentItem.findMany({
     where: { type: 'page_section' },
   });
 
-  function findExisting(metadataJson: string) {
+  function findExistingSection(metadataJson: string) {
     const target = JSON.parse(metadataJson);
     return existingSections.find((row) => {
       try {
@@ -290,9 +269,9 @@ async function main() {
     });
   }
 
-  // Create page sections (match by page+sectionKey to avoid duplicates)
+  // Create or update page sections
   for (const section of pageSections) {
-    const existing = findExisting(section.metadata);
+    const existing = findExistingSection(section.metadata);
 
     if (existing) {
       await prisma.contentItem.update({
@@ -316,6 +295,165 @@ async function main() {
         },
       });
       console.log(`✓ Created page section: ${section.titleEn}`);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // EVENTS SEED DATA
+  // ─────────────────────────────────────────────────────────────
+  const events = [
+    {
+      type: 'event' as const,
+      titleAr: 'ورشة عمل: تحديث ضريبة الشركات في مصر 2025',
+      titleEn: 'Egypt Corporate Tax Update 2025 Workshop',
+      bodyAr: 'ورشة عمل شاملة تغطي أحدث التعديلات على قوانين ضريبة الشركات المصرية واستراتيجيات الامتثال للشركات الحديثة.',
+      bodyEn: 'A comprehensive workshop covering the latest amendments to Egyptian corporate tax laws and compliance strategies for modern businesses.',
+      metadata: JSON.stringify({
+        startDate: '2025-10-24T09:00:00.000Z',
+        endDate: '2025-10-24T13:00:00.000Z',
+        startTime: '09:00 AM',
+        endTime: '01:00 PM',
+        location: 'New Administrative Capital, Cairo',
+        category: 'workshop',
+        categoryLabel: 'Tax Workshop',
+        eventType: 'In-Person',
+        image: '/images/events/tax-workshop.jpg',
+        isPaid: true,
+      }),
+    },
+    {
+      type: 'event' as const,
+      titleAr: 'الإطار القانوني للمستثمرين الأجانب في منطقة الشرق الأوسط وشمال أفريقيا',
+      titleEn: 'Legal Framework for Foreign Investors in the MENA Region',
+      bodyAr: 'فهم المشهد التنظيمي، وحماية الاستثمارات، والهيكلة القانونية للكيانات الأجنبية التي تعمل في منطقة الشرق الأوسط وشمال أفريقيا.',
+      bodyEn: 'Understanding the regulatory landscape, investment protections, and legal structuring for foreign entities operating in the MENA region.',
+      metadata: JSON.stringify({
+        startDate: '2025-11-12T14:00:00.000Z',
+        endDate: '2025-11-12T16:30:00.000Z',
+        startTime: '02:00 PM',
+        endTime: '04:30 PM',
+        location: 'Online via Zoom',
+        category: 'seminar',
+        categoryLabel: 'Legal Seminar',
+        eventType: 'Virtual',
+        image: '/images/events/legal-seminar.jpg',
+        isPaid: false,
+      }),
+    },
+    {
+      type: 'event' as const,
+      titleAr: 'المرحلة الثانية من الفوترة الإلكترونية: استراتيجيات الامتثال والتكامل',
+      titleEn: 'E-Invoicing Phase 2: Compliance & Integration Strategies',
+      bodyAr: 'خطوات عملية للشركات متوسطة الحجم لضمان التكامل السلس مع بوابة هيئة الضرائب المصرية.',
+      bodyEn: 'Practical steps for mid-sized companies to ensure seamless integration with the Egyptian Tax Authority portal.',
+      metadata: JSON.stringify({
+        startDate: '2025-11-28T11:00:00.000Z',
+        endDate: '2025-11-28T12:30:00.000Z',
+        startTime: '11:00 AM',
+        endTime: '12:30 PM',
+        location: 'Online via Teams',
+        category: 'webinar',
+        categoryLabel: 'Financial Webinar',
+        eventType: 'Virtual',
+        image: '/images/events/e-invoicing.jpg',
+        isPaid: false,
+      }),
+    },
+    {
+      type: 'event' as const,
+      titleAr: 'قمة شريف يسري للاستشارات للأعمال السنوية',
+      titleEn: 'Annual Sherif Yousry Advisory Business Summit',
+      bodyAr: 'انضم إلى قادة الصناعة والمستثمرين وصناع السياسات ليوم كامل من الرؤى الاستراتيجية وتوقعات السوق والتواصل رفيع المستوى في قلب القاهرة.',
+      bodyEn: 'Join industry leaders, investors, and policymakers for a full day of strategic insights, market forecasts, and high-level networking in the heart of Cairo.',
+      metadata: JSON.stringify({
+        startDate: '2025-12-15T08:00:00.000Z',
+        endDate: '2025-12-15T18:00:00.000Z',
+        startTime: '08:00 AM',
+        endTime: '06:00 PM',
+        location: 'The St. Regis Cairo',
+        category: 'conference',
+        categoryLabel: 'Conference',
+        eventType: 'In-Person',
+        image: '/images/events/summit.jpg',
+        isPaid: true,
+      }),
+    },
+    {
+      type: 'event' as const,
+      titleAr: 'تحديثات المعايير الدولية لإعداد التقارير المالية (IFRS) وأفضل الممارسات',
+      titleEn: 'IFRS Updates and Financial Reporting Best Practices',
+      bodyAr: 'تعمق في أحدث معايير التقارير المالية الدولية وتأثيرها على إعداد التقارير المحلية.',
+      bodyEn: 'Deep dive into the latest International Financial Reporting Standards and their impact on local reporting.',
+      metadata: JSON.stringify({
+        startDate: '2026-01-10T10:00:00.000Z',
+        endDate: '2026-01-10T14:00:00.000Z',
+        startTime: '10:00 AM',
+        endTime: '02:00 PM',
+        location: 'Sherif Yousry Advisory HQ',
+        category: 'workshop',
+        categoryLabel: 'Tax Workshop',
+        eventType: 'In-Person',
+        image: '/images/events/ifrs.jpg',
+        isPaid: true,
+      }),
+    },
+    {
+      type: 'event' as const,
+      titleAr: 'التنقل في ضريبة الشركات في الإمارات: دليل للشركات المصرية',
+      titleEn: 'Navigating UAE Corporate Tax: A Guide for Egyptian Businesses',
+      bodyAr: 'مشورة استراتيجية للشركات المصرية التي تتوسع في دولة الإمارات العربية المتحدة والتنقل في نظام ضريبة الشركات الجديد.',
+      bodyEn: 'Strategic advice for Egyptian companies expanding to the UAE and navigating the new corporate tax regime.',
+      metadata: JSON.stringify({
+        startDate: '2026-01-22T15:00:00.000Z',
+        endDate: '2026-01-22T17:00:00.000Z',
+        startTime: '03:00 PM',
+        endTime: '05:00 PM',
+        location: 'Online via Zoom',
+        category: 'seminar',
+        categoryLabel: 'Legal Seminar',
+        eventType: 'Virtual',
+        image: '/images/events/uae-tax.jpg',
+        isPaid: false,
+      }),
+    },
+  ];
+
+  // Load all existing events once so we can match by titleEn to avoid duplicates
+  const existingEvents = await prisma.contentItem.findMany({
+    where: { type: 'event' },
+  });
+
+  function findExistingEvent(titleEn: string) {
+    return existingEvents.find((row) => row.titleEn === titleEn);
+  }
+
+  // Create or update events
+  for (const event of events) {
+    const existing = findExistingEvent(event.titleEn);
+
+    if (existing) {
+      await prisma.contentItem.update({
+        where: { id: existing.id },
+        data: {
+          titleAr: event.titleAr,
+          titleEn: event.titleEn,
+          bodyAr: event.bodyAr,
+          bodyEn: event.bodyEn,
+          metadata: event.metadata,
+          updatedById: adminUser.id,
+        },
+      });
+      console.log(`✓ Updated event: ${event.titleEn}`);
+    } else {
+      await prisma.contentItem.create({
+        data: {
+          ...event,
+          status: 'published',
+          createdById: adminUser.id,
+          updatedById: adminUser.id,
+        },
+      });
+      console.log(`✓ Created event: ${event.titleEn}`);
     }
   }
 

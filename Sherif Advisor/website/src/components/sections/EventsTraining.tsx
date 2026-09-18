@@ -8,6 +8,7 @@ import { getClientLanguage, type Language } from '@/lib/language';
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 interface EventItem {
+  id: string;
   kind: 'event' | 'training';
   titleAr: string;
   titleEn: string;
@@ -20,55 +21,19 @@ interface EventItem {
   image: string;
 }
 
-// Placeholder content — swap for CMS-driven data later if needed.
-const items: EventItem[] = [
-  {
-    kind: 'training',
-    titleAr: 'ورشة المرحلة الثانية للفاتورة الإلكترونية',
-    titleEn: 'E-Invoicing Phase 2 Workshop',
-    descAr: 'تدريب عملي حول متطلبات المرحلة الثانية وأثرها على المجموعات المتوسطة.',
-    descEn: 'A hands-on workshop covering Phase 2 requirements and their impact on mid-size groups.',
-    dateAr: '١٥ مايو ٢٠٢٥',
-    dateEn: 'May 15, 2025',
-    locationAr: 'العاصمة الإدارية، القاهرة',
-    locationEn: 'New Administrative Capital, Cairo',
-    image: '/images/Bussniess.jpeg',
-  },
-  {
-    kind: 'event',
-    titleAr: 'ملتقى الاستثمار والضرائب',
-    titleEn: 'Investment & Tax Forum',
-    descAr: 'لقاء يجمع المستثمرين والخبراء لمناقشة أحدث التطورات الضريبية والاستثمارية.',
-    descEn: 'A forum bringing investors and experts together to discuss the latest tax and investment developments.',
-    dateAr: '٢ يونيو ٢٠٢٥',
-    dateEn: 'June 2, 2025',
-    locationAr: 'القاهرة الجديدة',
-    locationEn: 'New Cairo',
-    image: '/images/cairo.jpg',
-  },
-  {
-    kind: 'training',
-    titleAr: 'برنامج الحوكمة والامتثال المؤسسي',
-    titleEn: 'Corporate Governance & Compliance Program',
-    descAr: 'برنامج تدريبي متقدم حول إطار COSO 2024 وأفضل ممارسات الحوكمة.',
-    descEn: 'An advanced training program on the COSO 2024 framework and governance best practices.',
-    dateAr: '٢٠ يونيو ٢٠٢٥',
-    dateEn: 'June 20, 2025',
-    locationAr: 'عبر الإنترنت',
-    locationEn: 'Online',
-    image: '/images/Greek.jpeg',
-  },
-];
-
 export function EventsTraining() {
   const [lang, setLang] = useState<Language>('en');
   const [isVisible, setIsVisible] = useState(false);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setLang(getClientLanguage());
   }, []);
 
+  // Scroll animation effect
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -83,7 +48,72 @@ export function EventsTraining() {
     return () => observer.disconnect();
   }, []);
 
+  // Fetch events from API
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch(`/api/events?lang=${lang}&page=1&pageSize=6`);
+        const data = await res.json();
+        
+        if (data.items) {
+          const mappedEvents = data.items.map((item: any) => {
+            const meta = item.metadata || {};
+            // Map categories to 'training' or 'event'
+            const isTraining = ['workshop', 'webinar', 'seminar'].includes(meta.category?.toLowerCase());
+            
+            // Format date based on language
+            const formattedDate = meta.startDate 
+              ? new Date(meta.startDate).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { 
+                  year: 'numeric', month: 'long', day: 'numeric' 
+                })
+              : 'TBA';
+
+            // Clean up description length
+            const cleanDesc = item.body 
+              ? (item.body.length > 120 ? item.body.substring(0, 120).replace(/<[^>]*>/g, '') + '...' : item.body.replace(/<[^>]*>/g, ''))
+              : '';
+
+            return {
+              id: item.id,
+              kind: isTraining ? 'training' : 'event',
+              titleAr: item.titleAr || '',
+              titleEn: item.titleEn || '',
+              descAr: cleanDesc,
+              descEn: cleanDesc,
+              dateAr: formattedDate,
+              dateEn: formattedDate,
+              locationAr: meta.location || 'TBA',
+              locationEn: meta.location || 'TBA',
+              image: meta.image || '/images/events/default.jpg',
+            };
+          });
+          setEvents(mappedEvents);
+        }
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (lang) {
+      fetchEvents();
+    }
+  }, [lang]);
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = carouselRef.current.offsetWidth;
+      carouselRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
+
   const Arrow = lang === 'ar' ? ArrowLeft : ArrowRight;
+  const PrevArrow = lang === 'ar' ? ArrowRight : ArrowLeft;
+  const NextArrow = lang === 'ar' ? ArrowLeft : ArrowRight;
 
   return (
     <section
@@ -114,61 +144,141 @@ export function EventsTraining() {
               'Join our workshops, training programs, and events designed to keep your business ahead of the curve.'
             )}
           </p>
-        </div>
-
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {items.map((item, index) => (
-            <Link
-              key={index}
-              href="/contact"
-              style={{ transitionDelay: isVisible ? `${index * 150}ms` : '0ms' }}
-              className={`group bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-brand-gold/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-700 ease-out flex flex-col
-                ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+          <div
+          className={`flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-10 transition-all duration-700 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
+            <Link 
+              href="/events" 
+              className="group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
             >
-              {/* Image */}
-              <div className="relative h-44 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.image}
-                  alt={t(lang, item.titleAr, item.titleEn)}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                {/* Kind badge */}
-                <span className="absolute top-3 start-3 inline-flex items-center gap-1.5 rounded-full bg-brand-navy/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white">
-                  {item.kind === 'training' ? <GraduationCap className="w-3.5 h-3.5 text-brand-gold" /> : <Users className="w-3.5 h-3.5 text-brand-gold" />}
-                  {item.kind === 'training' ? t(lang, 'تدريب', 'Training') : t(lang, 'فعالية', 'Event')}
-                </span>
-              </div>
-
-              {/* Body */}
-              <div className="p-6 flex flex-col flex-1">
-                <h3 className="font-amiri text-xl text-brand-navy mb-2 group-hover:text-brand-gold transition-colors">
-                  {t(lang, item.titleAr, item.titleEn)}
-                </h3>
-                <p className="text-sm text-text-secondary leading-relaxed mb-4 flex-1">
-                  {t(lang, item.descAr, item.descEn)}
-                </p>
-
-                {/* Meta */}
-                <div className="flex flex-col gap-1.5 mb-4">
-                  <span className="flex items-center gap-2 text-xs text-text-secondary">
-                    <Calendar className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" />
-                    {t(lang, item.dateAr, item.dateEn)}
-                  </span>
-                  <span className="flex items-center gap-2 text-xs text-text-secondary">
-                    <MapPin className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" />
-                    {t(lang, item.locationAr, item.locationEn)}
-                  </span>
-                </div>
-
-                <span className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-brand-navy group-hover:text-brand-gold transition-colors">
-                  {t(lang, 'سجّل الآن', 'Register Now')}
-                  <Arrow className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
-                </span>
-              </div>
+              <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+              <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
+                {lang === 'ar'
+                  ? <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                  : <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />}
+              </span>
+              <span className="relative z-10 text-brand-navy transition-colors duration-300 group-hover:text-white">
+                {t(lang, 'استكشف جميع الفعاليات', 'Explore All Events')}
+              </span>
             </Link>
-          ))}
+          </div>
+        </div>
+ 
+        {/* Carousel Container */}
+        <div className="relative group">
+          <div 
+            ref={carouselRef}
+            className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 scroll-smooth"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Hides scrollbar in Firefox/IE
+          >
+            {isLoading ? (
+              // Loading Skeletons (show 3 to mimic the carousel layout)
+              [1, 2, 3].map((i) => (
+                <div 
+                  key={i} 
+                  className="snap-start shrink-0 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] bg-white rounded-lg overflow-hidden border border-gray-100 h-96 animate-pulse"
+                  style={{ 
+                    transitionDelay: isVisible ? `${(i - 1) * 150}ms` : '0ms',
+                    opacity: isVisible ? 1 : 0,
+                    transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
+                    transition: 'all 0.7s ease-out'
+                  }}
+                >
+                  <div className="h-44 bg-gray-200" />
+                  <div className="p-6 space-y-3">
+                    <div className="h-6 bg-gray-200 rounded w-3/4" />
+                    <div className="h-4 bg-gray-200 rounded w-full" />
+                    <div className="h-4 bg-gray-200 rounded w-5/6" />
+                  </div>
+                </div>
+              ))
+            ) : events.length > 0 ? (
+              events.map((item, index) => (
+                <div 
+                  key={item.id} 
+                  className="snap-start shrink-0 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
+                  style={{ 
+                    transitionDelay: isVisible ? `${index * 150}ms` : '0ms',
+                    opacity: isVisible ? 1 : 0,
+                    transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
+                    transition: 'all 0.7s ease-out'
+                  }}
+                >
+                  <Link
+                    href={`/events/${item.id}`}
+                    className="group bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-brand-gold/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-700 ease-out flex flex-col h-full"
+                  >
+                    {/* Image */}
+                    <div className="relative h-44 overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={t(lang, item.titleAr, item.titleEn)}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {/* Kind badge */}
+                      <span className="absolute top-3 start-3 inline-flex items-center gap-1.5 rounded-full bg-brand-navy/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white">
+                        {item.kind === 'training' ? <GraduationCap className="w-3.5 h-3.5 text-brand-gold" /> : <Users className="w-3.5 h-3.5 text-brand-gold" />}
+                        {item.kind === 'training' ? t(lang, 'تدريب', 'Training') : t(lang, 'فعالية', 'Event')}
+                      </span>
+                    </div>
+
+                    {/* Body */}
+                    <div className="p-6 flex flex-col flex-1">
+                      <h3 className="font-amiri text-xl text-brand-navy mb-2 group-hover:text-brand-gold transition-colors line-clamp-2">
+                        {t(lang, item.titleAr, item.titleEn)}
+                      </h3>
+                      <p className="text-sm text-text-secondary leading-relaxed mb-4 flex-1 line-clamp-3">
+                        {t(lang, item.descAr, item.descEn)}
+                      </p>
+
+                      {/* Meta */}
+                      <div className="flex flex-col gap-1.5 mb-4">
+                        <span className="flex items-center gap-2 text-xs text-text-secondary">
+                          <Calendar className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" />
+                          {t(lang, item.dateAr, item.dateEn)}
+                        </span>
+                        <span className="flex items-center gap-2 text-xs text-text-secondary">
+                          <MapPin className="w-3.5 h-3.5 text-brand-gold flex-shrink-0" />
+                          {t(lang, item.locationAr, item.locationEn)}
+                        </span>
+                      </div>
+
+                      <span className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-brand-navy group-hover:text-brand-gold transition-colors">
+                        {t(lang, 'سجّل الآن', 'Register Now')}
+                        <Arrow className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+                      </span>
+                    </div>
+                  </Link>
+                </div>
+              ))
+            ) : (
+              <div className="snap-start shrink-0 w-full text-center py-10 text-text-secondary bg-white rounded-lg border border-gray-100">
+                {t(lang, 'لا توجد فعاليات متاحة حالياً.', 'No events or training sessions available at the moment.')}
+              </div>
+            )}
+          </div>
+
+          {/* Navigation Arrows (Hidden on mobile, visible on desktop) */}
+          {!isLoading && events.length > 3 && (
+            <>
+              <button
+                onClick={() => scrollCarousel('left')}
+                className="absolute top-1/2 -start-4 lg:-start-12 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-md border border-gray-200 flex items-center justify-center text-brand-navy hover:bg-brand-navy hover:text-white hover:border-brand-navy transition-all duration-300 z-10 hidden lg:flex"
+                aria-label="Previous slide"
+              >
+                <PrevArrow className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => scrollCarousel('right')}
+                className="absolute top-1/2 -end-4 lg:-end-12 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-md border border-gray-200 flex items-center justify-center text-brand-navy hover:bg-brand-navy hover:text-white hover:border-brand-navy transition-all duration-300 z-10 hidden lg:flex"
+                aria-label="Next slide"
+              >
+                <NextArrow className="w-5 h-5" />
+              </button>
+            </>
+          )}
         </div>
       </div>
     </section>

@@ -3,410 +3,246 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  Calendar, 
-  MapPin, 
-  Clock, 
-  Heart, 
-  Share2, 
-  ArrowLeft,
-  ExternalLink,
-  Ticket,
-  Info,
-  ChevronRight
-} from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { Calendar, MapPin, Clock, ArrowRight, Heart, Share2, ArrowLeft, Plus, Ticket, ExternalLink } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollProgress } from '@/components/effects/ScrollProgress';
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 
-interface EventData {
-  id: string;
-  title: string;
-  description: string;
-  longDescription?: string;
-  startDate: string;
-  endDate: string;
-  startTime?: string;
-  endTime?: string;
-  location: string;
-  venue?: string;
-  category: string[];
-  image: string;
-  gallery?: string[];
-  eventType: string[];
-  isPaid: boolean;
-  isFeatured: boolean;
-  ticketLink?: string;
-  websiteUrl?: string;
-  facebookUrl?: string;
-  instagramUrl?: string;
-  latitude?: number;
-  longitude?: number;
-}
-
-// Sample event data - in production, this would come from your CMS/API
-const eventData: EventData = {
-  id: 'adibf-2026',
-  title: 'Abu Dhabi International Book Fair 2026',
-  description: 'The Abu Dhabi International Book Fair brings together engaging speakers, diverse themes and thought-provoking sessions celebrating the world of books and ideas.',
-  longDescription: `The Abu Dhabi International Book Fair brings together engaging speakers, diverse themes and thought-provoking sessions celebrating the world of books and ideas. The event strengthens collaboration between regional publishing and creative industries, supporting a culture that embraces readable, visual, audio and interactive media, while showcasing outstanding professional and cultural content from across the world.
-
-Join us for a week-long celebration of literature, culture, and ideas featuring:
-- Author meet and greets
-- Book signings
-- Literary discussions
-- Cultural performances
-- Publishing industry workshops
-- Children's activities and storytelling sessions
-- International pavilions showcasing global literature`,
-  startDate: 'Sep 13, 2026',
-  endDate: 'Sep 18, 2026',
-  startTime: '09:00 AM',
-  endTime: '10:00 PM',
-  location: 'ADNEC Centre Abu Dhabi, Abu Dhabi',
-  venue: 'ADNEC Centre Abu Dhabi',
-  category: ['Culture', 'Education', 'Business'],
-  image: '/images/events/adibf-2026.jpg',
-  gallery: [
-    '/images/events/adibf-2026-1.jpg',
-    '/images/events/adibf-2026-2.jpg',
-    '/images/events/adibf-2026-3.jpg',
-  ],
-  eventType: ['Featured Events', 'Ticketed'],
-  isPaid: true,
-  isFeatured: true,
-  ticketLink: '/contact',
-  websiteUrl: '/contact',
-  facebookUrl: 'https://www.facebook.com/ADBookFair',
-  instagramUrl: '',
-  latitude: 24.4167,
-  longitude: 54.6000,
-};
-
-const relatedEvents = [
-  {
-    id: '1',
-    title: 'The Pyxis of Prince Al-Mughira at Louvre Abu Dhabi',
-    date: 'Nov 01 - Apr 30, 2026',
-    category: 'Culture',
-    image: '/images/events/pyxis.jpg',
-  },
-  {
-    id: '2',
-    title: 'Shezad Dawood: Skin of Dreams',
-    date: 'Apr 09 - Sep 20, 2026',
-    category: 'Arts',
-    image: '/images/events/shezad-dawood.jpg',
-  },
-  {
-    id: '3',
-    title: 'The Ever Living exhibit',
-    date: 'Mar 01 - Feb 29, 2026',
-    category: 'Arts',
-    image: '/images/events/ever-living.jpg',
-  },
-];
-
-const faqs = [
-  {
-    question: 'Where can I buy official tickets for Abu Dhabi International Book Fair?',
-    answer: 'Official tickets are available through the official website adbookfair.com or at the venue entrance. Early booking is recommended as the event attracts large crowds.'
-  },
-  {
-    question: 'What are the opening hours?',
-    answer: 'The fair is open daily from 9:00 AM to 10:00 PM throughout the event period.'
-  },
-  {
-    question: 'Is parking available at ADNEC?',
-    answer: 'Yes, ADNEC Centre has extensive parking facilities. During peak hours, we recommend arriving early or using public transport.'
-  },
-  {
-    question: 'Are children allowed?',
-    answer: 'Yes, the book fair is family-friendly with dedicated children\'s areas and activities. Children under 12 enter free when accompanied by an adult.'
-  },
-];
-
 export default function EventDetailPage() {
+  const params = useParams();
+  const id = params.id as string;
+  
+  const [eventData, setEventData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [activeTab, setActiveTab] = useState<'details' | 'schedule' | 'faq'>('details');
+  const [activeTab, setActiveTab] = useState<'overview' | 'highlights' | 'schedule' | 'faq' | 'location'>('overview');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const res = await fetch(`/api/events/${id}?lang=en`);
+        if (!res.ok) throw new Error('Event not found');
+        const data = await res.json();
+        setEventData(data);
+      } catch (error) {
+        console.error('Failed to fetch event:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchEvent();
+    }
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-[#009086] text-xl font-bold animate-pulse">Loading event details...</div>
+      </main>
+    );
+  }
+
+  if (!eventData) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <h1 className="text-3xl font-bold text-brand-navy mb-4">Event Not Found</h1>
+        <Link href="/events" className="text-[#009086] hover:text-brand-navy transition-all duration-300 ease-in-out flex items-center gap-2">
+          <ArrowLeft className="w-4 h-4" /> Back to Events
+        </Link>
+      </main>
+    );
+  }
+
+  const meta = eventData.metadata || {};
+  const title = eventData.title;
+  const description = eventData.body;
+  const location = meta.location || 'TBA';
+  const startDate = meta.startDate ? new Date(meta.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBA';
+  const startTime = meta.startTime || 'TBA';
+  const endTime = meta.endTime || 'TBA';
+  const image = meta.image || '/images/events/default.jpg';
+  const category = meta.categoryLabel || meta.category || 'Event';
+  const ticketLink = meta.ticketLink || '/contact';
+
+  const tabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'highlights', label: 'Highlights' },
+    { id: 'schedule', label: 'Schedule' },
+    { id: 'faq', label: 'FAQ' },
+    { id: 'location', label: 'How to get there' },
+  ] as const;
+
+  const faqs = [
+    { question: 'Is there a dress code?', answer: 'Business casual is recommended for all our advisory events.' },
+    { question: 'Are meals included?', answer: 'Yes, lunch and refreshments are provided for in-person events.' },
+    { question: 'Can I get a refund?', answer: 'Cancellations made 14 days prior to the event are eligible for a full refund.' },
+  ];
+
   return (
-    <main className="min-h-screen bg-white text-[#201d1d]">
+    <main className="min-h-screen bg-white text-brand-navy">
       <ScrollProgress />
       <Header />
 
-      {/* Breadcrumb */}
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <nav className="flex items-center gap-2 text-sm">
-            <Link href="/" className="text-gray-600 hover:text-[#009086]">Home</Link>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-            <Link href="/events" className="text-gray-600 hover:text-[#009086]">Events</Link>
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-            <span className="text-[#009086] font-medium truncate">{eventData.title}</span>
-          </nav>
-        </div>
-      </div>
+    
 
       {/* Hero Section */}
       <section className="relative">
-        <div className="relative h-[500px] lg:h-[600px]">
-          <Image
-            src={eventData.image}
-            alt={eventData.title}
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="relative h-[400px] lg:h-[500px]">
+          <Image src={image} alt={title} fill className="object-cover" priority />
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/90 via-brand-navy/50 to-transparent" />
           
-          {/* Back Button */}
-          <div className="absolute top-6 left-6 z-10">
-            <Link
-              href="/events"
-              className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm hover:bg-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Events
+          {/* Back Button with Hero Animation */}
+          <div className="absolute top-24 left-6 z-10">
+            <Link href="/events" className="inline-flex items-center gap-2 bg-white/90 backdrop-blur-md border border-white/20 hover:bg-white hover:text-brand-navy px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ease-in-out">
+              <ArrowLeft className="w-4 h-4" /> Back to Events
             </Link>
           </div>
 
-          {/* Favorite & Share Buttons */}
-          <div className="absolute top-6 right-6 z-10 flex gap-3">
-            <button
-              onClick={() => setIsFavorite(!isFavorite)}
-              className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors"
-            >
-              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700'}`} />
-            </button>
-            <button className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors">
-              <Share2 className="w-5 h-5 text-gray-700" />
-            </button>
-          </div>
+         
 
-          {/* Event Title Overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-12">
             <div className="max-w-7xl mx-auto">
               <div className="flex flex-wrap gap-2 mb-4">
-                {eventData.category.map((cat) => (
-                  <span
-                    key={cat}
-                    className="px-4 py-1.5 bg-[#009086] text-white text-xs font-bold uppercase tracking-wider rounded-full"
-                  >
-                    {cat}
-                  </span>
-                ))}
-                {eventData.eventType.map((type) => (
-                  <span
-                    key={type}
-                    className="px-4 py-1.5 bg-white/90 backdrop-blur-sm text-[#201d1d] text-xs font-bold uppercase tracking-wider rounded-full"
-                  >
-                    {type}
-                  </span>
-                ))}
+                <span className="px-4 py-1.5 bg-brand-navy text-white text-xs font-bold uppercase tracking-wider rounded-full">{category}</span>
               </div>
-              <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4">
-                {eventData.title}
-              </h1>
+              <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4">{title}</h1>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Event Info Bar */}
-      <section className="bg-white border-b border-gray-200 sticky top-16 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Sticky Info Bar */}
+      <section className="bg-white border-b border-gray-200 sticky top-24 z-20 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex items-start gap-3">
               <Calendar className="w-5 h-5 text-[#009086] flex-shrink-0 mt-1" />
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Date</p>
-                <p className="font-semibold">{eventData.startDate}</p>
-                <p className="text-sm text-gray-600">to {eventData.endDate}</p>
+                <p className="font-semibold text-brand-navy">{startDate}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <Clock className="w-5 h-5 text-[#009086] flex-shrink-0 mt-1" />
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Time</p>
-                <p className="font-semibold">{eventData.startTime}</p>
-                <p className="text-sm text-gray-600">to {eventData.endTime}</p>
+                <p className="font-semibold text-brand-navy">{startTime} - {endTime}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <MapPin className="w-5 h-5 text-[#009086] flex-shrink-0 mt-1" />
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Location</p>
-                <p className="font-semibold">{eventData.venue}</p>
-                <p className="text-sm text-gray-600">{eventData.location}</p>
+                <p className="font-semibold text-brand-navy">{location}</p>
               </div>
             </div>
           </div>
         </div>
       </section>
-
+  {/* Breadcrumb */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <nav className="flex items-center gap-2 text-sm">
+            <Link href="/" className="text-gray-500 hover:text-[#009086] transition-all duration-300 ease-in-out">Home</Link>
+            <ArrowLeft className="w-3 h-3 text-gray-400 rotate-180" />
+            <Link href="/events" className="text-gray-500 hover:text-[#009086] transition-all duration-300 ease-in-out">Events</Link>
+            <ArrowLeft className="w-3 h-3 text-gray-400 rotate-180" />
+            <span className="text-[#009086] font-medium truncate">{title}</span>
+          </nav>
+        </div>
+      </div>
       {/* Main Content */}
       <section className="py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             
-            {/* Left Column - Main Content */}
+            {/* Left Column - Tabs */}
             <div className="lg:col-span-2">
-              {/* Tabs */}
-              <div className="flex gap-6 border-b border-gray-200 mb-8">
-                <button
-                  onClick={() => setActiveTab('details')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${
-                    activeTab === 'details'
-                      ? 'text-[#009086]'
-                      : 'text-gray-600 hover:text-[#009086]'
-                  }`}
-                >
-                  Details
-                  {activeTab === 'details' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#009086]" />
-                  )}
-                </button>
-                <button
-                  onClick={() => setActiveTab('schedule')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${
-                    activeTab === 'schedule'
-                      ? 'text-[#009086]'
-                      : 'text-gray-600 hover:text-[#009086]'
-                  }`}
-                >
-                  Schedule
-                  {activeTab === 'schedule' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#009086]" />
-                  )}
-                </button>
-                <button
-                  onClick={() => setActiveTab('faq')}
-                  className={`pb-4 text-sm font-bold uppercase tracking-wider transition-colors relative ${
-                    activeTab === 'faq'
-                      ? 'text-[#009086]'
-                      : 'text-gray-600 hover:text-[#009086]'
-                  }`}
-                >
-                  FAQ
-                  {activeTab === 'faq' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#009086]" />
-                  )}
-                </button>
+              <div className="flex gap-6 border-b border-gray-200 mb-8 overflow-x-auto">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`pb-4 text-sm font-bold uppercase tracking-wider transition-all duration-300 ease-in-out relative whitespace-nowrap ${
+                      activeTab === tab.id ? 'text-[#009086]' : 'text-gray-500 hover:text-brand-navy'
+                    }`}
+                  >
+                    {tab.label}
+                    {activeTab === tab.id && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-navy transition-all duration-300 ease-in-out" />}
+                  </button>
+                ))}
               </div>
 
-              {/* Tab Content */}
-              {activeTab === 'details' && (
-                <div className="space-y-8">
-                  <div>
-                    <h2 className="text-2xl font-bold mb-4">About This Event</h2>
-                    <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                      <p className="whitespace-pre-line">{eventData.longDescription || eventData.description}</p>
-                    </div>
-                  </div>
+              {activeTab === 'overview' && (
+                <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
+                  {description || 'No description available for this event.'}
+                </div>
+              )}
 
-                  {/* Event Highlights */}
-                  <div className="bg-gray-50 rounded-2xl p-8">
-                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                      <Info className="w-5 h-5 text-[#009086]" />
-                      Event Highlights
-                    </h3>
-                    <ul className="space-y-3">
-                      <li className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-[#009086] rounded-full mt-2 flex-shrink-0" />
-                        <span className="text-gray-700">Meet renowned authors and publishers from around the world</span>
+              {activeTab === 'highlights' && (
+                <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
+                  <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-brand-navy">
+                    Event Highlights
+                  </h3>
+                  <ul className="space-y-4">
+                    {['Keynote speeches from industry leaders', 'Interactive panel discussions', 'Exclusive networking sessions', 'CPE accreditation for attending professionals'].map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-brand-navy rounded-full mt-2 flex-shrink-0" />
+                        <span className="text-gray-700">{item}</span>
                       </li>
-                      <li className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-[#009086] rounded-full mt-2 flex-shrink-0" />
-                        <span className="text-gray-700">Discover thousands of books across multiple genres</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-[#009086] rounded-full mt-2 flex-shrink-0" />
-                        <span className="text-gray-700">Attend exclusive book signings and author talks</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-[#009086] rounded-full mt-2 flex-shrink-0" />
-                        <span className="text-gray-700">Enjoy cultural performances and literary discussions</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-[#009086] rounded-full mt-2 flex-shrink-0" />
-                        <span className="text-gray-700">Special activities and storytelling for children</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Gallery */}
-                  {eventData.gallery && eventData.gallery.length > 0 && (
-                    <div>
-                      <h3 className="text-xl font-bold mb-4">Event Gallery</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {eventData.gallery.map((img, idx) => (
-                          <div key={idx} className="relative aspect-square rounded-lg overflow-hidden">
-                            <Image
-                              src={img}
-                              alt={`Gallery image ${idx + 1}`}
-                              fill
-                              className="object-cover hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                    ))}
+                  </ul>
                 </div>
               )}
 
               {activeTab === 'schedule' && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold mb-6">Event Schedule</h2>
-                  <div className="space-y-4">
-                    {[
-                      { day: 'Day 1 - September 13, 2026', events: ['Opening Ceremony - 10:00 AM', 'Author Meet & Greet - 2:00 PM', 'Cultural Performance - 6:00 PM'] },
-                      { day: 'Day 2 - September 14, 2026', events: ['Publishing Workshop - 11:00 AM', 'Book Signing Session - 3:00 PM', 'Literary Discussion - 7:00 PM'] },
-                      { day: 'Day 3 - September 15, 2026', events: ['Children\'s Storytelling - 10:00 AM', 'International Pavilion Tour - 2:00 PM', 'Award Ceremony - 8:00 PM'] },
-                    ].map((day, idx) => (
-                      <div key={idx} className="border border-gray-200 rounded-xl p-6">
-                        <h3 className="font-bold text-lg mb-4 text-[#009086]">{day.day}</h3>
-                        <ul className="space-y-3">
-                          {day.events.map((event, eventIdx) => (
-                            <li key={eventIdx} className="flex items-center gap-3 text-gray-700">
-                              <Clock className="w-4 h-4 text-[#009086]" />
-                              {event}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
+                  <h2 className="text-2xl font-bold mb-6 text-brand-navy">Event Schedule</h2>
+                  <div className="border border-gray-200 rounded-xl p-6 bg-gray-50">
+                    <h3 className="font-bold text-lg mb-4 text-[#009086]">{startDate}</h3>
+                    <ul className="space-y-4">
+                      <li className="flex items-start gap-4"><Clock className="w-4 h-4 text-[#009086] mt-1" /><div><p className="font-semibold text-brand-navy">{startTime}</p><p className="text-gray-600">Registration & Welcome</p></div></li>
+                      <li className="flex items-start gap-4"><Clock className="w-4 h-4 text-[#009086] mt-1" /><div><p className="font-semibold text-brand-navy">09:30 AM</p><p className="text-gray-600">Opening Keynote</p></div></li>
+                    </ul>
                   </div>
                 </div>
               )}
 
               {activeTab === 'faq' && (
+                <div className="space-y-4">
+                  {faqs.map((faq, idx) => (
+                    <div key={idx} className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition-all duration-300 ease-in-out">
+                      <button onClick={() => setOpenFaq(openFaq === idx ? null : idx)} className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors duration-300 ease-in-out">
+                        <span className="font-semibold pr-8 text-brand-navy">{faq.question}</span>
+                        <Plus className={`w-5 h-5 text-[#009086] flex-shrink-0 transition-transform duration-300 ease-in-out ${openFaq === idx ? 'rotate-45' : ''}`} />
+                      </button>
+                      {openFaq === idx && (
+                        <div className="px-6 pb-6">
+                          <p className="text-gray-700 leading-relaxed border-t border-gray-100 pt-4">{faq.answer}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'location' && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
-                  <div className="space-y-4">
-                    {faqs.map((faq, idx) => (
-                      <div key={idx} className="border border-gray-200 rounded-xl overflow-hidden">
-                        <button
-                          onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                          className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors"
-                        >
-                          <span className="font-semibold pr-8">{faq.question}</span>
-                          <ChevronRight
-                            className={`w-5 h-5 text-[#009086] flex-shrink-0 transition-transform duration-300 ${
-                              openFaq === idx ? 'rotate-90' : ''
-                            }`}
-                          />
-                        </button>
-                        {openFaq === idx && (
-                          <div className="px-6 pb-6">
-                            <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                  <h2 className="text-2xl font-bold mb-6 text-brand-navy">How to get there</h2>
+                  <div className="aspect-video bg-gray-100 rounded-2xl flex items-center justify-center border border-gray-200">
+                    <MapPin className="w-12 h-12 text-gray-400" />
+                    <span className="ml-2 text-gray-500">Map Placeholder</span>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+                    <h3 className="font-bold mb-2 text-brand-navy">{location}</h3>
+                    <a href="#" className="inline-flex items-center gap-2 text-[#009086] font-medium hover:text-brand-navy transition-all duration-300 ease-in-out">
+                      Get Directions <ExternalLink className="w-4 h-4" />
+                    </a>
                   </div>
                 </div>
               )}
@@ -415,121 +251,31 @@ export default function EventDetailPage() {
             {/* Right Column - Sidebar */}
             <div className="lg:col-span-1">
               <div className="sticky top-40 space-y-6">
-                {/* Ticket CTA */}
-                <div className="bg-gradient-to-br from-[#009086] to-[#007a72] rounded-2xl p-6 text-white">
+                {/* Ticket CTA (Matching Hero CTA Color & Animation) */}
+                <div className="bg-brand-navy rounded-2xl p-6 text-white shadow-lg">
                   <h3 className="text-xl font-bold mb-2">Get Your Tickets</h3>
-                  <p className="text-white/90 text-sm mb-6">
-                    {eventData.isPaid ? 'Secure your spot at this exclusive event' : 'Free entry - Register now to reserve your spot'}
-                  </p>
-                  {eventData.ticketLink && (
-                    <a
-                      href={eventData.ticketLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full inline-flex items-center justify-center gap-2 bg-white text-[#009086] px-6 py-3 rounded-full font-bold text-sm hover:bg-gray-100 transition-colors mb-3"
-                    >
-                      <Ticket className="w-4 h-4" />
-                      Book Tickets
-                    </a>
-                  )}
-                  <button className="w-full inline-flex items-center justify-center gap-2 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-white/30 transition-colors">
-                    <Calendar className="w-4 h-4" />
-                    Add to Calendar
-                  </button>
+                  <p className="text-white/90 text-sm mb-6">Secure your spot at this exclusive event</p>
+                  <a href={ticketLink} className="w-full inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-full font-bold text-sm hover:bg-white hover:text-[#009086] transition-all duration-300 ease-in-out">
+                    <Ticket className="w-4 h-4" /> Book Tickets
+                  </a>
                 </div>
 
                 {/* Event Details Card */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-6">
-                  <h3 className="font-bold text-lg mb-4">Event Details</h3>
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                  <h3 className="font-bold text-lg mb-4 text-brand-navy">Event Details</h3>
                   <div className="space-y-4">
                     <div>
                       <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Category</p>
-                      <div className="flex flex-wrap gap-2">
-                        {eventData.category.map((cat) => (
-                          <span key={cat} className="text-sm text-[#009086] font-medium">
-                            {cat}
-                          </span>
-                        ))}
-                      </div>
+                      <span className="text-sm text-[#009086] font-medium">{category}</span>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Price</p>
-                      <p className="font-semibold">{eventData.isPaid ? 'Ticketed Event' : 'Free Entry'}</p>
+                      <p className="font-semibold text-brand-navy">{meta.isPaid ? 'Ticketed Event' : 'Free Entry'}</p>
                     </div>
-                    {eventData.websiteUrl && (
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Website</p>
-                        <a
-                          href={eventData.websiteUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-sm text-[#009086] hover:underline"
-                        >
-                          Visit Official Site
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
-                    )}
                   </div>
-                </div>
-
-                
-                {/* Location Map Placeholder */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-6">
-                  <h3 className="font-bold text-lg mb-4">Location</h3>
-                  <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                    <MapPin className="w-12 h-12 text-gray-400" />
-                  </div>
-                  <p className="text-sm text-gray-700 mb-2">{eventData.venue}</p>
-                  <p className="text-sm text-gray-600">{eventData.location}</p>
-                  <a
-                    href={`https://www.google.com/maps?q=${eventData.latitude},${eventData.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 mt-4 text-sm text-[#009086] font-medium hover:underline"
-                  >
-                    Get Directions
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Related Events */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold mb-8">Related Events</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {relatedEvents.map((event) => (
-              <Link
-                key={event.id}
-                href={`/events/${event.id}`}
-                className="group bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300"
-              >
-                <div className="relative h-48 bg-gray-200">
-                  <Image
-                    src={event.image}
-                    alt={event.title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-[#201d1d]/90 backdrop-blur-sm text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-full">
-                      {event.category}
-                    </span>
-                  </div>
-                </div>
-                <div className="p-5">
-                  <p className="text-xs font-bold text-gray-500 mb-2 uppercase">{event.date}</p>
-                  <h3 className="font-bold text-[#201d1d] group-hover:text-[#009086] transition-colors line-clamp-2">
-                    {event.title}
-                  </h3>
-                </div>
-              </Link>
-            ))}
           </div>
         </div>
       </section>
