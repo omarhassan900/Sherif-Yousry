@@ -111,12 +111,12 @@ function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: La
           {t(lang, item.descAr, item.descEn)}
         </p>
 
-        {/* Learn More with circular arrow — always visible */}
+        {/* Learn More — circle fills white with a dark arrow on card hover */}
         <span className="inline-flex items-center gap-2.5 text-[11px] font-bold tracking-wider text-white uppercase">
-          <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/15">
+          <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-white group-hover:bg-white group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
             {lang === 'ar'
-              ? <ArrowLeft className="w-3.5 h-3.5 transition-colors group-hover:text-brand-gold" />
-              : <ArrowRight className="w-3.5 h-3.5 transition-colors group-hover:text-brand-gold" />}
+              ? <ArrowLeft className="w-3.5 h-3.5 transition-colors group-hover:text-brand-navy" />
+              : <ArrowRight className="w-3.5 h-3.5 transition-colors group-hover:text-brand-navy" />}
           </span>
           {t(lang, 'اقرأ المزيد', 'Learn More')}
         </span>

@@ -103,17 +103,20 @@ export function Journey() {
 
           {/* 3rd Column: SAME SIZE, JUSTIFIED END (Starts aligned left on mobile, right on desktop) */}
           <div className="lg:col-span-3 flex justify-start lg:justify-end items-end">
-            {/* Hero-style pill frame with a leading circular arrow badge */}
+            {/* Apollo-style: navy circle + label at rest; navy fill grows on hover */}
             <Link 
               href="/services" 
-              className="group inline-flex items-center gap-3 border border-brand-navy/30 text-brand-navy pl-2 pr-6 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:border-brand-gold hover:text-brand-gold transition-all duration-300"
+              className="group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
             >
-              <span className="flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white transition-all duration-300 group-hover:bg-brand-gold group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
+              <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+              <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
                 {lang === 'ar'
-                  ? <ArrowLeft className="w-4 h-4" />
-                  : <ArrowRight className="w-4 h-4" />}
+                  ? <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                  : <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />}
               </span>
-              {t(lang, 'استكشف جميع الخدمات', 'Explore All Services')}
+              <span className="relative z-10 text-brand-navy transition-colors duration-300 group-hover:text-white">
+                {t(lang, 'استكشف جميع الخدمات', 'Explore All Services')}
+              </span>
             </Link>
           </div>
         </div>

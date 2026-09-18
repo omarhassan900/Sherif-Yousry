@@ -45,12 +45,18 @@ export function CTABanner() {
           {t(lang, 'أخبرنا بما تسعى لتحقيقه. سنساعدك في الوصول إليه.', "Tell us what you're trying to achieve. We'll help you get there.")}
         </p>
         
+        {/* Apollo-style: white circle + label at rest; white fill grows on hover */}
         <Link 
           href="/contact" 
-          className="inline-flex items-center gap-2.5 bg-[#f7f3e9] text-gray-900 px-6 py-3 text-[11px] font-bold tracking-[1.5px] uppercase hover:bg-[#eae3d2] transition-colors duration-200 group"
+          className="group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[1.5px] uppercase self-start"
         >
-          {t(lang, 'ابدأ محادثة', 'START A CONVERSATION')}
-          <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180" />
+          <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-[#f7f3e9] transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+          <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-[#f7f3e9] text-gray-900 flex-shrink-0">
+            <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+          </span>
+          <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-gray-900">
+            {t(lang, 'ابدأ محادثة', 'START A CONVERSATION')}
+          </span>
         </Link>
       </div>
 

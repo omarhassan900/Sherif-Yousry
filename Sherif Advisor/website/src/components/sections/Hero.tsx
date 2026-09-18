@@ -101,24 +101,34 @@ export function Hero() {
                 )}
               </p>
 
-              {/* CTA buttons — content-sized pills, label then circular arrow (matches reference) */}
+              {/* CTA buttons — Apollo style: at rest just a filled arrow circle
+                  + bare label (no pill). On hover a rounded border expands to
+                  wrap the whole button and the arrow nudges forward. */}
               <div className="flex flex-wrap gap-4" style={{ animation: 'heroFadeUp 0.8s ease 1s both' }}>
                 <Link
                   href="/#contact"
-                  className="inline-flex items-center gap-2.5 h-11 bg-[#f7f3e9] text-[#030a12] ps-5 pe-1.5 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase hover:bg-white transition-all duration-300 group"
+                  className="cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
-                  <span>{section.field('ctaPrimary', 'احجز استشارة', 'Schedule a Consultation')}</span>
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#030a12] text-[#f7f3e9] flex-shrink-0 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
-                    <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                  {/* Expanding white fill — grows from the circle on hover (pure Tailwind) */}
+                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-white text-[#030a12] flex-shrink-0">
+                    <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+                  </span>
+                  <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">
+                    {section.field('ctaPrimary', 'احجز استشارة', 'Schedule a Consultation')}
                   </span>
                 </Link>
                 <Link
                   href="/services"
-                  className="inline-flex items-center gap-2.5 h-11 border border-white/30 text-white ps-5 pe-1.5 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase hover:bg-white/10 hover:border-white transition-all duration-300 group"
+                  className="cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
-                  <span>{section.field('ctaSecondary', 'استكشف خدماتنا', 'Explore Our Services')}</span>
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-[#030a12] flex-shrink-0 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
-                    <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                  {/* Expanding white fill — grows from the circle on hover (pure Tailwind) */}
+                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-white text-[#030a12] flex-shrink-0">
+                    <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+                  </span>
+                  <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">
+                    {section.field('ctaSecondary', 'استكشف خدماتنا', 'Explore Our Services')}
                   </span>
                 </Link>
               </div>
@@ -187,9 +197,16 @@ export function Hero() {
               onClick={() => setIsVideoOpen(true)}
               className="flex items-center gap-2.5 group cursor-pointer"
             >
-              <div className="w-14 h-14 rounded-full border-2 border-white/30 flex items-center justify-center group-hover:border-brand-gold group-hover:bg-brand-gold/10 transition-all duration-300">
-                <Play className="w-6 h-6 text-white ml-0.5 group-hover:text-brand-gold transition-colors" fill="currentColor" />
-              </div>
+              <span className="relative flex items-center justify-center w-16 h-16">
+                {/* Soft pulsing halo */}
+                <span className="absolute inset-0 rounded-full bg-white/20 hero-halo" aria-hidden="true" />
+                {/* Rotating conic gradient ring */}
+                <span className="hero-ring absolute inset-0 rounded-full" aria-hidden="true" />
+                {/* Solid glass play button */}
+                <span className="relative z-10 w-14 h-14 rounded-full border-2 border-white bg-white/10 backdrop-blur-md flex items-center justify-center shadow-lg shadow-black/30 transition-all duration-300 group-hover:bg-white group-hover:scale-110">
+                  <Play className="w-6 h-6 text-white ml-0.5 transition-colors duration-300 group-hover:text-[#030a12]" fill="currentColor" />
+                </span>
+              </span>
               <div className="hidden sm:block text-left leading-tight">
                 <p className="text-white text-[10px] font-bold tracking-[0.12em] uppercase">{t(lang, 'شاهد', 'WATCH')}</p>
                 <p className="text-white text-[10px] font-bold tracking-[0.12em] uppercase">{t(lang, 'قصتنا', 'OUR STORY')}</p>
@@ -254,6 +271,33 @@ export function Hero() {
           from { opacity: 0; transform: translateX(30px); }
           to { opacity: 1; transform: translateX(0); }
         }
+        /* Modern play button: rotating gradient ring + breathing halo */
+        .hero-ring {
+          background: conic-gradient(
+            from 0deg,
+            rgba(255,255,255,0) 0deg,
+            rgba(255,255,255,0.95) 120deg,
+            rgba(255,255,255,0) 260deg
+          );
+          -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+          animation: heroSpin 3.5s linear infinite;
+        }
+        @keyframes heroSpin {
+          to { transform: rotate(360deg); }
+        }
+        .hero-halo {
+          animation: heroHalo 2.4s ease-in-out infinite;
+        }
+        @keyframes heroHalo {
+          0%, 100% { transform: scale(1); opacity: 0.35; }
+          50% { transform: scale(1.4); opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hero-ring, .hero-halo { animation: none; }
+          .hero-halo { opacity: 0; }
+        }
+
       `}</style>
     </section>
   );

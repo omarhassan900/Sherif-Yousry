@@ -19,6 +19,7 @@ const navItems = [
   { href: '/#digital',   labelAr: 'التجربة الرقمية', labelEn: 'Digital Experience', id: 'markets' },
   { href: '/#insights',  labelAr: 'الأفكار',     labelEn: 'Insights',   id: 'insights' },
   { href: '/#packages',  labelAr: 'الباقات',     labelEn: 'Packages',   id: 'packages' },
+  { href: '/#events',    labelAr: 'الفعاليات والتدريب', labelEn: 'Events & Training', id: 'events' },
   { href: '/#contact',   labelAr: 'تواصل معنا',  labelEn: 'Contact',    id: 'contact' },
   { href: '/about',      labelAr: 'من نحن',      labelEn: 'About Us',   id: 'about' },
 ];
@@ -335,7 +336,7 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation with Mega Menu */}
-        <nav className="hidden lg:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
           {navItems.map((item) => {
             const active = isActive(item);
             const isServices = item.id === 'services';
@@ -352,7 +353,7 @@ export function Header() {
               >
                 <Link
                   href={item.href}
-                  className={`text-xs tracking-widest transition-all duration-300 relative group flex items-center gap-1.5 rounded-full px-3 py-1.5 ${
+                  className={`text-xs tracking-widest whitespace-nowrap transition-all duration-300 relative group flex items-center gap-1.5 rounded-full px-3 py-1.5 ${
                     active
                       ? 'text-brand-gold bg-brand-gold/10 ring-1 ring-brand-gold/30'
                       : showWhiteBg ? 'text-gray-700 hover:text-brand-gold' : 'text-gray-300 hover:text-brand-gold'

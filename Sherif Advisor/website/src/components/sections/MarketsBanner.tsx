@@ -22,7 +22,7 @@ export function MarketsBanner() {
             {/* ✅ Background Image Layer */}
             <div className="absolute inset-0 z-0">
                 <Image
-                    src="/images/worldmap.png"
+                    src="/images/7a5e567c-14fb-4123-9261-1b7a90ed3aee.jpeg"
                     alt="Global markets connection map showing Europe, MENA, and Egypt"
                     fill
                     className="object-contain object-center opacity-90" // Increased opacity for clarity
@@ -32,8 +32,9 @@ export function MarketsBanner() {
                 {/* Gradient Fade: Hides the map behind the left text for readability */}
                 <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#f4f0e8] via-[#f4f0e8]/80 to-transparent z-10" />
                 
-                {/* Subtle Fade on the right edge to blend smoothly */}
-                <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-[#f4f0e8] to-transparent z-10" />
+                {/* Fade on the right edge — wider, multi-stop blend so the map
+                    dissolves smoothly into the cream background (no hard seam). */}
+                <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-[#f4f0e8] via-[#f4f0e8]/80 to-transparent z-10" />
             </div>
 
             {/* ✅ Content Layer */}
