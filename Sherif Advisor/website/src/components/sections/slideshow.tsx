@@ -90,6 +90,24 @@ export function Hero() {
       ctaPrimary: { text: t(lang, 'التوسع العالمي', 'Global Expansion'), href: '/#contact' },
       ctaSecondary: { text: t(lang, 'تواصل معنا', 'Contact Us'), href: '/services' },
       partnerTag: [t(lang, 'توسيع', 'EXPANDING'), t(lang, 'الآفاق', 'HORIZONS'), t(lang, 'ما وراء', 'BEYOND'), `<span class="text-brand-gold">${t(lang, 'الحدود', 'BORDERS')}</span>`]
+    },
+    {
+      image: '/images/bg-4.jpeg', // Replace with your third image
+      eyebrow: t(lang, 'جذور محلية • وصول عالمي', 'LOCAL ROOTS • GLOBAL REACH'),
+      title: (
+        <>
+          {t(lang, 'ربط الأسواق', 'BRIDGING MARKETS')}<br />
+          <span className="italic text-brand-gold">{t(lang, 'وخلق القيمة.', 'CREATING VALUE.')}</span>
+        </>
+      ),
+      subtitle: t(
+        lang,
+        'نربط الشركات المصرية بفرص عالمية، ونقدم الخبرة المحلية اللازمة للتنقل في اللوائح الدولية وتوسيع نطاق العمليات بنجاح.',
+        'Connecting Egyptian enterprises with global opportunities, providing the local expertise needed to navigate international regulations and scale operations successfully.'
+      ),
+      ctaPrimary: { text: t(lang, 'التوسع العالمي', 'Global Expansion'), href: '/#contact' },
+      ctaSecondary: { text: t(lang, 'تواصل معنا', 'Contact Us'), href: '/services' },
+      partnerTag: [t(lang, 'توسيع', 'EXPANDING'), t(lang, 'الآفاق', 'HORIZONS'), t(lang, 'ما وراء', 'BEYOND'), `<span class="text-brand-gold">${t(lang, 'الحدود', 'BORDERS')}</span>`]
     }
   ];
 
@@ -215,7 +233,7 @@ export function Hero() {
               <div className="flex flex-wrap gap-4" style={{ animation: 'heroFadeUp 0.8s ease 0.8s both' }}>
                 <Link
                   href={slides[currentSlide].ctaPrimary.href}
-                  className="cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+                  className="border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
                   <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
                   <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-white text-[#030a12] flex-shrink-0">
@@ -227,7 +245,7 @@ export function Hero() {
                 </Link>
                 <Link
                   href={slides[currentSlide].ctaSecondary.href}
-                  className="cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+                  className="border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
                   <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
                   <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-white text-[#030a12] flex-shrink-0">

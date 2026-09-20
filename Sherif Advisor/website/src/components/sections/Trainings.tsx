@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
-import { Calendar, MapPin, ArrowRight, ArrowLeft, Users, Sparkles } from 'lucide-react';
+import { Calendar, MapPin, ArrowRight, ArrowLeft, GraduationCap, Sparkles } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
-interface EventItem {
+interface TrainingItem {
   id: string;
   titleAr: string;
   titleEn: string;
@@ -20,10 +20,10 @@ interface EventItem {
   image: string;
 }
 
-export function Events() {
+export function Training() {
   const [lang, setLang] = useState<Language>('en');
   const [isVisible, setIsVisible] = useState(false);
-  const [events, setEvents] = useState<EventItem[]>([]);
+  const [trainings, setTrainings] = useState<TrainingItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -47,38 +47,32 @@ export function Events() {
     return () => observer.disconnect();
   }, []);
 
-  // Fetch ONLY events from API
+  // Fetch and filter only trainings from API
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchTrainings = async () => {
       try {
+        // Fetch a larger page size to ensure we get enough trainings after filtering
         const res = await fetch(`/api/events?lang=${lang}&page=1&pageSize=12`);
         const data = await res.json();
         
         if (data.items) {
-          // Filter out training categories to ensure this section is strictly for events
-          const filteredItems = data.items.filter((item: any) => {
+          const mappedItems = data.items.map((item: any) => {
             const meta = item.metadata || {};
-            const category = meta.category?.toLowerCase();
-            return !['workshop', 'webinar', 'seminar', 'training'].includes(category);
-          });
-
-          const mappedEvents = filteredItems.map((item: any) => {
-            const meta = item.metadata || {};
+            const isTraining = ['workshop', 'webinar', 'seminar', 'training'].includes(meta.category?.toLowerCase());
             
-            // Format date based on language
             const formattedDate = meta.startDate 
               ? new Date(meta.startDate).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { 
                   year: 'numeric', month: 'long', day: 'numeric' 
                 })
               : 'TBA';
 
-            // Clean up description length
             const cleanDesc = item.body 
               ? (item.body.length > 120 ? item.body.substring(0, 120).replace(/<[^>]*>/g, '') + '...' : item.body.replace(/<[^>]*>/g, ''))
               : '';
 
             return {
               id: item.id,
+              isTraining,
               titleAr: item.titleAr || '',
               titleEn: item.titleEn || '',
               descAr: cleanDesc,
@@ -90,17 +84,23 @@ export function Events() {
               image: meta.image || '/images/events/default.jpg',
             };
           });
-          setEvents(mappedEvents);
+
+          // Filter to keep ONLY trainings
+          const filteredTrainings = mappedItems
+            .filter((item: any) => item.isTraining)
+            .map(({ isTraining, ...rest }) => rest as TrainingItem);
+            
+          setTrainings(filteredTrainings);
         }
       } catch (error) {
-        console.error('Error fetching events:', error);
+        console.error('Error fetching trainings:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
     if (lang) {
-      fetchEvents();
+      fetchTrainings();
     }
   }, [lang]);
 
@@ -121,25 +121,24 @@ export function Events() {
   return (
     <section
       ref={sectionRef}
-      id="events"
+      id="trainings"
       className="py-16 md:py-20 bg-gray-50"
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        {/* Modern dark separator — a bold navy pill flanked by thick navy lines */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 md:mb-8">
-          <div className="flex items-center gap-4">
-            <span className="h-[3px] flex-1 rounded-full bg-gradient-to-r from-transparent via-brand-navy/40 to-brand-navy" />
-            <span className="inline-flex items-center gap-2 rounded-full bg-brand-navy px-4 py-2 shadow-lg shadow-brand-navy/20">
-              <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
-              <span className="text-[11px] font-bold tracking-[2px] uppercase text-white">
-                {t(lang, 'فعاليات', 'Events')}
-              </span>
+      {/* Modern dark separator — a bold navy pill flanked by thick navy lines */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 md:mb-8">
+        <div className="flex items-center gap-4">
+          <span className="h-[3px] flex-1 rounded-full bg-gradient-to-r from-transparent via-brand-navy/40 to-brand-navy" />
+          <span className="inline-flex items-center gap-2 rounded-full bg-brand-navy px-4 py-2 shadow-lg shadow-brand-navy/20">
+            <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
+            <span className="text-[11px] font-bold tracking-[2px] uppercase text-white">
+              {t(lang, 'تدريب', 'Training')}
             </span>
-            <span className="h-[3px] flex-1 rounded-full bg-gradient-to-l from-transparent via-brand-navy/40 to-brand-navy" />
-          </div>
+          </span>
+          <span className="h-[3px] flex-1 rounded-full bg-gradient-to-l from-transparent via-brand-navy/40 to-brand-navy" />
         </div>
-
+      </div>
         {/* Header Section: Animates from TOP */}
         <div 
           className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 lg:items-end mb-12 md:mb-16 transition-all duration-700 ease-out ${
@@ -149,10 +148,10 @@ export function Events() {
           {/* 1st Column: BIG */}
           <div className="lg:col-span-6">
             <span className="text-xs font-bold tracking-widest text-brand-gold uppercase mb-3 block">
-              {t(lang, 'فعاليات مميزة', 'Featured Events')}
+              {t(lang, 'تدريب', 'Training')}
             </span>
             <h2 className="font-amiri text-3xl md:text-4xl lg:text-5xl text-brand-navy leading-tight">
-              {t(lang, 'استكشف أحدث الفعاليات والتجارب.', 'Explore our upcoming events and experiences.')}
+              {t(lang, 'نُطوّر المعرفة ونبني القدرات.', 'Building knowledge. Growing capabilities.')}
             </h2>
           </div>
 
@@ -161,8 +160,8 @@ export function Events() {
             <p className="text-text-secondary leading-relaxed text-sm md:text-base">
               {t(
                 lang,
-                'انضم إلى الفعاليات المميزة التي نقدمها لمساعدة أعمالك على مواكبة أحدث المستجدات.',
-                'Join our exclusive events designed to keep your business ahead of the curve.'
+                'انضم إلى ورش العمل والبرامج التدريبية التي نقدمها لمساعدة أعمالك على مواكبة أحدث المستجدات.',
+                'Join our workshops & training programs designed to keep your business ahead of the curve.'
               )}
             </p>
           </div>
@@ -170,7 +169,7 @@ export function Events() {
           {/* 3rd Column: SAME SIZE, JUSTIFIED END */}
           <div className="lg:col-span-3 flex justify-start lg:justify-end items-end">
             <Link 
-              href="/events" 
+              href="/trainings" 
               className="border-brand-navy border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
             >
               <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
@@ -180,7 +179,7 @@ export function Events() {
                   : <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />}
               </span>
               <span className="relative z-10 text-brand-navy transition-colors duration-300 group-hover:text-white">
-                {t(lang, 'استكشف الفعاليات', 'Explore Events')}
+                {t(lang, 'استكشف جميع التدريبات', 'Explore All Trainings')}
               </span>
             </Link>
           </div>
@@ -214,8 +213,8 @@ export function Events() {
                   </div>
                 </div>
               ))
-            ) : events.length > 0 ? (
-              events.map((item, index) => (
+            ) : trainings.length > 0 ? (
+              trainings.map((item, index) => (
                 <div 
                   key={item.id} 
                   className="snap-start shrink-0 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
@@ -227,7 +226,7 @@ export function Events() {
                   }}
                 >
                   <Link
-                    href={`/events/${item.id}`}
+                    href={`/trainings/${item.id}`}
                     className="group bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-brand-gold/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-700 ease-out flex flex-col h-full"
                   >
                     {/* Image */}
@@ -237,10 +236,10 @@ export function Events() {
                         alt={t(lang, item.titleAr, item.titleEn)}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      {/* Event Badge (Always shown) */}
+                      {/* Training Badge (Always shown) */}
                       <span className="absolute top-3 start-3 inline-flex items-center gap-1.5 rounded-full bg-brand-navy/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-white">
-                        <Users className="w-3.5 h-3.5 text-brand-gold" />
-                        {t(lang, 'فعالية', 'Event')}
+                        <GraduationCap className="w-3.5 h-3.5 text-brand-gold" />
+                        {t(lang, 'تدريب', 'Training')}
                       </span>
                     </div>
 
@@ -275,13 +274,13 @@ export function Events() {
               ))
             ) : (
               <div className="snap-start shrink-0 w-full text-center py-10 text-text-secondary bg-white rounded-lg border border-gray-100">
-                {t(lang, 'لا توجد فعاليات متاحة حالياً.', 'No events available at the moment.')}
+                {t(lang, 'لا توجد تدريبات متاحة حالياً.', 'No training sessions available at the moment.')}
               </div>
             )}
           </div>
 
           {/* Navigation Arrows (Hidden on mobile, visible on desktop) */}
-          {!isLoading && events.length > 3 && (
+          {!isLoading && trainings.length > 3 && (
             <>
               <button
                 onClick={() => scrollCarousel('left')}

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { getClientLanguage, type Language } from '@/lib/language';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
@@ -58,13 +59,19 @@ export function MarketsBanner() {
                         )}
                     </p>
 
-                    <Link
-                        href="/about"
-                        className="inline-flex items-center gap-2 mt-2 px-5 py-2.5 border border-[#1c2733] text-[#1c2733] text-[0.65rem] font-bold tracking-[0.15em] uppercase hover:bg-[#1c2733] hover:text-white transition-all duration-300 group"
-                    >
-                        {t(lang, 'نهجنا', 'Our Approach')}
-                        <span className="text-base transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180">
-                            &rarr;
+                 
+                    <Link 
+                        href="/contact" 
+                        className="border-brand-navy border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
+                        >
+                        <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                        <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
+                            {lang === 'ar'
+                            ? <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                            : <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />}
+                        </span>
+                        <span className="relative z-10 text-brand-navy transition-colors duration-300 group-hover:text-white">
+                             {t(lang, 'نهجنا', 'Our Approach')}
                         </span>
                     </Link>
                 </div>

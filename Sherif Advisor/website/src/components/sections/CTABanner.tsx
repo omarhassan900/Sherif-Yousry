@@ -48,7 +48,7 @@ export function CTABanner() {
         {/* Apollo-style: white circle + label at rest; white fill grows on hover */}
         <Link 
           href="/contact" 
-          className="group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[1.5px] uppercase self-start"
+          className="border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[1.5px] uppercase self-start"
         >
           <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-[#f7f3e9] transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
           <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-[#f7f3e9] text-gray-900 flex-shrink-0">

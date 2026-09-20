@@ -306,11 +306,11 @@ export function Header() {
         showWhiteBg ? 'bg-white/95 shadow-lg py-4' : 'bg-transparent py-6'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Logo */}
         <Link href="/" className="flex items-center gap-4 group">
-          <div className="relative w-14 h-14 lg:w-16 lg:h-16">
+          <div className="relative w-14 h-14 lg:w-32 lg:h-16">
             <Image
               src="/images/logo.png"
               alt="Sherif Yousry Advisory"
@@ -320,18 +320,6 @@ export function Header() {
               }`}
               priority
             />
-          </div>
-          <div className="hidden lg:block">
-            <h3 className={`font-serif text-lg tracking-wide transition-colors duration-300 ${
-              showWhiteBg ? 'text-[#030a12]' : 'text-white'
-            }`}>
-              SHERIF YOUSRY
-            </h3>
-            <p className={`text-xs tracking-[0.2em] uppercase transition-colors duration-300 ${
-              showWhiteBg ? 'text-gray-600' : 'text-gray-400'
-            }`}>
-              ADVISORY
-            </p>
           </div>
         </Link>
 
@@ -561,7 +549,7 @@ export function Header() {
             <Search className="w-4 h-4" />
           </button>
         
-          <Link href="/login" className={`${iconBtnClass} w-11 h-11`} aria-label="Login">
+          <Link href="/admin/login" className={`${iconBtnClass} w-11 h-11`} aria-label="Login">
             <User className="w-4 h-4" />
           </Link>
         </div>

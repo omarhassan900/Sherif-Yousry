@@ -16,10 +16,11 @@ import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 import {Journey} from '@/components/sections/Journey'
 import { ServicesGrid } from '@/components/sections/ServicesGrid';
 import { Packages } from '@/components/sections/Packages';
-import { EventsTraining } from '@/components/sections/EventsTraining';
+import { Events } from '@/components/sections/EventsTraining';
 import { MarketsBanner } from '@/components/sections/MarketsBanner';
 import { DigitalExperience } from '@/components/sections/DigitalExperience';
 import { CTABanner } from '@/components/sections/CTABanner';
+import { Training } from '@/components/sections/Trainings';
 
 export default function Home() {
   return (
@@ -33,7 +34,8 @@ export default function Home() {
       <DigitalExperience /> 
       <Knowledge />
       <Packages />
-      <EventsTraining />
+      <Events />
+      <Training />
       <CTABanner />
       <Contact />
       <Footer />

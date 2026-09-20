@@ -58,13 +58,10 @@ function FooterModern() {
       {/* Top row: logo + back to top */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-10 flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-3">
-          <div className="relative w-12 h-12">
+          <div className="relative w-60 h-16">
             <Image src="/images/logo.png" alt="Sherif Yousry Advisory" fill className="object-contain" />
           </div>
-          <div className="hidden sm:block leading-tight">
-            <h3 className="font-serif text-base tracking-wide">SHERIF YOUSRY</h3>
-            <p className="text-[10px] tracking-[0.2em] uppercase text-gray-400">Advisory</p>
-          </div>
+       
         </Link>
 
         <button
