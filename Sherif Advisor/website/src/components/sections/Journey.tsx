@@ -73,12 +73,11 @@ export function Journey() {
   return (
     <section ref={sectionRef} className="py-12 md:py-20 bg-gray-50" id="journey">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header Section: Animates from TOP */}
-        <div 
-          className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 lg:items-end mb-12 md:mb-16 transition-all duration-700 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-          }`}
+        <div
+          className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 lg:items-end mb-12 md:mb-16 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
         >
           {/* 1st Column: BIG */}
           <div className="lg:col-span-6">
@@ -104,8 +103,8 @@ export function Journey() {
           {/* 3rd Column: SAME SIZE, JUSTIFIED END (Starts aligned left on mobile, right on desktop) */}
           <div className="lg:col-span-3 flex justify-start lg:justify-end items-end">
             {/* Apollo-style: navy circle + label at rest; navy fill grows on hover */}
-            <Link 
-              href="/services" 
+            <Link
+              href="/services"
               className="border-brand-navy border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
             >
               <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
@@ -124,37 +123,43 @@ export function Journey() {
         {/* Grid: Cards animate from BOTTOM with staggered delay */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {journeyCards.map((card, index) => (
-            <Link 
-              key={index} 
+            <Link
+              key={index}
               href={card.href}
               style={{ transitionDelay: isVisible ? `${index * 150}ms` : '0ms' }}
               className={`group bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-brand-gold/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-700 ease-out
                 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
             >
               <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={card.img} 
-                  alt={t(lang, card.titleAr, card.titleEn)} 
+                <img
+                  src={card.img}
+                  alt={t(lang, card.titleAr, card.titleEn)}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-brand-navy/5 group-hover:bg-brand-navy/0 transition-colors duration-300" />
               </div>
-              
-              <div className="p-6 flex items-start justify-between gap-4">
+
+              <div className="p-6 flex items-start justify-between gap-4 ">
                 <div>
-                  <h3 className="font-amiri text-xl text-brand-navy mb-2 group-hover:text-brand-gold transition-colors">
-                    {t(lang, card.titleAr, card.titleEn)}
-                  </h3>
+                  <Link
+                    href={card.href}
+                    className="mb-3 border-brand-navy border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase"
+                  >
+                    <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                    <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
+                      {lang === 'ar'
+                        ? <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                        : <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />}
+                    </span>
+                    <span className="relative z-10 text-brand-navy transition-colors duration-300 group-hover:text-white">
+                     {t(lang, card.titleAr, card.titleEn)}
+                    </span>
+                  </Link>
+                 
                   <p className="text-sm text-text-secondary leading-relaxed">
                     {t(lang, card.descAr, card.descEn)}
                   </p>
                 </div>
-                {/* Hero-style circular arrow badge; flex-shrink-0 keeps it from squishing */}
-                <span className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-brand-navy/30 text-brand-navy mt-1 flex-shrink-0 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/10 group-hover:text-brand-gold group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
-                  {lang === 'ar'
-                    ? <ArrowLeft className="w-4 h-4" />
-                    : <ArrowRight className="w-4 h-4" />}
-                </span>
               </div>
             </Link>
           ))}

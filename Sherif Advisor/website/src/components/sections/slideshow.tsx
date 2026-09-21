@@ -37,77 +37,75 @@ export function Hero() {
   const slides: HeroSlide[] = [
     {
       image: '/images/bg.jpeg',
-      eyebrow: t(lang, 'استراتيجية • ضرائب • استشارات أعمال', 'STRATEGY • TAX • BUSINESS ADVISORY'),
-      title: section.title ? (
-        <span className="italic text-brand-gold">{section.title}</span>
-      ) : (
+    eyebrow: t(lang, 'استراتيجية • ضرائب • استشارات أعمال', 'STRATEGY • TAX • BUSINESS ADVISORY'),
+      title: (
         <>
-          {t(lang, 'خبرة لصنع', 'EXPERTISE FOR')}<br />
-          <span className="italic text-brand-gold">{t(lang, 'قرارات تصنع الفارق.', 'DECISIONS THAT MATTER.')}</span>
+          {t(lang, 'خبرة لصنع قرارات.', 'EXPERTISE FOR')}<br />
+          <span className="italic text-brand-gold">{t(lang, ' تصنع الفارق.', ' DECISIONS THAT MATTER.')}</span>
         </>
       ),
-      subtitle: section.body || t(
+      subtitle: t(
         lang,
-        'نقدم حلولاً استشارية عملية ومخصصة للشركات والمستثمرين والأفراد في مصر وخارجها. من الاستراتيجية إلى التنفيذ، نجلب الوضوح للتعقيدات ونساعد في تحويل القرارات المهمة إلى نتائج ملموسة.',
-        'We provide practical and tailored advisory solutions for businesses, investors, and individuals operating in Egypt and beyond. From strategy to execution, we bring clarity to complexity and help turn critical decisions into measurable results.'
+        'نقدم حلولاً استشارية عملية ومخصصة للشركات والمستثمرين والأفراد في مصر وخارجها.من الاستراتيجية إلى التنفيذ، نجلب الوضوح للتعقيدات ونساعد في تحويل القرارات المهمة إلى نتائج ملموسة.',
+        'We provide practical and tailored advisory solutions for businesses. investors, and individuals operating in Egypt and beyond.From strategy to execution, we bring clarity to complexity and help turn critical decisions into measurable results.'
       ),
-      ctaPrimary: { text: section.field('ctaPrimary', 'احجز استشارة', 'Schedule a Consultation'), href: '/#contact' },
-      ctaSecondary: { text: section.field('ctaSecondary', 'استكشف خدماتنا', 'Explore Our Services'), href: '/services' },
-      partnerTag: [t(lang, 'شريكك', 'YOUR'), t(lang, 'لغدٍ', 'PARTNER'), t(lang, 'أقوى', 'FOR A STRONGER'), `<span class="text-brand-gold">${t(lang, 'مستقبل', 'TOMORROW')}</span>`]
+      ctaPrimary: { text: t(lang, 'احجز استشارة', 'Schedule a Consultation'), href: '/#contact' },
+      ctaSecondary: { text: t(lang, 'استكشف خدماتنا', 'Explore Our Services'), href: '/services' },
+      partnerTag: [t(lang, 'شريكك', 'PARTNER'), t(lang, 'أقوى', 'FOR A STRONGER'), `<span class="text-brand-gold">${t(lang, 'لغدٍ', 'TOMORROW')}</span>`]
     },
     {
       image: '/images/bg-2.jpeg', // Replace with your second image
-      eyebrow: t(lang, 'استثمار • نمو • ابتكار', 'INVESTMENT • GROWTH • INNOVATION'),
+    eyebrow: t(lang, 'استراتيجية • ضرائب • استشارات أعمال', 'STRATEGY • TAX • BUSINESS ADVISORY'),
       title: (
         <>
-          {t(lang, 'بناء الثروة', 'BUILDING WEALTH')}<br />
-          <span className="italic text-brand-gold">{t(lang, 'وتأمين المستقبل.', 'SECURING FUTURES.')}</span>
+          {t(lang, 'خبرة لصنع قرارات.', 'EXPERTISE FOR')}<br />
+          <span className="italic text-brand-gold">{t(lang, ' تصنع الفارق.', ' DECISIONS THAT MATTER.')}</span>
         </>
       ),
       subtitle: t(
         lang,
-        'نمكن الشركات من خلال التخطيط المالي الاستراتيجي وإدارة المخاطر، مما يضمن نمواً مستداماً على المدى الطويل في الأسواق المتغيرة.',
-        'Empowering businesses through strategic financial planning and risk management, ensuring sustainable long-term growth in evolving markets.'
+        'نقدم حلولاً استشارية عملية ومخصصة للشركات والمستثمرين والأفراد في مصر وخارجها.من الاستراتيجية إلى التنفيذ، نجلب الوضوح للتعقيدات ونساعد في تحويل القرارات المهمة إلى نتائج ملموسة.',
+        'We provide practical and tailored advisory solutions for businesses. investors, and individuals operating in Egypt and beyond.From strategy to execution, we bring clarity to complexity and help turn critical decisions into measurable results.'
       ),
-      ctaPrimary: { text: t(lang, 'ابدأ الاستثمار', 'Start Investing'), href: '/#contact' },
-      ctaSecondary: { text: t(lang, 'محفظتنا', 'Our Portfolio'), href: '/services' },
-      partnerTag: [t(lang, 'دليلك', 'YOUR'), t(lang, 'النحو', 'GUIDE'), t(lang, 'نحو', 'TO'), `<span class="text-brand-gold">${t(lang, 'النجاح', 'SUCCESS')}</span>`]
-    },
+      ctaPrimary: { text: t(lang, 'احجز استشارة', 'Schedule a Consultation'), href: '/#contact' },
+      ctaSecondary: { text: t(lang, 'استكشف خدماتنا', 'Explore Our Services'), href: '/services' },
+      partnerTag: [t(lang, 'شريكك', 'PARTNER'), t(lang, 'أقوى', 'FOR A STRONGER'), `<span class="text-brand-gold">${t(lang, 'لغدٍ', 'TOMORROW')}</span>`]
+     },
     {
       image: '/images/bg-3.jpeg', // Replace with your third image
-      eyebrow: t(lang, 'جذور محلية • وصول عالمي', 'LOCAL ROOTS • GLOBAL REACH'),
+    eyebrow: t(lang, 'استراتيجية • ضرائب • استشارات أعمال', 'STRATEGY • TAX • BUSINESS ADVISORY'),
       title: (
         <>
-          {t(lang, 'ربط الأسواق', 'BRIDGING MARKETS')}<br />
-          <span className="italic text-brand-gold">{t(lang, 'وخلق القيمة.', 'CREATING VALUE.')}</span>
+          {t(lang, 'خبرة لصنع قرارات.', 'EXPERTISE FOR')}<br />
+          <span className="italic text-brand-gold">{t(lang, ' تصنع الفارق.', ' DECISIONS THAT MATTER.')}</span>
         </>
       ),
       subtitle: t(
         lang,
-        'نربط الشركات المصرية بفرص عالمية، ونقدم الخبرة المحلية اللازمة للتنقل في اللوائح الدولية وتوسيع نطاق العمليات بنجاح.',
-        'Connecting Egyptian enterprises with global opportunities, providing the local expertise needed to navigate international regulations and scale operations successfully.'
+        'نقدم حلولاً استشارية عملية ومخصصة للشركات والمستثمرين والأفراد في مصر وخارجها.من الاستراتيجية إلى التنفيذ، نجلب الوضوح للتعقيدات ونساعد في تحويل القرارات المهمة إلى نتائج ملموسة.',
+        'We provide practical and tailored advisory solutions for businesses. investors, and individuals operating in Egypt and beyond.From strategy to execution, we bring clarity to complexity and help turn critical decisions into measurable results.'
       ),
-      ctaPrimary: { text: t(lang, 'التوسع العالمي', 'Global Expansion'), href: '/#contact' },
-      ctaSecondary: { text: t(lang, 'تواصل معنا', 'Contact Us'), href: '/services' },
-      partnerTag: [t(lang, 'توسيع', 'EXPANDING'), t(lang, 'الآفاق', 'HORIZONS'), t(lang, 'ما وراء', 'BEYOND'), `<span class="text-brand-gold">${t(lang, 'الحدود', 'BORDERS')}</span>`]
-    },
+      ctaPrimary: { text: t(lang, 'احجز استشارة', 'Schedule a Consultation'), href: '/#contact' },
+      ctaSecondary: { text: t(lang, 'استكشف خدماتنا', 'Explore Our Services'), href: '/services' },
+      partnerTag: [t(lang, 'شريكك', 'PARTNER'), t(lang, 'أقوى', 'FOR A STRONGER'), `<span class="text-brand-gold">${t(lang, 'لغدٍ', 'TOMORROW')}</span>`]
+     },
     {
       image: '/images/bg-4.jpeg', // Replace with your third image
-      eyebrow: t(lang, 'جذور محلية • وصول عالمي', 'LOCAL ROOTS • GLOBAL REACH'),
+    eyebrow: t(lang, 'استراتيجية • ضرائب • استشارات أعمال', 'STRATEGY • TAX • BUSINESS ADVISORY'),
       title: (
         <>
-          {t(lang, 'ربط الأسواق', 'BRIDGING MARKETS')}<br />
-          <span className="italic text-brand-gold">{t(lang, 'وخلق القيمة.', 'CREATING VALUE.')}</span>
+          {t(lang, 'خبرة لصنع قرارات.', 'EXPERTISE FOR')}<br />
+          <span className="italic text-brand-gold">{t(lang, ' تصنع الفارق.', ' DECISIONS THAT MATTER.')}</span>
         </>
       ),
       subtitle: t(
         lang,
-        'نربط الشركات المصرية بفرص عالمية، ونقدم الخبرة المحلية اللازمة للتنقل في اللوائح الدولية وتوسيع نطاق العمليات بنجاح.',
-        'Connecting Egyptian enterprises with global opportunities, providing the local expertise needed to navigate international regulations and scale operations successfully.'
+        'نقدم حلولاً استشارية عملية ومخصصة للشركات والمستثمرين والأفراد في مصر وخارجها.من الاستراتيجية إلى التنفيذ، نجلب الوضوح للتعقيدات ونساعد في تحويل القرارات المهمة إلى نتائج ملموسة.',
+        'We provide practical and tailored advisory solutions for businesses. investors, and individuals operating in Egypt and beyond.From strategy to execution, we bring clarity to complexity and help turn critical decisions into measurable results.'
       ),
-      ctaPrimary: { text: t(lang, 'التوسع العالمي', 'Global Expansion'), href: '/#contact' },
-      ctaSecondary: { text: t(lang, 'تواصل معنا', 'Contact Us'), href: '/services' },
-      partnerTag: [t(lang, 'توسيع', 'EXPANDING'), t(lang, 'الآفاق', 'HORIZONS'), t(lang, 'ما وراء', 'BEYOND'), `<span class="text-brand-gold">${t(lang, 'الحدود', 'BORDERS')}</span>`]
+      ctaPrimary: { text: t(lang, 'احجز استشارة', 'Schedule a Consultation'), href: '/#contact' },
+      ctaSecondary: { text: t(lang, 'استكشف خدماتنا', 'Explore Our Services'), href: '/services' },
+      partnerTag: [t(lang, 'شريكك', 'PARTNER'), t(lang, 'أقوى', 'FOR A STRONGER'), `<span class="text-brand-gold">${t(lang, 'لغدٍ', 'TOMORROW')}</span>`]
     }
   ];
 
@@ -117,7 +115,7 @@ export function Hero() {
     
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 6000); // Change slide every 6 seconds
+    }, 4000); // Change slide every 6 seconds
 
     return () => clearInterval(interval);
   }, [isPaused, slides.length]);
@@ -179,7 +177,7 @@ export function Hero() {
         <>
           <button 
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full border border-white/20 bg-black/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 hover:border-white/40 transition-all duration-300 hidden lg:flex"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/20 hover:border-white/40 transition-all duration-300 hidden lg:flex"
             aria-label="Previous slide"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -233,13 +231,13 @@ export function Hero() {
               <div className="flex flex-wrap gap-4" style={{ animation: 'heroFadeUp 0.8s ease 0.8s both' }}>
                 <Link
                   href={slides[currentSlide].ctaPrimary.href}
-                  className="border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+                  className="bg-white border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
-                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
-                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-white text-[#030a12] flex-shrink-0">
+                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
                     <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
                   </span>
-                  <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">
+                  <span className="relative z-10 text-[#030a12] transition-colors duration-300 group-hover:text-white">
                     {slides[currentSlide].ctaPrimary.text}
                   </span>
                 </Link>
@@ -276,9 +274,8 @@ export function Hero() {
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="relative z-10 border-t border-white/10 flex-shrink-0 bg-[#030a12]/20 backdrop-blur-sm">
+      <div className="relative z-10 flex-shrink-0">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
-
           {/* Slide Indicators (Dots) */}
           {slides.length > 1 && (
             <div className="flex items-center gap-2">
@@ -323,10 +320,10 @@ export function Hero() {
               onClick={() => setIsVideoOpen(true)}
               className="flex items-center gap-2.5 group cursor-pointer"
             >
-              <span className="relative flex items-center justify-center w-16 h-16">
+              <span className="relative flex items-center justify-center w-12 h-12">
                 <span className="absolute inset-0 rounded-full bg-white/20 hero-halo" aria-hidden="true" />
                 <span className="hero-ring absolute inset-0 rounded-full" aria-hidden="true" />
-                <span className="relative z-10 w-14 h-14 rounded-full border-2 border-white bg-white/10 backdrop-blur-md flex items-center justify-center shadow-lg shadow-black/30 transition-all duration-300 group-hover:bg-white group-hover:scale-110">
+                <span className="relative z-10 w-10 h-10 rounded-full border-2 border-white bg-white/10 backdrop-blur-md flex items-center justify-center shadow-lg shadow-black/30 transition-all duration-300 group-hover:bg-white group-hover:scale-110">
                   <Play className="w-6 h-6 text-white ml-0.5 transition-colors duration-300 group-hover:text-[#030a12]" fill="currentColor" />
                 </span>
               </span>

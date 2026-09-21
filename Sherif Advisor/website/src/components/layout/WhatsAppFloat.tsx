@@ -1,26 +1,42 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { getClientLanguage, type Language } from '@/lib/language';
+
+const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export function WhatsAppFloat() {
+  const [lang, setLang] = useState<Language>('en');
+
+  useEffect(() => {
+    setLang(getClientLanguage());
+  }, []);
+
   // ⚙️ CONFIGURATION: Replace with your actual WhatsApp number (Country code + Number, no '+' or spaces)
-  // Example for Egypt: '201000000000'
   const phoneNumber = "201112042098"; 
   
-  // Optional: Pre-filled message when they click
-  const defaultMessage = "مرحباً، أود الاستفسار عن خدمات شريف يسري للاستشارات.";
+  // Dynamic pre-filled message based on language
+  const defaultMessage = lang === 'ar' 
+    ? "مرحباً، أود الاستفسار عن خدمات شريف يسري للاستشارات."
+    : "Hello, I would like to inquire about Sherif Yousry Advisory services.";
+
+  const tooltipText = t(lang, 'تواصل معنا عبر واتساب', 'Contact us on WhatsApp');
+  const ariaLabel = t(lang, 'تواصل معنا على واتساب', 'Contact us on WhatsApp');
 
   return (
     <Link
       href={`https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-[9998] group flex items-center justify-end"
-      aria-label="Contact us on WhatsApp"
+      // Added RTL support: right-6 on LTR, left-6 on RTL
+      className="fixed bottom-6 right-6 rtl:left-6 rtl:right-auto z-[9998] group flex items-center justify-end"
+      aria-label={ariaLabel}
     >
       {/* Tooltip (Hidden by default, shows on hover) */}
-      <span className="absolute right-16 top-1/2 -translate-y-1/2 bg-white text-brand-navy text-xs font-bold px-3 py-1.5 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap pointer-events-none translate-x-2 group-hover:translate-x-0">
-        تواصل معنا عبر واتساب
+      {/* Added RTL support for positioning and slide animation */}
+      <span className="absolute right-16 rtl:left-16 rtl:right-auto top-1/2 -translate-y-1/2 bg-white text-brand-navy text-xs font-bold px-3 py-1.5 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap pointer-events-none translate-x-2 rtl:-translate-x-2 group-hover:translate-x-0 rtl:group-hover:-translate-x-0">
+        {tooltipText}
       </span>
 
       {/* Pulse Animation Background */}

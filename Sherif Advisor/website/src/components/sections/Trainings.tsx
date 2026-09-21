@@ -263,11 +263,20 @@ export function Training() {
                           {t(lang, item.locationAr, item.locationEn)}
                         </span>
                       </div>
-
-                      <span className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-brand-navy group-hover:text-brand-gold transition-colors">
-                        {t(lang, 'سجّل الآن', 'Register Now')}
-                        <Arrow className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
-                      </span>
+                       <Link
+                        href={`/trainings/${item.id}`}
+                        className="border-brand-navy border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
+                      >
+                        <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                        <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
+                          {lang === 'ar'
+                            ? <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                            : <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />}
+                        </span>
+                        <span className="relative z-10 text-brand-navy transition-colors duration-300 group-hover:text-white">
+                          {t(lang, 'سجّل الآن', 'Register Now')}
+                        </span>
+                      </Link>
                     </div>
                   </Link>
                 </div>

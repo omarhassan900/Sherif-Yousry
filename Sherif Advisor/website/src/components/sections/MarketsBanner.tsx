@@ -61,7 +61,7 @@ export function MarketsBanner() {
 
                  
                     <Link 
-                        href="/contact" 
+                        href="/#contact" 
                         className="border-brand-navy border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
                         >
                         <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
@@ -71,7 +71,7 @@ export function MarketsBanner() {
                             : <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />}
                         </span>
                         <span className="relative z-10 text-brand-navy transition-colors duration-300 group-hover:text-white">
-                             {t(lang, 'نهجنا', 'Our Approach')}
+                            {t(lang, 'احجز استشارة', 'Schedule a Consultation')}
                         </span>
                     </Link>
                 </div>

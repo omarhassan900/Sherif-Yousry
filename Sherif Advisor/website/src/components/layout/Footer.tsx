@@ -61,7 +61,7 @@ function FooterModern() {
           <div className="relative w-60 h-16">
             <Image src="/images/logo.png" alt="Sherif Yousry Advisory" fill className="object-contain" />
           </div>
-       
+
         </Link>
 
         <button
@@ -109,20 +109,38 @@ function FooterModern() {
           )}
         </div>
 
-        {/* Quick links */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-7">
-          <h4 className="text-xs font-bold tracking-[0.15em] uppercase text-brand-gold mb-4">Explore</h4>
-          <ul className="flex flex-col gap-3">
-            {quickLinks.map((l) => (
-              <li key={l.href}>
-                <Link href={l.href} className="text-sm text-gray-300 hover:text-white transition-colors">
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+ <div className="rounded-2xl border border-white/10 bg-white/5 p-7">
+    
+    <div className="grid grid-cols-2 gap-8">
+      {/* Column 1 */}
+      <div>
+    <h4 className="text-xs font-bold tracking-[0.15em] uppercase text-brand-gold mb-6">Main Pages</h4>
+        <ul className="flex flex-col gap-3">
+          {quickLinks.slice(0, Math.ceil(quickLinks.length / 2)).map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} className="text-sm text-gray-300 hover:text-white transition-colors">
+                {l.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
 
+      {/* Column 2 */}
+      <div>
+    <h4 className="text-xs font-bold tracking-[0.15em] uppercase text-brand-gold mb-6">Explore</h4>
+        <ul className="flex flex-col gap-3">
+          {quickLinks.slice(Math.ceil(quickLinks.length / 2)).map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} className="text-sm text-gray-300 hover:text-white transition-colors">
+                {l.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
         {/* Follow us + contact */}
         <div className="rounded-2xl border border-white/10 bg-white/5 p-7 flex flex-col gap-6">
           <div>
@@ -132,7 +150,6 @@ function FooterModern() {
                 { href: 'https://linkedin.com', Icon: Linkedin, label: 'LinkedIn' },
                 { href: 'https://youtube.com', Icon: Youtube, label: 'YouTube' },
                 { href: 'https://facebook.com', Icon: Facebook, label: 'Facebook' },
-                { href: 'https://instagram.com', Icon: Instagram, label: 'Instagram' },
               ].map(({ href, Icon, label }) => (
                 <a
                   key={label}

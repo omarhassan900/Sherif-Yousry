@@ -83,7 +83,7 @@ export function Knowledge() {
 
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % featureSlides.length);
-    }, 6000); // Change slide every 6 seconds
+    }, 3000); // Change slide every 6 seconds
 
     return () => clearInterval(interval);
   }, [isPaused]);

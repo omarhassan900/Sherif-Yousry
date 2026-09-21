@@ -53,7 +53,7 @@ export function Events() {
       try {
         const res = await fetch(`/api/events?lang=${lang}&page=1&pageSize=12`);
         const data = await res.json();
-        
+
         if (data.items) {
           // Filter out training categories to ensure this section is strictly for events
           const filteredItems = data.items.filter((item: any) => {
@@ -64,16 +64,16 @@ export function Events() {
 
           const mappedEvents = filteredItems.map((item: any) => {
             const meta = item.metadata || {};
-            
+
             // Format date based on language
-            const formattedDate = meta.startDate 
-              ? new Date(meta.startDate).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { 
-                  year: 'numeric', month: 'long', day: 'numeric' 
-                })
+            const formattedDate = meta.startDate
+              ? new Date(meta.startDate).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+                year: 'numeric', month: 'long', day: 'numeric'
+              })
               : 'TBA';
 
             // Clean up description length
-            const cleanDesc = item.body 
+            const cleanDesc = item.body
               ? (item.body.length > 120 ? item.body.substring(0, 120).replace(/<[^>]*>/g, '') + '...' : item.body.replace(/<[^>]*>/g, ''))
               : '';
 
@@ -141,10 +141,9 @@ export function Events() {
         </div>
 
         {/* Header Section: Animates from TOP */}
-        <div 
-          className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 lg:items-end mb-12 md:mb-16 transition-all duration-700 ease-out ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-          }`}
+        <div
+          className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 lg:items-end mb-12 md:mb-16 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
         >
           {/* 1st Column: BIG */}
           <div className="lg:col-span-6">
@@ -169,8 +168,8 @@ export function Events() {
 
           {/* 3rd Column: SAME SIZE, JUSTIFIED END */}
           <div className="lg:col-span-3 flex justify-start lg:justify-end items-end">
-            <Link 
-              href="/events" 
+            <Link
+              href="/events"
               className="border-brand-navy border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
             >
               <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
@@ -185,10 +184,10 @@ export function Events() {
             </Link>
           </div>
         </div>
-        
+
         {/* Carousel Container */}
         <div className="relative group">
-          <div 
+          <div
             ref={carouselRef}
             className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 scroll-smooth"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -196,10 +195,10 @@ export function Events() {
             {isLoading ? (
               // Loading Skeletons
               [1, 2, 3].map((i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="snap-start shrink-0 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] bg-white rounded-lg overflow-hidden border border-gray-100 h-96 animate-pulse"
-                  style={{ 
+                  style={{
                     transitionDelay: isVisible ? `${(i - 1) * 150}ms` : '0ms',
                     opacity: isVisible ? 1 : 0,
                     transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
@@ -216,10 +215,10 @@ export function Events() {
               ))
             ) : events.length > 0 ? (
               events.map((item, index) => (
-                <div 
-                  key={item.id} 
+                <div
+                  key={item.id}
                   className="snap-start shrink-0 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
-                  style={{ 
+                  style={{
                     transitionDelay: isVisible ? `${index * 150}ms` : '0ms',
                     opacity: isVisible ? 1 : 0,
                     transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
@@ -265,10 +264,20 @@ export function Events() {
                         </span>
                       </div>
 
-                      <span className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-brand-navy group-hover:text-brand-gold transition-colors">
-                        {t(lang, 'سجّل الآن', 'Register Now')}
-                        <Arrow className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
-                      </span>
+                      <Link
+                        href={`/events/${item.id}`}
+                        className="border-brand-navy border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
+                      >
+                        <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                        <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
+                          {lang === 'ar'
+                            ? <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                            : <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />}
+                        </span>
+                        <span className="relative z-10 text-brand-navy transition-colors duration-300 group-hover:text-white">
+                          {t(lang, 'سجّل الآن', 'Register Now')}
+                        </span>
+                      </Link>
                     </div>
                   </Link>
                 </div>

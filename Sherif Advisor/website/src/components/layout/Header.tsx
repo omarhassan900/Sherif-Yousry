@@ -19,7 +19,8 @@ const navItems = [
   { href: '/#digital',   labelAr: 'التجربة الرقمية', labelEn: 'Digital Experience', id: 'markets' },
   { href: '/#insights',  labelAr: 'الأفكار',     labelEn: 'Insights',   id: 'insights' },
   { href: '/#packages',  labelAr: 'الباقات',     labelEn: 'Packages',   id: 'packages' },
-  { href: '/#events',    labelAr: 'الفعاليات والتدريب', labelEn: 'Events & Training', id: 'events' },
+  { href: '/#events',    labelAr: 'الفعاليات', labelEn: 'Events', id: 'events' },
+  { href: '/#trainings',    labelAr: 'التدريب', labelEn: 'Trainings', id: 'trainings' },
   { href: '/#contact',   labelAr: 'تواصل معنا',  labelEn: 'Contact',    id: 'contact' },
   { href: '/about',      labelAr: 'من نحن',      labelEn: 'About Us',   id: 'about' },
 ];
@@ -306,11 +307,11 @@ export function Header() {
         showWhiteBg ? 'bg-white/95 shadow-lg py-4' : 'bg-transparent py-6'
       }`}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <div className="max-w-[1400px] mx-auto flex items-center justify-between">
         
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-4 group">
-          <div className="relative w-14 h-14 lg:w-32 lg:h-16">
+        <Link href="/" className="flex items-center gap-6 group">
+          <div className="relative w-32 h-16 lg:w-32 lg:h-16">
             <Image
               src="/images/logo.png"
               alt="Sherif Yousry Advisory"
