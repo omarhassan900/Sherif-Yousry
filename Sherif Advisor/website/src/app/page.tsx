@@ -21,6 +21,7 @@ import { MarketsBanner } from '@/components/sections/MarketsBanner';
 import { DigitalExperience } from '@/components/sections/DigitalExperience';
 import { CTABanner } from '@/components/sections/CTABanner';
 import { Training } from '@/components/sections/Trainings';
+import { Team } from '@/components/sections/Team';
 
 export default function Home() {
   return (
@@ -32,6 +33,7 @@ export default function Home() {
       <ServicesGrid />
       <MarketsBanner />
       <DigitalExperience /> 
+      <Team />
       <Knowledge />
       <Packages />
       <Events />
