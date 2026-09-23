@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { Calendar, MapPin, ArrowRight, ArrowLeft, Users, Sparkles } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
-import { useV2Section } from '@/lib/use-v2-section';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
@@ -28,8 +27,6 @@ export function Events() {
   const [isLoading, setIsLoading] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
-
-  const section = useV2Section('events', lang, 'homepage');
 
   useEffect(() => {
     setLang(getClientLanguage());

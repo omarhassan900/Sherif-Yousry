@@ -20,15 +20,12 @@ interface ServiceDetail {
     fullDescriptionEn?: string;
     descriptionAr?: string;
     descriptionEn?: string;
-    serviceType?: string;
-    categorySlug?: string;
   };
 }
 
 interface ServiceListItem {
   id: string;
   title: string;
-  metadata?: { serviceType?: string; categorySlug?: string };
 }
 
 interface TocItem {
@@ -59,7 +56,7 @@ export default function ServiceDetailPage() {
     setLangReady(true);
   }, []);
 
-  // Load the sub-services in the same category for the left sidebar navigation.
+  // Load the full services list for the left sidebar navigation.
   useEffect(() => {
     if (!langReady) return;
     let cancelled = false;
@@ -67,11 +64,7 @@ export default function ServiceDetailPage() {
       .then((res) => (res.ok ? res.json() : { items: [] }))
       .then((data) => {
         if (!cancelled && Array.isArray(data.items)) {
-          // Only show sub-services — filter out categories from the sidebar
-          const subs = data.items.filter((s: { id: string; title: string; metadata?: { serviceType?: string } }) =>
-            s.metadata?.serviceType !== 'category'
-          );
-          setAllServices(subs.map((s: { id: string; title: string; metadata?: { serviceType?: string; categorySlug?: string } }) => ({ id: s.id, title: s.title, metadata: s.metadata })));
+          setAllServices(data.items.map((s: { id: string; title: string }) => ({ id: s.id, title: s.title })));
         }
       })
       .catch(() => {});
@@ -226,7 +219,6 @@ export default function ServiceDetailPage() {
             </div>
           </div>
 
-<<<<<<< HEAD
           {/* Body — 3 Column Layout: Services List + TOC | Main Content | Contact Card */}
           <section className="bg-gray-50 py-16 lg:py-20">
             <div className="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-[260px_1fr_340px] gap-10 lg:gap-12 items-start">
@@ -235,21 +227,13 @@ export default function ServiceDetailPage() {
               <aside className="hidden lg:block lg:top-28 space-y-6">
                 
                 {/* 1. All Services List */}
-=======
-          {/* Body — left services sidebar + main content (Andersen-style) */}
-          <section className="bg-surface-light py-16 lg:py-20">
-            <div className="max-w-6xl mx-auto px-6 lg:px-8 grid lg:grid-cols-[260px_1fr] gap-10 lg:gap-14 items-start">
-              {/* Left sidebar: sub-services in the same category */}
-              <aside className="lg:sticky lg:top-28">
->>>>>>> a1aeb90 (UI & portal)
                 <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                   <div className="bg-brand-navy px-5 py-4">
                     <h2 className="text-white font-semibold text-sm tracking-wide">
-                      {t(lang, 'الخدمات ذات الصلة', 'Related Services')}
+                      {t(lang, 'خدماتنا', 'Our Services')}
                     </h2>
                   </div>
                   <nav className="p-2">
-<<<<<<< HEAD
                     {allServices.map((s) => {
                       const active = s.id === service.id;
                       return (
@@ -267,34 +251,6 @@ export default function ServiceDetailPage() {
                         </Link>
                       );
                     })}
-=======
-                    {/* Back to all services */}
-                    <Link href="/services"
-                      className="flex items-center gap-2 px-3 py-2 rounded-md text-xs text-text-muted hover:text-brand-gold transition-colors mb-1">
-                      {lang === 'ar' ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
-                      {t(lang, 'جميع الخدمات', 'All Services')}
-                    </Link>
-                    <div className="border-t border-gray-100 my-1" />
-                    {allServices
-                      .filter(s => s.metadata?.categorySlug === service.metadata?.categorySlug || !s.metadata?.categorySlug)
-                      .map((s) => {
-                        const active = s.id === service.id;
-                        return (
-                          <Link
-                            key={s.id}
-                            href={`/services/${s.id}`}
-                            className={`flex items-center gap-2 px-3 py-2.5 rounded-md text-sm transition-colors ${
-                              active
-                                ? 'bg-brand-gold/10 text-brand-navy font-semibold'
-                                : 'text-text-dark-secondary hover:bg-gray-50 hover:text-brand-gold'
-                            }`}
-                          >
-                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${active ? 'bg-brand-gold' : 'bg-gray-300'}`} />
-                            {s.title}
-                          </Link>
-                        );
-                      })}
->>>>>>> a1aeb90 (UI & portal)
                   </nav>
                 </div>
 
@@ -344,7 +300,6 @@ export default function ServiceDetailPage() {
                     />
                   )}
                   <div
-<<<<<<< HEAD
                     className="text-gray-700 leading-8 text-[15px] 
                       [&>h2]:text-brand-navy [&>h2]:font-amiri [&>h2]:text-2xl [&>h2]:mt-8 [&>h2]:mb-4 [&>h2]:scroll-mt-28
                       [&>h3]:text-brand-navy [&>h3]:font-amiri [&>h3]:text-xl [&>h3]:mt-6 [&>h3]:mb-3 [&>h3]:scroll-mt-28
@@ -353,10 +308,6 @@ export default function ServiceDetailPage() {
                       [&>p]:mb-4"
                     dir={dir}
                     dangerouslySetInnerHTML={{ __html: processedHtml }}
-=======
-                    className="service-content"
-                    dangerouslySetInnerHTML={{ __html: fullDescription }}
->>>>>>> a1aeb90 (UI & portal)
                   />
                 </div>
 

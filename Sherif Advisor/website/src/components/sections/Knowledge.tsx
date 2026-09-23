@@ -210,13 +210,8 @@ export function Knowledge() {
               ))}
             </div>
 
-<<<<<<< HEAD
             {/* ✅ FIXED: Named group (group/carousel) isolates the hover state of the arrows from the cards */}
             <div className="relative group/carousel">
-=======
-            {/* ✅ Carousel Container */}
-            <div className="relative">
->>>>>>> a1aeb90 (UI & portal)
               {loading ? (
                 // Loading Skeletons
                 <div className="flex gap-6 pb-4">

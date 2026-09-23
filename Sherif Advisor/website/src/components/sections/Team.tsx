@@ -49,12 +49,8 @@ const getDistance = (index: number, active: number, total: number) => {
   return diff;
 };
 
-<<<<<<< HEAD
 export function Team() {
   const [lang, setLang] = useState<Language>('en');
-=======
-export function Team({ hideHeader = false }: { hideHeader?: boolean } = {}) {
->>>>>>> a1aeb90 (UI & portal)
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -83,7 +79,6 @@ export function Team({ hideHeader = false }: { hideHeader?: boolean } = {}) {
   return (
     <section id="team" className="py-20 bg-gray-50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-<<<<<<< HEAD
         {/* Section header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="inline-block text-sm font-semibold tracking-wider uppercase text-brand-gold mb-3">
@@ -97,23 +92,6 @@ export function Team({ hideHeader = false }: { hideHeader?: boolean } = {}) {
             across every project.
           </p>
         </div>
-=======
-        {/* Section header — suppressed when the About page renders a CMS-driven header above */}
-        {!hideHeader && (
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="inline-block text-sm font-semibold tracking-wider uppercase text-primary mb-3">
-              Our Team
-            </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Meet the People Behind Our Success
-            </h2>
-            <p className="text-gray-600 text-lg">
-              A dedicated team of experts committed to delivering excellence
-              across every project.
-            </p>
-          </div>
-        )}
->>>>>>> a1aeb90 (UI & portal)
 
         {/* Carousel Container */}
         <div

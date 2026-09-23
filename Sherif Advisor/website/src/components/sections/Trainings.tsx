@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { Calendar, MapPin, ArrowRight, ArrowLeft, GraduationCap, Sparkles } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
-import { useV2Section } from '@/lib/use-v2-section';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 

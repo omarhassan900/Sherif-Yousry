@@ -109,9 +109,9 @@ export function Hero() {
                   href="/#contact"
                   className="cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
-                  {/* Expanding gold fill — grows from the circle on hover (pure Tailwind) */}
-                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-gold transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
-                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-gold text-[#030a12] flex-shrink-0">
+                  {/* Expanding white fill — grows from the circle on hover (pure Tailwind) */}
+                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-white text-[#030a12] flex-shrink-0">
                     <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
                   </span>
                   <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">
@@ -122,9 +122,9 @@ export function Hero() {
                   href="/services"
                   className="cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
-                  {/* Expanding gold fill — grows from the circle on hover (pure Tailwind) */}
-                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-gold transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
-                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-gold text-[#030a12] flex-shrink-0">
+                  {/* Expanding white fill — grows from the circle on hover (pure Tailwind) */}
+                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-white text-[#030a12] flex-shrink-0">
                     <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
                   </span>
                   <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">

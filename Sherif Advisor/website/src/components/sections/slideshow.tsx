@@ -2,82 +2,150 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Play, XCircle, ArrowRight, BarChart2, ShieldCheck, Globe2, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { Play, XCircle, ArrowRight, ArrowDown, BarChart2, ShieldCheck, Globe2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 import { ScrollProgress } from '@/components/effects/ScrollProgress';
 import { useV2Section } from '@/lib/use-v2-section';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
-// Only images cycle — all text is static. Defined outside component to avoid
-// dependency array churn in useEffect.
-const SLIDE_IMAGES = [
-  '/images/bg.jpeg',
-  '/images/bg-2.jpeg',
-  '/images/bg-3.jpeg',
-  '/images/bg-4.jpeg',
-];
+// Define the structure for a hero slide
+interface HeroSlide {
+  image: string;
+  eyebrow: string;
+  title: React.ReactNode;
+  subtitle: string;
+  ctaPrimary: { text: string; href: string };
+  ctaSecondary: { text: string; href: string };
+  partnerTag: string[];
+}
 
 export function Hero() {
   const [lang, setLang] = useState<Language>('en');
-  const [isMounted, setIsMounted] = useState(false);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
+  // CMS-backed content (You can adapt this to fetch an array of slides from your CMS)
   const section = useV2Section('hero', lang, 'homepage');
 
   useEffect(() => {
     setLang(getClientLanguage());
-    setIsMounted(true);
   }, []);
+
+  // Slide Data (Replace image paths and text with your actual CMS array or multiple sections)
+  const slides: HeroSlide[] = [
+    {
+      image: '/images/bg.jpeg',
+    eyebrow: t(lang, 'استراتيجية • ضرائب • استشارات أعمال', 'STRATEGY • TAX • BUSINESS ADVISORY'),
+      title: (
+        <>
+          {t(lang, 'خبرة لصنع قرارات.', 'EXPERTISE FOR')}<br />
+          <span className="italic text-brand-gold">{t(lang, ' تصنع الفارق.', ' DECISIONS THAT MATTER.')}</span>
+        </>
+      ),
+      subtitle: t(
+        lang,
+        'نقدم حلولاً استشارية عملية ومخصصة للشركات والمستثمرين والأفراد في مصر وخارجها.من الاستراتيجية إلى التنفيذ، نجلب الوضوح للتعقيدات ونساعد في تحويل القرارات المهمة إلى نتائج ملموسة.',
+        'We provide practical and tailored advisory solutions for businesses. investors, and individuals operating in Egypt and beyond.From strategy to execution, we bring clarity to complexity and help turn critical decisions into measurable results.'
+      ),
+      ctaPrimary: { text: t(lang, 'احجز استشارة', 'Schedule a Consultation'), href: '/#contact' },
+      ctaSecondary: { text: t(lang, 'استكشف خدماتنا', 'Explore Our Services'), href: '/services' },
+      partnerTag: [t(lang, 'شريكك', 'PARTNER'), t(lang, 'أقوى', 'FOR A STRONGER'), `<span class="text-brand-gold">${t(lang, 'لغدٍ', 'TOMORROW')}</span>`]
+    },
+    {
+      image: '/images/bg-2.jpeg', // Replace with your second image
+    eyebrow: t(lang, 'استراتيجية • ضرائب • استشارات أعمال', 'STRATEGY • TAX • BUSINESS ADVISORY'),
+      title: (
+        <>
+          {t(lang, 'خبرة لصنع قرارات.', 'EXPERTISE FOR')}<br />
+          <span className="italic text-brand-gold">{t(lang, ' تصنع الفارق.', ' DECISIONS THAT MATTER.')}</span>
+        </>
+      ),
+      subtitle: t(
+        lang,
+        'نقدم حلولاً استشارية عملية ومخصصة للشركات والمستثمرين والأفراد في مصر وخارجها.من الاستراتيجية إلى التنفيذ، نجلب الوضوح للتعقيدات ونساعد في تحويل القرارات المهمة إلى نتائج ملموسة.',
+        'We provide practical and tailored advisory solutions for businesses. investors, and individuals operating in Egypt and beyond.From strategy to execution, we bring clarity to complexity and help turn critical decisions into measurable results.'
+      ),
+      ctaPrimary: { text: t(lang, 'احجز استشارة', 'Schedule a Consultation'), href: '/#contact' },
+      ctaSecondary: { text: t(lang, 'استكشف خدماتنا', 'Explore Our Services'), href: '/services' },
+      partnerTag: [t(lang, 'شريكك', 'PARTNER'), t(lang, 'أقوى', 'FOR A STRONGER'), `<span class="text-brand-gold">${t(lang, 'لغدٍ', 'TOMORROW')}</span>`]
+     },
+    {
+      image: '/images/bg-3.jpeg', // Replace with your third image
+    eyebrow: t(lang, 'استراتيجية • ضرائب • استشارات أعمال', 'STRATEGY • TAX • BUSINESS ADVISORY'),
+      title: (
+        <>
+          {t(lang, 'خبرة لصنع قرارات.', 'EXPERTISE FOR')}<br />
+          <span className="italic text-brand-gold">{t(lang, ' تصنع الفارق.', ' DECISIONS THAT MATTER.')}</span>
+        </>
+      ),
+      subtitle: t(
+        lang,
+        'نقدم حلولاً استشارية عملية ومخصصة للشركات والمستثمرين والأفراد في مصر وخارجها.من الاستراتيجية إلى التنفيذ، نجلب الوضوح للتعقيدات ونساعد في تحويل القرارات المهمة إلى نتائج ملموسة.',
+        'We provide practical and tailored advisory solutions for businesses. investors, and individuals operating in Egypt and beyond.From strategy to execution, we bring clarity to complexity and help turn critical decisions into measurable results.'
+      ),
+      ctaPrimary: { text: t(lang, 'احجز استشارة', 'Schedule a Consultation'), href: '/#contact' },
+      ctaSecondary: { text: t(lang, 'استكشف خدماتنا', 'Explore Our Services'), href: '/services' },
+      partnerTag: [t(lang, 'شريكك', 'PARTNER'), t(lang, 'أقوى', 'FOR A STRONGER'), `<span class="text-brand-gold">${t(lang, 'لغدٍ', 'TOMORROW')}</span>`]
+     },
+    {
+      image: '/images/bg-4.jpeg', // Replace with your third image
+    eyebrow: t(lang, 'استراتيجية • ضرائب • استشارات أعمال', 'STRATEGY • TAX • BUSINESS ADVISORY'),
+      title: (
+        <>
+          {t(lang, 'خبرة لصنع قرارات.', 'EXPERTISE FOR')}<br />
+          <span className="italic text-brand-gold">{t(lang, ' تصنع الفارق.', ' DECISIONS THAT MATTER.')}</span>
+        </>
+      ),
+      subtitle: t(
+        lang,
+        'نقدم حلولاً استشارية عملية ومخصصة للشركات والمستثمرين والأفراد في مصر وخارجها.من الاستراتيجية إلى التنفيذ، نجلب الوضوح للتعقيدات ونساعد في تحويل القرارات المهمة إلى نتائج ملموسة.',
+        'We provide practical and tailored advisory solutions for businesses. investors, and individuals operating in Egypt and beyond.From strategy to execution, we bring clarity to complexity and help turn critical decisions into measurable results.'
+      ),
+      ctaPrimary: { text: t(lang, 'احجز استشارة', 'Schedule a Consultation'), href: '/#contact' },
+      ctaSecondary: { text: t(lang, 'استكشف خدماتنا', 'Explore Our Services'), href: '/services' },
+      partnerTag: [t(lang, 'شريكك', 'PARTNER'), t(lang, 'أقوى', 'FOR A STRONGER'), `<span class="text-brand-gold">${t(lang, 'لغدٍ', 'TOMORROW')}</span>`]
+    }
+  ];
 
   // Auto-advance slides
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || slides.length <= 1) return;
+    
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % SLIDE_IMAGES.length);
-    }, 4000);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000); // Change slide every 6 seconds
+
     return () => clearInterval(interval);
-  }, [isPaused]);
+  }, [isPaused, slides.length]);
 
-  // Lock body scroll when video is open
+  // Close video modal on Esc
   useEffect(() => {
-    if (!isVideoOpen) return;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
-  }, [isVideoOpen]);
-
-  // Close video on Esc
-  useEffect(() => {
-    if (!isVideoOpen) return;
-    const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsVideoOpen(false); };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsVideoOpen(false);
+    };
+    if (isVideoOpen) {
+      window.addEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = '';
+    };
   }, [isVideoOpen]);
 
   const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % SLIDE_IMAGES.length);
-  }, []);
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  }, [slides.length]);
 
   const prevSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev - 1 + SLIDE_IMAGES.length) % SLIDE_IMAGES.length);
-  }, []);
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  }, [slides.length]);
 
   const videoUrl = 'https://www.youtube-nocookie.com/embed/GYBuD3JpxOI?rel=0';
-
-  // Render a stable placeholder until client-side hydration is complete.
-  // This prevents lang-dependent content from mismatching the server render.
-  if (!isMounted) {
-    return (
-      <section id="home" className="relative h-screen flex flex-col overflow-hidden bg-[#030a12]">
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url("/images/bg.jpeg")' }}>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#030a12]/35 via-[#030a12]/15 to-[#030a12]/45" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#030a12]/60 via-[#030a12]/10 to-transparent" />
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section 
@@ -89,13 +157,13 @@ export function Hero() {
       <ScrollProgress />
 
       {/* ── Background Slides ── */}
-      {SLIDE_IMAGES.map((image, index) => (
+      {slides.map((slide, index) => (
         <div
           key={index}
           className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out ${
-            index === currentSlide ? 'opacity-100' : 'opacity-0'
+            index === currentSlide ? 'opacity-100 z-0' : 'opacity-0 z-0'
           }`}
-          style={{ backgroundImage: `url("${image}")` }}
+          style={{ backgroundImage: `url("${slide.image}")` }}
         >
           {/* Light overall scrim */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#030a12]/35 via-[#030a12]/15 to-[#030a12]/45" />
@@ -105,7 +173,7 @@ export function Hero() {
       ))}
 
       {/* ── Navigation Arrows ── */}
-      {SLIDE_IMAGES.length > 1 && (
+      {slides.length > 1 && (
         <>
           <button 
             onClick={prevSlide}
@@ -129,14 +197,14 @@ export function Hero() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full pt-32 pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-10 items-center">
 
-            {/* Left column - text is static across all slides */}
-            <div className="space-y-6">
+            {/* Left column - Keyed by currentSlide to re-trigger entrance animations */}
+            <div key={currentSlide} className="space-y-6">
               {/* Eyebrow */}
               <div
                 className="font-mono text-sm tracking-[0.3em] text-brand-gold"
                 style={{ animation: 'heroFadeRight 0.8s ease 0.2s both' }}
               >
-                {t(lang, 'استراتيجية • ضرائب • استشارات أعمال', 'STRATEGY • TAX • BUSINESS ADVISORY')}
+                {slides[currentSlide].eyebrow}
               </div>
 
               {/* Headline */}
@@ -148,16 +216,7 @@ export function Hero() {
                   textShadow: '0 4px 24px rgba(0,0,0,0.6)',
                 }}
               >
-                {section.title ? (
-                  <span className="italic text-brand-gold">{section.title}</span>
-                ) : (
-                  <>
-                    {t(lang, 'خبرة لصنع قرارات.', 'EXPERTISE FOR')}<br />
-                    <span className="italic text-brand-gold">
-                      {t(lang, ' تصنع الفارق.', ' DECISIONS THAT MATTER.')}
-                    </span>
-                  </>
-                )}
+                {slides[currentSlide].title}
               </h1>
 
               {/* Subtitle */}
@@ -165,29 +224,25 @@ export function Hero() {
                 className="text-gray-300 text-base max-w-xl leading-relaxed"
                 style={{ animation: 'heroFadeUp 0.8s ease 0.6s both', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}
               >
-                {section.body || t(
-                  lang,
-                  'نقدم حلولاً استشارية عملية ومخصصة للشركات والمستثمرين والأفراد في مصر وخارجها.من الاستراتيجية إلى التنفيذ، نجلب الوضوح للتعقيدات ونساعد في تحويل القرارات المهمة إلى نتائج ملموسة.',
-                  'We provide practical and tailored advisory solutions for businesses, investors, and individuals operating in Egypt and beyond. From strategy to execution, we bring clarity to complexity and help turn critical decisions into measurable results.'
-                )}
+                {slides[currentSlide].subtitle}
               </p>
 
               {/* CTA buttons */}
               <div className="flex flex-wrap gap-4" style={{ animation: 'heroFadeUp 0.8s ease 0.8s both' }}>
                 <Link
-                  href="/#contact"
-                  className="border border-brand-gold/40 cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+                  href={slides[currentSlide].ctaPrimary.href}
+                  className="bg-white border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
-                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-gold transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
-                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-gold text-[#030a12] flex-shrink-0">
+                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
                     <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
                   </span>
-                  <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">
-                    {section.field('ctaPrimary', 'احجز استشارة', 'Schedule a Consultation')}
+                  <span className="relative z-10 text-[#030a12] transition-colors duration-300 group-hover:text-white">
+                    {slides[currentSlide].ctaPrimary.text}
                   </span>
                 </Link>
                 <Link
-                  href="/services"
+                  href={slides[currentSlide].ctaSecondary.href}
                   className="border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
                   <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
@@ -195,7 +250,7 @@ export function Hero() {
                     <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
                   </span>
                   <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">
-                    {section.field('ctaSecondary', 'استكشف خدماتنا', 'Explore Our Services')}
+                    {slides[currentSlide].ctaSecondary.text}
                   </span>
                 </Link>
               </div>
@@ -203,15 +258,15 @@ export function Hero() {
 
             {/* Right column — partner tag */}
             <div
+              key={`right-${currentSlide}`}
               className="hidden lg:flex flex-col items-end justify-start pt-4"
               style={{ animation: 'heroFadeRight 0.8s ease 0.8s both' }}
             >
               <div className="border-l-2 border-brand-gold/50 pl-6 text-right">
-                <p className="text-white text-sm font-bold tracking-[0.2em] uppercase leading-relaxed">
-                  {t(lang, 'شريكك', 'PARTNER')}<br />
-                  {t(lang, 'لغدٍ', 'FOR A STRONGER')}<br />
-                  <span className="text-brand-gold">{t(lang, 'أقوى', 'TOMORROW')}</span>
-                </p>
+                <p 
+                  className="text-white text-sm font-bold tracking-[0.2em] uppercase leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: slides[currentSlide].partnerTag.join('<br />') }}
+                />
               </div>
             </div>
           </div>
@@ -221,42 +276,21 @@ export function Hero() {
       {/* ── Bottom bar ── */}
       <div className="relative z-10 flex-shrink-0">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
-          {/* Slide dots + scroll indicator */}
-          <div className="flex items-center gap-4">
-            {SLIDE_IMAGES.length > 1 && (
-              <div className="flex items-center gap-2">
-                {SLIDE_IMAGES.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentSlide(index)}
-                    className={`h-1.5 rounded-full transition-all duration-500 ${
-                      index === currentSlide ? 'w-8 bg-brand-gold' : 'w-1.5 bg-white/30 hover:bg-white/60'
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
-              </div>
-            )}
-            {/* Scroll down — sits right after the dots */}
-            <button
-              onClick={() => {
-                const hero = document.getElementById('home');
-                const next = hero?.nextElementSibling as HTMLElement | null;
-                if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                else window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
-              }}
-              className="flex items-center gap-2 group cursor-pointer focus:outline-none"
-              style={{ animation: 'heroFadeUp 0.8s ease 1.4s both' }}
-              aria-label="Scroll down"
-            >
-              <span className="text-[9px] font-bold tracking-[0.2em] text-gray-400 uppercase group-hover:text-brand-gold transition-colors duration-300">
-                {t(lang, 'للأسفل', 'SCROLL DOWN')}
-              </span>
-              <div style={{ animation: 'scrollArrowBounce 1.6s ease-in-out infinite' }}>
-                <ChevronDown className="w-4 h-4 text-brand-gold" />
-              </div>
-            </button>
-          </div>
+          {/* Slide Indicators (Dots) */}
+          {slides.length > 1 && (
+            <div className="flex items-center gap-2">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${
+                    index === currentSlide ? 'w-8 bg-brand-gold' : 'w-1.5 bg-white/30 hover:bg-white/60'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Stats pills (Static, as they apply to the whole brand) */}
           <div className="flex items-center gap-4 lg:gap-6" style={{ animation: 'heroFadeUp 0.8s ease 1s both' }}>
@@ -381,14 +415,6 @@ export function Hero() {
         @media (prefers-reduced-motion: reduce) {
           .hero-ring, .hero-halo { animation: none; }
           .hero-halo { opacity: 0; }
-        }
-        .scroll-dot {
-          animation: scrollDot 1.8s ease-in-out infinite;
-        }
-        @keyframes scrollDot {
-          0%   { transform: translateY(0);    opacity: 1; }
-          80%  { transform: translateY(14px); opacity: 0; }
-          100% { transform: translateY(0);    opacity: 0; }
         }
       `}</style>
     </section>

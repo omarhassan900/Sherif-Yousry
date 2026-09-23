@@ -172,25 +172,11 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Scroll Down Indicator */}
-      <button
-        onClick={() => {
-          const next = document.getElementById('home')?.nextElementSibling as HTMLElement | null;
-          (next ?? document.documentElement).scrollIntoView({ behavior: 'smooth', block: 'start' });
-          if (!next) window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
-        }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 group cursor-pointer focus:outline-none"
-        style={{ animation: 'fadeInUp 0.8s ease 1.4s both' }}
-        aria-label="Scroll down"
-      >
-        <span className="text-[10px] tracking-[0.25em] text-gray-400 uppercase group-hover:text-brand-gold transition-colors duration-300">
-          {t(lang, 'للأسفل', 'SCROLL DOWN')}
-        </span>
-        <div className="flex flex-col items-center" style={{ animation: 'arrowBounce 1.6s ease-in-out infinite' }}>
-          <ChevronDown className="w-5 h-5 text-brand-gold opacity-90" />
-          <ChevronDown className="w-5 h-5 text-brand-gold opacity-50 -mt-2" />
-        </div>
-      </button>
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-60" style={{ animation: 'fadeInUp 0.8s ease 1.4s both' }}>
+        <span className="text-[10px] tracking-[0.2em] text-gray-400 uppercase">{t(lang, 'استكشف', 'SCROLL')}</span>
+        <div className="w-px h-12 bg-gradient-to-b from-brand-gold to-transparent animate-pulse" />
+      </div>
 
       {/* ✅ VIDEO MODAL / DIALOG */}
       {isVideoOpen && (
@@ -237,7 +223,6 @@ export function Hero() {
       <style jsx>{`
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes arrowBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
       `}</style>
     </section>
   );

@@ -49,11 +49,7 @@ const SECTION_META: Record<string, { name: string; desc: string }> = {
   'homepage:assessment': { name: 'Assessment CTA', desc: 'Heading & intro of the free assessment call-to-action' },
   'homepage:services': { name: 'Services Heading', desc: 'Heading above the services cards on the homepage' },
   'homepage:insights': { name: 'Insights Heading', desc: 'Heading above the insights/articles on the homepage' },
-  'about:main': { name: 'About — Hero', desc: 'Hero title & intro text at the top of the About page' },
-  'about:story': { name: 'Our Story', desc: 'Full story section — title, body paragraphs, eyebrow label' },
-  'about:mission': { name: 'Mission & Vision', desc: 'Mission body, vision body, section heading, and four core values' },
-  'about:team': { name: 'Our Team', desc: 'Team section eyebrow and heading text' },
-  'about:careers': { name: 'Careers Teaser', desc: 'Careers section heading, CTA labels, and banner copy' },
+  'about:main': { name: 'About Content', desc: 'Title & body of the About page' },
   'contact:main': { name: 'Contact Intro', desc: 'Intro text shown above the contact form' },
 };
 

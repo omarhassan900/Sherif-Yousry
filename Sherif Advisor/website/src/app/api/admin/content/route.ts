@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { createContent, ContentType, ContentStatus } from '@/lib/content';
 
-const VALID_TYPES: ContentType[] = ['service', 'article', 'page_section', 'event'];
+const VALID_TYPES: ContentType[] = ['service', 'article', 'page_section'];
 const VALID_STATUSES: ContentStatus[] = ['published', 'unpublished'];
 const PAGE_SIZE = 20;
 
