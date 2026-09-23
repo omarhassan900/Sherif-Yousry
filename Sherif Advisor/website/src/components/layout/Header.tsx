@@ -120,11 +120,7 @@ const MEGA_MENUS: Record<string, MegaMenu> = {
     introDescAr: 'حضور وخبرة تمتد عبر الأسواق المحلية والإقليمية والدولية.',
     introDescEn: 'Presence and expertise spanning local, regional, and international markets.',
     ctaHref: '/#markets',
-    links: [
-      { href: '/#markets', labelAr: 'مصر', labelEn: 'Egypt', icon: MapPin },
-      { href: '/#markets', labelAr: 'الخليج', labelEn: 'GCC', icon: Globe2 },
-      { href: '/#markets', labelAr: 'أوروبا', labelEn: 'Europe', icon: Globe2 },
-    ],
+    links: [],
     feature: {
       href: '/#markets',
       image: '/images/markets-map.jpeg',
@@ -379,8 +375,8 @@ export function Header() {
                     onMouseEnter={() => openMenuById(item.id)}
                     onMouseLeave={closeMenu}
                   >
-                    {/* Apollo-style 3-zone layout: intro | links | featured card */}
-                    <div className="grid grid-cols-[240px_1fr_260px]">
+                    {/* Apollo-style 3-zone layout: intro | links (if any) | featured card */}
+                    <div className={`grid ${!isServices && mega.links.length === 0 ? 'grid-cols-[1fr_260px]' : 'grid-cols-[240px_1fr_260px]'}`}>
                       {/* Left — intro column */}
                       <div className={`p-6 flex flex-col ${showWhiteBg ? 'border-r border-gray-200' : 'border-r border-white/10'}`}>
                         <h3 className={`font-serif text-xl mb-3 ${showWhiteBg ? 'text-[#030a12]' : 'text-white'}`}>
@@ -407,7 +403,7 @@ export function Header() {
                       </div>
 
                       {/* Middle — links (CMS categories for services, curated otherwise) */}
-                      <div className="p-6">
+                      {(!isServices && mega.links.length === 0) ? null : <div className="p-6">
                         {isServices ? (
                           <>
                             <div className="grid grid-cols-2 gap-x-5 gap-y-4">
@@ -491,7 +487,7 @@ export function Header() {
                             })}
                           </div>
                         )}
-                      </div>
+                      </div>}
 
                       {/* Right — featured card with image */}
                       <Link

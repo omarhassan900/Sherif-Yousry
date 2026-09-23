@@ -22,6 +22,10 @@ function resolvePublicUrl(page?: string, sectionKey?: string): string {
       if (sectionKey === 'insights') return '/#insights';
       return '/';
     case 'about':
+      if (sectionKey === 'story')   return '/about#our-story';
+      if (sectionKey === 'mission') return '/about#mission-vision';
+      if (sectionKey === 'team')    return '/about#our-team';
+      if (sectionKey === 'careers') return '/about#careers';
       return '/about';
     case 'contact':
       return '/contact';

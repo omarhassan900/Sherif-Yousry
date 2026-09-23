@@ -10,6 +10,7 @@ import {
   Users,
   Inbox,
   ChevronRight,
+  CalendarDays,
 } from 'lucide-react';
 
 interface NavItem {
@@ -19,13 +20,14 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { label: 'Services', href: '/admin/services', icon: Briefcase },
-  { label: 'Articles', href: '/admin/articles', icon: FileText },
-  { label: 'Page Sections', href: '/admin/sections', icon: Layers },
-  { label: 'Inquiries', href: '/admin/inquiries', icon: Inbox },
-  { label: 'Media', href: '/admin/media', icon: Image },
-  { label: 'Administrators', href: '/admin/administrators', icon: Users },
+  { label: 'Dashboard',     href: '/admin',                icon: LayoutDashboard },
+  { label: 'Services',      href: '/admin/services',       icon: Briefcase },
+  { label: 'Articles',      href: '/admin/articles',       icon: FileText },
+  { label: 'Events & Training', href: '/admin/events',     icon: CalendarDays },
+  { label: 'Page Sections', href: '/admin/sections',       icon: Layers },
+  { label: 'Inquiries',     href: '/admin/inquiries',      icon: Inbox },
+  { label: 'Media',         href: '/admin/media',          icon: Image },
+  { label: 'Administrators',href: '/admin/administrators', icon: Users },
 ];
 
 interface AdminSidebarProps {

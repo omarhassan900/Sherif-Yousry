@@ -30,7 +30,11 @@ const SECTION_NAMES: Record<string, string> = {
   'homepage:assessment': 'Assessment CTA',
   'homepage:services': 'Services',
   'homepage:insights': 'Insights',
-  'about:main': 'About Content',
+  'about:main': 'About — Hero',
+  'about:story': 'Our Story',
+  'about:mission': 'Mission & Vision',
+  'about:team': 'Our Team',
+  'about:careers': 'Careers Teaser',
   'contact:main': 'Contact Intro',
 };
 

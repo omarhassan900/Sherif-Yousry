@@ -12,7 +12,7 @@ import { prisma } from '@/lib/prisma';
 // TYPES
 // ============================================
 
-export type ContentType = 'service' | 'article' | 'page_section';
+export type ContentType = 'service' | 'article' | 'page_section' | 'event';
 export type ContentStatus = 'published' | 'unpublished';
 
 export interface ContentItem {
