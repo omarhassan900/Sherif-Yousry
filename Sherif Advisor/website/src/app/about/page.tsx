@@ -7,6 +7,7 @@ import { WhyUs } from '@/components/sections/WhyUs';
 import { Shield, Award, Users, Target } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
+import { Team } from '@/components/sections/Team';
 
 interface SectionContent {
   id: string;
@@ -148,6 +149,7 @@ export default function AboutPage() {
       </section>
 
       <WhyUs />
+        <Team />
       <Footer />
       <WhatsAppFloat />
 

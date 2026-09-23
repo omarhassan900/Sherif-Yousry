@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Linkedin, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getClientLanguage, type Language } from '@/lib/language';
 
 interface TeamMember {
   name: string;
   role: string;
   image: string;
-  linkedin?: string;
-  email?: string;
 }
 
 const teamMembers: TeamMember[] = [
@@ -16,79 +15,76 @@ const teamMembers: TeamMember[] = [
     name: 'Sherif Yousry',
     role: 'Founder & Managing Partner',
     image: '/images/team/sherif-yousry.jpg',
-    linkedin: '#',
-    email: 'sherif.yousry@company.com',
   },
   {
     name: 'Dr. Mostafa Fahmy',
     role: 'Partner – Audit & Assurance',
     image: '/images/team/mostafa-fahmy.jpg',
-    linkedin: '#',
-    email: 'mostafa.fahmy@company.com',
   },
   {
     name: 'Ahmed Mahrous',
     role: 'Partner – Corporate Services',
     image: '/images/team/ahmed-mahrous.jpg',
-    linkedin: '#',
-    email: 'ahmed.mahrous@company.com',
   },
   {
     name: 'Mohamed Abdel Fattah',
     role: 'Partner – Internal Audit & Advisory',
     image: '/images/team/mohamed-abdelfattah.jpg',
-    linkedin: '#',
-    email: 'mohamed.abdelfattah@company.com',
   },
   {
     name: 'Ahmed El Behery',
     role: 'Partner – Financial & Business Advisory',
     image: '/images/team/Ahmed-el-Bhery.jpg',
-    linkedin: '#',
-    email: 'name@company.com',
   },
 ];
 
-const AUTOPLAY_INTERVAL = 3000;
+const AUTOPLAY_INTERVAL = 4000;
 const TOTAL = teamMembers.length;
-const MIDDLE_SLOT = Math.floor(TOTAL / 2); // fixed visual "center" slot
+
+// Calculate the circular distance of a card from the active center card
+const getDistance = (index: number, active: number, total: number) => {
+  let diff = index - active;
+  if (diff > total / 2) diff -= total;
+  if (diff < -total / 2) diff += total;
+  return diff;
+};
 
 export function Team() {
+  const [lang, setLang] = useState<Language>('en');
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
+  useEffect(() => {
+    setLang(getClientLanguage());
+  }, []);
+
   const goNext = useCallback(() => {
     setActiveIndex((prev) => (prev + 1) % TOTAL);
-  }, []);
+  }, [TOTAL]);
 
   const goPrev = useCallback(() => {
     setActiveIndex((prev) => (prev - 1 + TOTAL) % TOTAL);
-  }, []);
+  }, [TOTAL]);
 
-  // Autoplay: rotate which member sits in the middle slot
+  // Autoplay
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(goNext, AUTOPLAY_INTERVAL);
     return () => clearInterval(timer);
   }, [goNext, isPaused]);
 
-  // Build fixed slots (0..TOTAL-1). The member for slot i is whoever should
-  // sit there given the current rotation, so the active member always lands
-  // in MIDDLE_SLOT, and the same slot position animates as content rotates in/out.
-  const slots = Array.from({ length: TOTAL }, (_, slot) => {
-    const memberIndex = (activeIndex - MIDDLE_SLOT + slot + TOTAL) % TOTAL;
-    return teamMembers[memberIndex];
-  });
+  // Direction multiplier for RTL support (flips the slide direction)
+  const dirMultiplier = lang === 'ar' ? -1 : 1;
 
   return (
-    <section id="our-team" className="py-20 bg-gray-50 overflow-hidden">
+    <section id="team" className="py-20 bg-gray-50 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section header */}
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="inline-block text-sm font-semibold tracking-wider uppercase text-primary mb-3">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <span className="inline-block text-sm font-semibold tracking-wider uppercase text-brand-gold mb-3">
             Our Team
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-brand-navy mb-4">
             Meet the People Behind Our Success
           </h2>
           <p className="text-gray-600 text-lg">
@@ -97,95 +93,86 @@ export function Team() {
           </p>
         </div>
 
-        {/* Carousel */}
+        {/* Carousel Container */}
         <div
-          className="relative flex items-center justify-center gap-6 sm:gap-8"
+          className="relative flex items-center justify-center min-h-[420px]"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
+          {/* Previous Button */}
           <button
             onClick={goPrev}
             aria-label="Previous team member"
-            className="hidden sm:flex shrink-0 w-10 h-10 items-center justify-center rounded-full bg-white shadow-md text-gray-700 hover:bg-primary hover:text-white transition-colors z-10"
+            className="absolute left-4 sm:left-10 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-lg text-brand-navy hover:bg-brand-navy hover:text-white transition-all duration-300"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={24} />
           </button>
 
-          {slots.map((member, slot) => {
-            const isMiddle = slot === MIDDLE_SLOT;
-            return (
-              <div
-                key={slot}
-                className={`group shrink-0 flex flex-col items-center text-center transition-all duration-500 ease-in-out ${
-                  isMiddle
-                    ? 'opacity-100 scale-110'
-                    : 'opacity-30 scale-90'
-                }`}
-              >
-                <div
-                  className={`relative rounded-full overflow-hidden ring-4 ring-white shadow-lg mb-5 transition-all duration-500 ${
-                    isMiddle ? 'w-40 h-40 sm:w-44 sm:h-44' : 'w-28 h-28 sm:w-32 sm:h-32'
-                  }`}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover"
-                  />
-                  {isMiddle && (
-                    <div className="absolute inset-0 flex items-center justify-center gap-3 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      {member.linkedin && (
-                        <a
-                          href={member.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-white text-gray-900 hover:bg-primary hover:text-white transition-colors"
-                          aria-label={`${member.name} on LinkedIn`}
-                        >
-                          <Linkedin size={14} />
-                        </a>
-                      )}
-                      {member.email && (
-                        <a
-                          href={`mailto:${member.email}`}
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-white text-gray-900 hover:bg-primary hover:text-white transition-colors"
-                          aria-label={`Email ${member.name}`}
-                        >
-                          <Mail size={14} />
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <h3 className={`font-semibold text-gray-900 ${isMiddle ? 'text-lg' : 'text-sm'}`}>
-                  {member.name}
-                </h3>
-                <p className={`text-gray-500 mt-1 ${isMiddle ? 'text-sm' : 'text-xs'}`}>
-                  {member.role}
-                </p>
-              </div>
-            );
-          })}
+          {/* Cards */}
+          <div className="relative w-full flex items-center justify-center">
+            {teamMembers.map((member, index) => {
+              const dist = getDistance(index, activeIndex, TOTAL);
+              const isCenter = dist === 0;
+              const isAdjacent = Math.abs(dist) === 1;
+              const isHidden = Math.abs(dist) > 1;
 
+              // If it's too far, don't render it (keeps DOM light and animations clean)
+              if (isHidden) return null;
+
+              return (
+                <div
+                  key={member.name} // ✅ Crucial: Using stable key so React animates the same element
+                  className="absolute flex flex-col items-center text-center will-change-transform transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]"
+                  style={{
+                    // Slide left/right based on distance, inverted for RTL
+                    transform: `translateX(${dist * 130 * dirMultiplier}%) scale(${isCenter ? 1.15 : 0.85})`,
+                    opacity: isCenter ? 1 : 0.5,
+                    zIndex: isCenter ? 20 : 10,
+                  }}
+                >
+                  {/* Image */}
+                  <div className="relative w-36 h-36 sm:w-40 sm:h-40 rounded-full overflow-hidden ring-4 ring-white shadow-xl transition-shadow duration-700">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Text */}
+                  <h3 className="font-semibold text-brand-navy mt-5 transition-all duration-700">
+                    {member.name}
+                  </h3>
+                  <p className="text-gray-500 text-sm mt-1 transition-all duration-700">
+                    {member.role}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Next Button */}
           <button
             onClick={goNext}
             aria-label="Next team member"
-            className="hidden sm:flex shrink-0 w-10 h-10 items-center justify-center rounded-full bg-white shadow-md text-gray-700 hover:bg-primary hover:text-white transition-colors z-10"
+            className="absolute right-4 sm:right-10 z-20 w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-lg text-brand-navy hover:bg-brand-navy hover:text-white transition-all duration-300"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={24} />
           </button>
         </div>
 
-        {/* Dots */}
-        <div className="flex justify-center gap-2 mt-8">
+        {/* Dots Indicator */}
+        <div className="flex justify-center gap-2 mt-12">
           {teamMembers.map((_, index) => (
             <button
               key={index}
               onClick={() => setActiveIndex(index)}
               aria-label={`Go to member ${index + 1}`}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                index === activeIndex ? 'w-6 bg-primary' : 'w-2 bg-gray-300'
+              className={`h-2 rounded-full transition-all duration-500 ease-out ${
+                index === activeIndex 
+                  ? 'w-8 bg-brand-gold' 
+                  : 'w-2 bg-gray-300 hover:bg-gray-400'
               }`}
             />
           ))}

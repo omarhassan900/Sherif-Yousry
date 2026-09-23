@@ -126,19 +126,20 @@ export function Training() {
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-      {/* Modern dark separator — a bold navy pill flanked by thick navy lines */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 md:mb-8">
-        <div className="flex items-center gap-4">
-          <span className="h-[3px] flex-1 rounded-full bg-gradient-to-r from-transparent via-brand-navy/40 to-brand-navy" />
-          <span className="inline-flex items-center gap-2 rounded-full bg-brand-navy px-4 py-2 shadow-lg shadow-brand-navy/20">
-            <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
-            <span className="text-[11px] font-bold tracking-[2px] uppercase text-white">
-              {t(lang, 'تدريب', 'Training')}
+        {/* Modern dark separator — a bold navy pill flanked by thick navy lines */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 md:mb-8">
+          <div className="flex items-center gap-4">
+            <span className="h-[3px] flex-1 rounded-full bg-gradient-to-r from-transparent via-brand-navy/40 to-brand-navy" />
+            <span className="inline-flex items-center gap-2 rounded-full bg-brand-navy px-4 py-2 shadow-lg shadow-brand-navy/20">
+              <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
+              <span className="text-[11px] font-bold tracking-[2px] uppercase text-white">
+                {t(lang, 'تدريب', 'Training')}
+              </span>
             </span>
-          </span>
-          <span className="h-[3px] flex-1 rounded-full bg-gradient-to-l from-transparent via-brand-navy/40 to-brand-navy" />
+            <span className="h-[3px] flex-1 rounded-full bg-gradient-to-l from-transparent via-brand-navy/40 to-brand-navy" />
+          </div>
         </div>
-      </div>
+
         {/* Header Section: Animates from TOP */}
         <div 
           className={`grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 lg:items-end mb-12 md:mb-16 transition-all duration-700 ease-out ${
@@ -185,8 +186,8 @@ export function Training() {
           </div>
         </div>
         
-        {/* Carousel Container */}
-        <div className="relative group">
+        {/* ✅ FIXED: Removed 'group' from this container so it doesn't trigger all buttons at once */}
+        <div className="relative">
           <div 
             ref={carouselRef}
             className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 scroll-smooth"
@@ -225,6 +226,7 @@ export function Training() {
                     transition: 'all 0.7s ease-out'
                   }}
                 >
+                  {/* ✅ FIXED: 'group' is ONLY on the individual card Link */}
                   <Link
                     href={`/trainings/${item.id}`}
                     className="group bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-brand-gold/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-700 ease-out flex flex-col h-full"
@@ -263,10 +265,11 @@ export function Training() {
                           {t(lang, item.locationAr, item.locationEn)}
                         </span>
                       </div>
-                       <Link
-                        href={`/trainings/${item.id}`}
-                        className="border-brand-navy border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
-                      >
+
+                      {/* ✅ FIXED: Changed nested <Link> to a <span>. 
+                          The whole card is already a link, so this prevents invalid HTML. 
+                          Added 'mt-auto' to keep buttons aligned at the bottom of the card. */}
+                      <span className="border-brand-navy border relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider mt-auto w-fit cursor-pointer">
                         <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
                         <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
                           {lang === 'ar'
@@ -276,7 +279,7 @@ export function Training() {
                         <span className="relative z-10 text-brand-navy transition-colors duration-300 group-hover:text-white">
                           {t(lang, 'سجّل الآن', 'Register Now')}
                         </span>
-                      </Link>
+                      </span>
                     </div>
                   </Link>
                 </div>

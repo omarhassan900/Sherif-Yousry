@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, CheckCircle, TrendingUp, Shield, Users, Briefcase, Globe, PieChart } from 'lucide-react';
+import { 
+  ArrowRight, CheckCircle, TrendingUp, Shield, Users, Briefcase, Globe, PieChart,
+  Building2, Scale, ShieldCheck, FileText, Award, Calculator
+} from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollProgress } from '@/components/effects/ScrollProgress';
@@ -14,93 +17,59 @@ import { getClientLanguage, type Language } from '@/lib/language';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
-const services = [
-  {
-    id: 1,
-    titleAr: 'الاستشارات الضريبية',
-    titleEn: 'Tax Advisory',
-    subtitleAr: 'حلول ضريبية استراتيجية',
-    subtitleEn: 'Strategic Tax Solutions',
-    descriptionAr: 'تنقل عبر اللوائح الضريبية المعقدة بثقة. يقدم فريقنا الخبير خدمات تخطيط ضريبي شاملة ومتوافقة مصممة خصيصاً لاحتياجات عملك.',
-    descriptionEn: 'Navigate complex tax regulations with confidence. Our expert team provides comprehensive tax planning and compliance services tailored to your business needs.',
-    icon: PieChart,
-    featuresAr: ['تخطيط ضريبة الشركات', 'الامتثال الضريبي والإيداع', 'الهيكلة الضريبية الدولية', 'تسجيل واستشارات ضريبة القيمة المضافة', 'تسوية المنازعات الضريبية'],
-    featuresEn: ['Corporate Tax Planning', 'Tax Compliance & Filing', 'International Tax Structuring', 'VAT Registration & Consulting', 'Tax Dispute Resolution'],
-    image: '/images/services/tax-advisory.jpeg'
-  },
-  {
-    id: 2,
-    titleAr: 'الخدمات القانونية',
-    titleEn: 'Legal Services',
-    subtitleAr: 'استشارات قانونية خبيرة',
-    subtitleEn: 'Expert Legal Counsel',
-    descriptionAr: 'احمِ مصالح عملك من خلال خدماتنا القانونية الشاملة. من حوكمة الشركات إلى مفاوضات العقود، نقدم دعماً قانونياً استراتيجياً.',
-    descriptionEn: 'Protect your business interests with our comprehensive legal services. From corporate governance to contract negotiations, we provide strategic legal support.',
-    icon: Shield,
-    featuresAr: ['قانون الشركات والحوكمة', 'صياغة ومراجعة العقود', 'الامتثال التنظيمي', 'قانون العمل', 'دعم التقاضي التجاري'],
-    featuresEn: ['Corporate Law & Governance', 'Contract Drafting & Review', 'Regulatory Compliance', 'Employment Law', 'Commercial Litigation Support'],
-    image: '/images/services/legal.jpeg'
-  },
-  {
-    id: 3,
-    titleAr: 'استشارات الأعمال',
-    titleEn: 'Business Advisory',
-    subtitleAr: 'نمو استراتيجي للأعمال',
-    subtitleEn: 'Strategic Business Growth',
-    descriptionAr: 'حوّل استراتيجية عملك من خلال رؤى مدعومة بالبيانات. نساعدك في تحديد الفرص، وتحسين العمليات، وتحقيق نمو مستدام.',
-    descriptionEn: 'Transform your business strategy with data-driven insights. We help you identify opportunities, optimize operations, and achieve sustainable growth.',
-    icon: TrendingUp,
-    featuresAr: ['تطوير استراتيجية الأعمال', 'استشارات دخول السوق', 'التخطيط والتحليل المالي', 'إدارة المخاطر', 'تحسين الأداء'],
-    featuresEn: ['Business Strategy Development', 'Market Entry Consulting', 'Financial Planning & Analysis', 'Risk Management', 'Performance Optimization'],
-    image: '/images/services/business-advisory.jpeg'
-  },
-  {
-    id: 4,
-    titleAr: 'تمويل الشركات',
-    titleEn: 'Corporate Finance',
-    subtitleAr: 'حلول رأس المال والاستثمار',
-    subtitleEn: 'Capital & Investment Solutions',
-    descriptionAr: 'حقق أقصى إمكاناتك المالية من خلال خبرتنا في تمويل الشركات. من جمع الأموال إلى استشارات الاندماج والاستحواذ.',
-    descriptionEn: 'Maximize your financial potential with our corporate finance expertise. From fundraising to M&A advisory, we guide you through complex financial decisions.',
-    icon: Briefcase,
-    featuresAr: ['عمليات الاندماج والاستحواذ', 'جمع رأس المال', 'العناية الواجبة المالية', 'خدمات التقييم', 'الاستشارات الاستثمارية'],
-    featuresEn: ['Mergers & Acquisitions', 'Capital Raising', 'Financial Due Diligence', 'Valuation Services', 'Investment Advisory'],
-    image: '/images/services/corporate-finance.jpeg'
-  },
-  {
-    id: 5,
-    titleAr: 'الأعمال الدولية',
-    titleEn: 'International Business',
-    subtitleAr: 'دعم التوسع العالمي',
-    subtitleEn: 'Global Expansion Support',
-    descriptionAr: 'وسع نطاق وصولك عبر الحدود بثقة. تساعدك خدمات الأعمال الدولية لدينا على التنقل في الأسواق العالمية.',
-    descriptionEn: 'Expand your reach across borders with confidence. Our international business services help you navigate global markets and cross-border transactions.',
-    icon: Globe,
-    featuresAr: ['استراتيجية دخول السوق', 'المعاملات عبر الحدود', 'الامتثال الدولي', 'استشارات الاستثمار الأجنبي', 'التخطيط الضريبي العالمي'],
-    featuresEn: ['Market Entry Strategy', 'Cross-Border Transactions', 'International Compliance', 'Foreign Investment Advisory', 'Global Tax Planning'],
-    image: '/images/services/international.jpg'
-  },
-  {
-    id: 6,
-    titleAr: 'حلول الموارد البشرية',
-    titleEn: 'HR & Workforce Solutions',
-    subtitleAr: 'تميز رأس المال البشري',
-    subtitleEn: 'Human Capital Excellence',
-    descriptionAr: 'ابنِ قوة عمل عالية الأداء من خلال خدمات استشارات الموارد البشرية لدينا. من اكتساب المواهب إلى التطوير التنظيمي.',
-    descriptionEn: 'Build a high-performing workforce with our HR consulting services. From talent acquisition to organizational development, we optimize your human capital.',
-    icon: Users,
-    featuresAr: ['استراتيجية اكتساب المواهب', 'التعويضات والمزايا', 'التطوير التنظيمي', 'امتثال الموارد البشرية', 'التدريب والتطوير'],
-    featuresEn: ['Talent Acquisition Strategy', 'Compensation & Benefits', 'Organizational Development', 'HR Compliance', 'Training & Development'],
-    image: '/images/services/hr.jpeg'
-  }
-];
+// Map icon names from the database to Lucide components
+const ICON_MAP: Record<string, React.ElementType> = {
+  Briefcase,
+  Building2,
+  Scale,
+  ShieldCheck,
+  FileText,
+  TrendingUp,
+  Users,
+  Globe,
+  Award,
+  PieChart,
+  Shield,
+  Calculator,
+};
+
+interface ApiService {
+  id: string;
+  title: string;
+  body: string;
+  metadata?: {
+    image?: string;
+    icon?: string;
+  };
+}
 
 export default function ServicesPage() {
   const [lang, setLang] = useState<Language>('en');
+  const [services, setServices] = useState<ApiService[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setLang(getClientLanguage());
   }, []);
+
+  // Fetch services from the API
+  useEffect(() => {
+    async function fetchServices() {
+      setIsLoading(true);
+      try {
+        const res = await fetch(`/api/content/services?lang=${lang}`);
+        if (res.ok) {
+          const data = await res.json();
+          setServices(data.items || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch services:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchServices();
+  }, [lang]);
 
   return (
     <main className="min-h-screen bg-white" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
@@ -146,7 +115,7 @@ export default function ServicesPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/contact"
+              href="/#contact"
               className="border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
             >
               <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
@@ -202,49 +171,72 @@ export default function ServicesPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <Link
-                key={service.id}
-                href={`/services/${service.id}`}
-                className="group relative rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-300 flex flex-col h-64"
-                style={{
-                  animationDelay: `${index * 100}ms`
-                }}
-              >
-                {/* Image Container */}
-                <div className="relative h-64 overflow-hidden">
-                  <Image
-                    src={service.image}
-                    alt={lang === 'ar' ? service.titleAr : service.titleEn}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                </div>
+            {isLoading ? (
+              // Loading skeletons
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] h-64 bg-gray-100 animate-pulse" />
+              ))
+            ) : services.length > 0 ? (
+              services.map((service, index) => {
+                const IconComponent = service.metadata?.icon && ICON_MAP[service.metadata.icon] 
+                  ? ICON_MAP[service.metadata.icon] 
+                  : Briefcase; // Fallback icon
 
-                {/* Navy Overlay Content - Matches INSIGHTS style */}
-                <div className="rounded-lg absolute inset-x-0 bottom-0 z-10 bg-brand-navy/95 p-4 flex flex-col gap-2">
-                  <service.icon className="w-8 h-8 text-brand-gold mb-1" />
-                  <span className="text-[10px] font-bold tracking-wider text-brand-gold uppercase block">
-                    {lang === 'ar' ? service.subtitleAr : service.subtitleEn}
-                  </span>
-                  <h3 className="text-[15px] leading-snug font-semibold text-white line-clamp-2">
-                    {lang === 'ar' ? service.titleAr : service.titleEn}
-                  </h3>
+                // Strip HTML tags from body for the hover preview
+                const plainTextBody = service.body ? service.body.replace(/<[^>]*>/g, '').trim() : '';
 
-                  {/* Hidden description that appears on hover */}
-                  <p className="text-[12px] leading-relaxed text-gray-300 line-clamp-3 max-h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:max-h-24 group-hover:opacity-100">
-                    {lang === 'ar' ? service.descriptionAr : service.descriptionEn}
-                  </p>
+                return (
+                  <Link
+                    key={service.id}
+                    href={`/services/${service.id}`}
+                    className="group relative rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-300 flex flex-col h-64"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {/* Image Container */}
+                    <div className="relative h-64 overflow-hidden">
+                      {service.metadata?.image ? (
+                        <Image
+                          src={service.metadata.image}
+                          alt={service.title}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+                          <IconComponent className="w-16 h-16 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
 
-                  <span className="inline-flex items-center gap-2.5 text-[11px] font-bold tracking-wider text-white uppercase">
-                    <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/15">
-                      <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180 transition-colors group-hover:text-brand-gold" />
-                    </span>
-                    {t(lang, 'اعرف المزيد', 'Learn More')}
-                  </span>
-                </div>
-              </Link>
-            ))}
+                    {/* Navy Overlay Content - Matches INSIGHTS style */}
+                    <div className="absolute inset-x-0 bottom-0 z-10 bg-brand-navy/95 p-4 flex flex-col gap-2">
+                      <IconComponent className="w-8 h-8 text-brand-gold mb-1" />
+                      <h3 className="text-[15px] leading-snug font-semibold text-white line-clamp-2">
+                        {service.title}
+                      </h3>
+
+                      {/* Hidden description that appears on hover */}
+                      {plainTextBody && (
+                        <p className="text-[12px] leading-relaxed text-gray-300 line-clamp-3 max-h-0 opacity-0 overflow-hidden transition-all duration-500 group-hover:max-h-24 group-hover:opacity-100">
+                          {plainTextBody}
+                        </p>
+                      )}
+
+                      <span className="inline-flex items-center gap-2.5 text-[11px] font-bold tracking-wider text-white uppercase">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/40 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/15">
+                          <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180 transition-colors group-hover:text-brand-gold" />
+                        </span>
+                        {t(lang, 'اعرف المزيد', 'Learn More')}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })
+            ) : (
+              <div className="col-span-full text-center py-10 text-gray-500">
+                {t(lang, 'لا توجد خدمات متاحة حالياً.', 'No services available at the moment.')}
+              </div>
+            )}
           </div>
         </div>
       </section>

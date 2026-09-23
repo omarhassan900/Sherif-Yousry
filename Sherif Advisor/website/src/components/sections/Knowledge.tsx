@@ -83,7 +83,7 @@ export function Knowledge() {
 
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % featureSlides.length);
-    }, 3000); // Change slide every 6 seconds
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [isPaused]);
@@ -210,8 +210,8 @@ export function Knowledge() {
               ))}
             </div>
 
-            {/* ✅ Carousel Container */}
-            <div className="relative group">
+            {/* ✅ FIXED: Named group (group/carousel) isolates the hover state of the arrows from the cards */}
+            <div className="relative group/carousel">
               {loading ? (
                 // Loading Skeletons
                 <div className="flex gap-6 pb-4">
@@ -236,6 +236,7 @@ export function Knowledge() {
                           key={a.id} 
                           className="snap-start shrink-0 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
                         >
+                          {/* ✅ Card has its own default 'group' class, so hover effects only apply to this specific card */}
                           <Link
                             href={`/knowledge/${a.id}`}
                             className="group relative rounded-sm overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-300 flex flex-col h-64"
@@ -300,19 +301,19 @@ export function Knowledge() {
                 </div>
               )}
 
-              {/* ✅ Navigation Arrows (Hidden on mobile, visible on desktop) */}
+              {/* ✅ Navigation Arrows: Use group-hover/carousel so they only respond to the outer container hover */}
               {showArrows && (
                 <>
                   <button
                     onClick={() => scrollCarousel('left')}
-                    className="absolute top-1/2 -start-4 lg:-start-12 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-md border border-gray-200 flex items-center justify-center text-brand-navy hover:bg-brand-navy hover:text-white hover:border-brand-navy transition-all duration-300 z-10 hidden lg:flex"
+                    className="absolute top-1/2 -start-4 lg:-start-12 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-md border border-gray-200 flex items-center justify-center text-brand-navy hover:bg-brand-navy hover:text-white hover:border-brand-navy transition-all duration-300 z-10 hidden lg:flex opacity-0 group-hover/carousel:opacity-100"
                     aria-label="Previous slide"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
                     onClick={() => scrollCarousel('right')}
-                    className="absolute top-1/2 -end-4 lg:-end-12 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-md border border-gray-200 flex items-center justify-center text-brand-navy hover:bg-brand-navy hover:text-white hover:border-brand-navy transition-all duration-300 z-10 hidden lg:flex"
+                    className="absolute top-1/2 -end-4 lg:-end-12 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-md border border-gray-200 flex items-center justify-center text-brand-navy hover:bg-brand-navy hover:text-white hover:border-brand-navy transition-all duration-300 z-10 hidden lg:flex opacity-0 group-hover/carousel:opacity-100"
                     aria-label="Next slide"
                   >
                     <ChevronRight className="w-5 h-5" />

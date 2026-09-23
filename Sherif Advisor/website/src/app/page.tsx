@@ -13,7 +13,7 @@ import { Footer } from '@/components/layout/Footer';
 import { ScrollProgress } from '@/components/effects/ScrollProgress';
 import { AIChatWidget } from '@/components/chat/AIChatWidget';
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
-import {Journey} from '@/components/sections/Journey'
+import { Journey } from '@/components/sections/Journey'
 import { ServicesGrid } from '@/components/sections/ServicesGrid';
 import { Packages } from '@/components/sections/Packages';
 import { Events } from '@/components/sections/EventsTraining';
@@ -32,14 +32,14 @@ export default function Home() {
       <Journey />
       <ServicesGrid />
       <MarketsBanner />
-      <DigitalExperience /> 
-      <Team />
+      <DigitalExperience />
       <Knowledge />
       <Packages />
       <Events />
       <Training />
       <CTABanner />
       <Contact />
+      <Team />
       <Footer />
       <WhatsAppFloat />
     </main>

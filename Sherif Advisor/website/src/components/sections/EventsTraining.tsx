@@ -185,8 +185,8 @@ export function Events() {
           </div>
         </div>
 
-        {/* Carousel Container */}
-        <div className="relative group">
+        {/* ✅ FIXED: Removed 'group' from this container so it doesn't trigger all buttons at once */}
+        <div className="relative">
           <div
             ref={carouselRef}
             className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 scroll-smooth"
@@ -225,6 +225,7 @@ export function Events() {
                     transition: 'all 0.7s ease-out'
                   }}
                 >
+                  {/* ✅ FIXED: 'group' is ONLY on the individual card Link */}
                   <Link
                     href={`/events/${item.id}`}
                     className="group bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-brand-gold/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-700 ease-out flex flex-col h-full"
@@ -264,10 +265,10 @@ export function Events() {
                         </span>
                       </div>
 
-                      <Link
-                        href={`/events/${item.id}`}
-                        className="border-brand-navy border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider"
-                      >
+                      {/* ✅ FIXED: Changed nested <Link> to a <span>. 
+                          The whole card is already a link, so this prevents invalid HTML. 
+                          Added 'mt-auto' to keep buttons aligned at the bottom of the card. */}
+                      <span className="border-brand-navy border relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider mt-auto w-fit cursor-pointer">
                         <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
                         <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
                           {lang === 'ar'
@@ -277,7 +278,7 @@ export function Events() {
                         <span className="relative z-10 text-brand-navy transition-colors duration-300 group-hover:text-white">
                           {t(lang, 'سجّل الآن', 'Register Now')}
                         </span>
-                      </Link>
+                      </span>
                     </div>
                   </Link>
                 </div>

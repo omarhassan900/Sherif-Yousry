@@ -15,13 +15,14 @@ import {
   Globe,
   Award,
   Calculator,
-  Loader2,
+  Loader2, 
 } from 'lucide-react';
 import { ImagePlus, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import AdminShell from '../../../components/AdminShell';
 import RevisionHistory from '../../../components/RevisionHistory';
 import MediaPicker from '../../../components/MediaPicker';
+import BilingualEditor from '../../../components/BilingualEditor'; // ✅ Added import
 
 interface IconOption {
   name: string;
@@ -266,7 +267,7 @@ export default function EditServicePage() {
 
   return (
     <AdminShell adminName={adminName}>
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Back link + heading */}
         <div className="space-y-4">
           <Link
@@ -412,42 +413,23 @@ export default function EditServicePage() {
             </div>
           </div>
 
-          {/* Full Description (shown on the service detail page) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="fullDescriptionEn" className="text-sm font-medium text-text-primary">
-                Full Description (English)
-              </label>
-              <textarea
-                id="fullDescriptionEn"
-                rows={6}
-                value={fullDescriptionEn}
-                onChange={(e) => setFullDescriptionEn(e.target.value)}
-                disabled={isSubmitting}
-                placeholder="Full details shown on the service page (optional)..."
-                dir="ltr"
-                className="px-3 py-2 bg-brand-navy-dark border border-white/10 rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-gold/40 transition-colors resize-none"
-              />
-              <span className="text-xs text-text-muted">
-                Leave empty to fall back to the short description.
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label htmlFor="fullDescriptionAr" className="text-sm font-medium text-text-primary text-right">
-                الوصف الكامل (عربي)
-              </label>
-              <textarea
-                id="fullDescriptionAr"
-                rows={6}
-                value={fullDescriptionAr}
-                onChange={(e) => setFullDescriptionAr(e.target.value)}
-                disabled={isSubmitting}
-                placeholder="التفاصيل الكاملة التي تظهر في صفحة الخدمة (اختياري)..."
-                dir="rtl"
-                className="px-3 py-2 bg-brand-navy-dark border border-white/10 rounded text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-gold/40 transition-colors text-right resize-none"
-              />
-            </div>
+          {/* ✅ Full Description — Bilingual Rich Text Editor */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-text-primary">
+              Full Description (shown on the service detail page)
+            </h3>
+            <BilingualEditor
+              contentEn={fullDescriptionEn}
+              contentAr={fullDescriptionAr}
+              onChangeEn={(html) => setFullDescriptionEn(html)}
+              onChangeAr={(html) => setFullDescriptionAr(html)}
+              placeholderEn="Full details shown on the service page (optional)..."
+              placeholderAr="التفاصيل الكاملة التي تظهر في صفحة الخدمة (اختياري)..."
+              disabled={isSubmitting}
+            />
+            <p className="text-xs text-text-muted">
+              Leave empty to fall back to the short description.
+            </p>
           </div>
 
           {/* Service Image */}
