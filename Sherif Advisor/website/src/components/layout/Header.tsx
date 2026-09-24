@@ -297,7 +297,7 @@ export function Header() {
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
         
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-4 group mr-8 lg:mr-12 xl:mr-16">
+        <Link href="/" className="flex items-center gap-4 group mr-8">
           <div className="relative w-14 h-14 lg:w-32 lg:h-16">
             <Image
               src="/images/logo.png"

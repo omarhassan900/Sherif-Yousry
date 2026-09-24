@@ -8,7 +8,6 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollProgress } from '@/components/effects/ScrollProgress';
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
-import { EventsHero } from '@/components/sections/EventsHero';
 
 // ==========================================
 // Scroll Animation Component
@@ -135,7 +134,6 @@ export default function TrainingsPage() {
     <main className="min-h-screen bg-white text-brand-navy font-sans">
       <ScrollProgress />
       <Header />
-      <EventsHero />
 
       {/* ── Featured Training Banner Slideshow ── */}
       <FadeIn>
