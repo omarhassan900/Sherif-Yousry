@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, MessageSquare } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import InquiryForm from '@/components/forms/InquiryForm';
@@ -38,12 +38,12 @@ export default function ServiceDetailPage() {
   const params = useParams();
   const id = params?.id as string;
 
-  const [lang, setLang]           = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('ar');
   const [langReady, setLangReady] = useState(false);
-  const [service, setService]     = useState<ServiceDetail | null>(null);
+  const [service, setService] = useState<ServiceDetail | null>(null);
   const [allServices, setAllServices] = useState<ServiceListItem[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [notFound, setNotFound]   = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     setLang(getClientLanguage());
@@ -62,7 +62,7 @@ export default function ServiceDetailPage() {
           setAllServices(subs);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => { cancelled = true; };
   }, [lang, langReady]);
 
@@ -104,6 +104,14 @@ export default function ServiceDetailPage() {
     || service?.body
     || '';
 
+  // Smooth scroll to the contact form
+  const scrollToForm = () => {
+    const formElement = document.getElementById('contact-form-section');
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <main dir={dir}>
       <Header />
@@ -125,7 +133,7 @@ export default function ServiceDetailPage() {
         <>
           {/* Hero */}
           <div className="bg-brand-navy py-16 lg:py-20">
-            <div className="max-w-4xl mx-auto px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-6 lg:px-8">
               <Link href="/services" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-brand-gold transition-colors mb-6">
                 {lang === 'ar' ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                 {t(lang, 'العودة إلى الخدمات', 'Back to Services')}
@@ -137,11 +145,11 @@ export default function ServiceDetailPage() {
             </div>
           </div>
 
-          {/* Body */}
+          {/* Body — 3 Column Layout: Related Services | Main Content | Contact Card */}
           <section className="bg-surface-light py-16 lg:py-20">
-            <div className="max-w-6xl mx-auto px-6 lg:px-8 grid lg:grid-cols-[260px_1fr] gap-10 lg:gap-14 items-start">
+            <div className="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-[260px_1fr_340px] gap-10 lg:gap-12 items-start">
 
-              {/* Left sidebar */}
+              {/* Left sidebar: Related Services */}
               <aside className="lg:sticky lg:top-28">
                 <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                   <div className="bg-brand-navy px-5 py-4">
@@ -157,11 +165,10 @@ export default function ServiceDetailPage() {
                       const active = s.id === service.id;
                       return (
                         <Link key={s.id} href={`/services/${s.id}`}
-                          className={`flex items-center gap-2 px-3 py-2.5 rounded-md text-sm transition-colors ${
-                            active
+                          className={`flex items-center gap-2 px-3 py-2.5 rounded-md text-sm transition-colors ${active
                               ? 'bg-brand-gold/10 text-brand-navy font-semibold border-s-2 border-brand-gold'
                               : 'text-text-dark-secondary hover:bg-gray-50 hover:text-brand-gold'
-                          }`}>
+                            }`}>
                           <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${active ? 'bg-brand-gold' : 'bg-gray-300'}`} />
                           {s.title}
                         </Link>
@@ -177,12 +184,12 @@ export default function ServiceDetailPage() {
                 {(() => {
                   const img = service.metadata?.image;
                   const categoryDefaults: Record<string, string> = {
-                    'tax-advisory':                 '/images/bg.jpeg',
-                    'financial-advisory':           '/images/bg-2.jpeg',
+                    'tax-advisory': '/images/bg.jpeg',
+                    'financial-advisory': '/images/bg-2.jpeg',
                     'business-management-advisory': '/images/bg-3.jpeg',
-                    'corporate-legal-services':     '/images/bg-4.jpeg',
-                    'payroll-social-insurance':     '/images/bg_.jpeg',
-                    'ecommerce-digital-business':   '/images/bg__.jpeg',
+                    'corporate-legal-services': '/images/bg-4.jpeg',
+                    'payroll-social-insurance': '/images/bg_.jpeg',
+                    'ecommerce-digital-business': '/images/bg__.jpeg',
                   };
                   const coverSrc = img || categoryDefaults[service.metadata?.categorySlug ?? ''] || '/images/bg.jpeg';
                   return (
@@ -214,7 +221,7 @@ export default function ServiceDetailPage() {
                 )}
 
                 {/* Inquiry form */}
-                <div className="max-w-xl pt-6 border-t border-gray-200">
+                <div id="contact-form-section" className="max-w-xl pt-6 border-t border-gray-200 scroll-mt-28">
                   <InquiryForm
                     lang={lang}
                     source="service"
@@ -223,6 +230,40 @@ export default function ServiceDetailPage() {
                   />
                 </div>
               </div>
+
+              {/* Right sidebar: Contact Us Card (Scrolls to form) */}
+              <aside className="hidden lg:block lg:sticky lg:top-28">
+                <div className="bg-brand-navy text-white rounded-lg p-6 shadow-lg border border-white/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-brand-gold/20 flex items-center justify-center">
+                      <MessageSquare className="w-5 h-5 text-brand-gold" />
+                    </div>
+                    <h3 className="font-amiri text-xl">
+                      {t(lang, 'هل لديك استفسار؟', 'Have a question?')}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-gray-300 mb-6 leading-relaxed">
+                    {t(
+                      lang,
+                      'تواصل مع فريقنا للحصول على استشارة مخصصة حول هذه الخدمة وكيف يمكننا مساعدتك.',
+                      'Reach out to our team for a customized consultation regarding this service and how we can help you.'
+                    )}
+                  </p>
+                  <button
+                    onClick={scrollToForm}
+                    className="w-full border border-brand-gold/40 cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+                  >
+                    <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-gold transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                    <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-gold text-[#030a12] flex-shrink-0">
+                      <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
+                    </span>
+                    <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">
+                    {t(lang, 'تواصل معنا', 'Contact Us')}
+                    </span>
+                  </button>
+                </div>
+              </aside>
+
             </div>
           </section>
         </>

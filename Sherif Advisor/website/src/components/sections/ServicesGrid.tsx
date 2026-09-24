@@ -67,7 +67,6 @@ export function ServicesGrid() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // CMS-backed heading/eyebrow/intro/CTA (falls back to hardcoded copy).
   const section = useV2Section('services', lang);
 
   useEffect(() => {
@@ -139,13 +138,13 @@ export function ServicesGrid() {
               <span className="flex items-center justify-center w-9 h-9 rounded-full border-2 border-white/30 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/10 group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
                 <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-colors group-hover:text-brand-gold" />
               </span>
-              {section.field('cta', 'استكشف خدماتنا', 'Explore Our Services')}
+              <span>{section.field('cta', 'استكشف خدماتنا', 'Explore Our Services')}</span>
             </Link>
           </div>
         </div>
 
-        {/* Services Grid — borderless, separated by gap */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+        {/* Services Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3">
           {servicesData.map((service, index) => (
             <Link
               key={index}
@@ -153,21 +152,22 @@ export function ServicesGrid() {
               style={{ 
                 transitionDelay: isVisible ? `${index * 100}ms` : '0ms'
               }}
-              className={`group border-l px-4 py-4 flex flex-col gap-2 transition-all duration-500 ease-out hover:bg-white/5
-                ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+              className={`group border-s px-4 py-4 flex flex-col gap-2 transition-all duration-500 ease-out hover:bg-white/5 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+              }`}
             >
               <span className="text-xs text-gray-400 font-normal">
                 {service.num}
               </span>
               <svg 
-                className="icon-anim w-9 h-9 text-white transition-all duration-300 ease-out group-hover:text-brand-gold group-hover:scale-110 group-hover:-translate-y-0.5" 
+                className="w-9 h-9 text-white transition-all duration-300 ease-out group-hover:text-brand-gold group-hover:scale-110 group-hover:-translate-y-0.5" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
               >
                 {service.icon}
               </svg>
-              <h3 className="text-[13px] font-medium leading-snug text-white whitespace-pre-line origin-left rtl:origin-right transition-all duration-300 ease-out group-hover:scale-110 group-hover:text-brand-gold">
+              <h3 className="text-[13px] font-medium leading-snug text-white whitespace-pre-line origin-start transition-all duration-300 ease-out group-hover:scale-110 group-hover:text-brand-gold">
                 {t(lang, service.titleAr, service.titleEn)}
               </h3>
               <span className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white/30 text-gray-400 transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold/10 group-hover:text-brand-gold group-hover:translate-x-1 rtl:group-hover:-translate-x-1">
