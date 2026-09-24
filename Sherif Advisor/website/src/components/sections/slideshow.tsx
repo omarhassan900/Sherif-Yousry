@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Play, XCircle, ArrowRight, ArrowDown, BarChart2, ShieldCheck, Globe2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Play, XCircle, ArrowRight, ArrowDown, BarChart2, ShieldCheck, Globe2, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 import { ScrollProgress } from '@/components/effects/ScrollProgress';
 import { useV2Section } from '@/lib/use-v2-section';
@@ -197,8 +197,8 @@ export function Hero() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full pt-32 pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-10 items-center">
 
-            {/* Left column - Keyed by currentSlide to re-trigger entrance animations */}
-            <div key={currentSlide} className="space-y-6">
+            {/* Left column - text is STATIC, only background images cycle */}
+            <div className="space-y-6">
               {/* Eyebrow */}
               <div
                 className="font-mono text-sm tracking-[0.3em] text-brand-gold"
@@ -231,19 +231,19 @@ export function Hero() {
               <div className="flex flex-wrap gap-4" style={{ animation: 'heroFadeUp 0.8s ease 0.8s both' }}>
                 <Link
                   href={slides[currentSlide].ctaPrimary.href}
-                  className="bg-white border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+                  className="border border-brand-gold/40 cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
-                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-navy transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
-                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-navy text-white flex-shrink-0">
+                  <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-gold transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                  <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-gold text-[#030a12] flex-shrink-0">
                     <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
                   </span>
-                  <span className="relative z-10 text-[#030a12] transition-colors duration-300 group-hover:text-white">
+                  <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">
                     {slides[currentSlide].ctaPrimary.text}
                   </span>
                 </Link>
                 <Link
                   href={slides[currentSlide].ctaSecondary.href}
-                  className="border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+                  className="border border-white/30 cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
                 >
                   <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
                   <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-white text-[#030a12] flex-shrink-0">
@@ -256,9 +256,8 @@ export function Hero() {
               </div>
             </div>
 
-            {/* Right column — partner tag */}
+            {/* Right column — partner tag — also static */}
             <div
-              key={`right-${currentSlide}`}
               className="hidden lg:flex flex-col items-end justify-start pt-4"
               style={{ animation: 'heroFadeRight 0.8s ease 0.8s both' }}
             >
@@ -276,22 +275,42 @@ export function Hero() {
       {/* ── Bottom bar ── */}
       <div className="relative z-10 flex-shrink-0">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-4">
-          {/* Slide Indicators (Dots) */}
-          {slides.length > 1 && (
-            <div className="flex items-center gap-2">
-              {slides.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${
-                    index === currentSlide ? 'w-8 bg-brand-gold' : 'w-1.5 bg-white/30 hover:bg-white/60'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
-
+          {/* Slide dots + Scroll down */}
+          <div className="flex items-center gap-4">
+            {slides.length > 1 && (
+              <div className="flex items-center gap-2">
+                {slides.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`h-1.5 rounded-full transition-all duration-500 ${
+                      index === currentSlide ? 'w-8 bg-brand-gold' : 'w-1.5 bg-white/30 hover:bg-white/60'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+            {/* Scroll down — sits right after the dots */}
+            <button
+              onClick={() => {
+                const hero = document.getElementById('home');
+                const next = hero?.nextElementSibling as HTMLElement | null;
+                if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                else window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+              }}
+              className="flex items-center gap-2 group cursor-pointer focus:outline-none"
+              style={{ animation: 'heroFadeUp 0.8s ease 1.4s both' }}
+              aria-label="Scroll down"
+            >
+              <span className="text-[9px] font-bold tracking-[0.2em] text-gray-400 uppercase group-hover:text-brand-gold transition-colors duration-300">
+                {t(lang, 'للأسفل', 'SCROLL DOWN')}
+              </span>
+              <div style={{ animation: 'scrollArrowBounce 1.6s ease-in-out infinite' }}>
+                <ChevronDown className="w-4 h-4 text-brand-gold" />
+              </div>
+            </button>
+          </div>
           {/* Stats pills (Static, as they apply to the whole brand) */}
           <div className="flex items-center gap-4 lg:gap-6" style={{ animation: 'heroFadeUp 0.8s ease 1s both' }}>
             {[
@@ -390,6 +409,10 @@ export function Hero() {
         @keyframes heroFadeRight {
           from { opacity: 0; transform: translateX(30px); }
           to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes scrollArrowBounce {
+          0%, 100% { transform: translateY(0); }
+          50%      { transform: translateY(5px); }
         }
         .hero-ring {
           background: conic-gradient(

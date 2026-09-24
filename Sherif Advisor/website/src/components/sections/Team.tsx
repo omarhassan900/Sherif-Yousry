@@ -49,7 +49,7 @@ const getDistance = (index: number, active: number, total: number) => {
   return diff;
 };
 
-export function Team() {
+export function Team({ hideHeader = false }: { hideHeader?: boolean } = {}) {
   const [lang, setLang] = useState<Language>('en');
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);

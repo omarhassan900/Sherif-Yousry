@@ -439,3 +439,49 @@ html {
   background: #2d5a4a;
   border-radius: 4px;
 }
+
+/* ── Service detail rich-content ──────────────────────────────────────────── */
+.service-content { color: #374151; font-size: 15px; line-height: 1.8; }
+.service-content > * + * { margin-top: 1rem; }
+
+.service-content .service-lead { font-size: 18px; color: #4B5563; line-height: 1.6; margin-bottom: 1.5rem; font-style: italic; }
+
+.service-content .service-h2,
+.service-content h2 { font-family: Georgia, 'Times New Roman', serif; font-size: 1.6rem; font-weight: 400; color: #7A5A1E; line-height: 1.2; margin-top: 2.5rem; margin-bottom: 0.5rem; }
+
+.service-content .service-p,
+.service-content p { margin-bottom: 1rem; line-height: 1.8; color: #374151; }
+
+.service-content .service-strong,
+.service-content strong { color: #0B1726; font-weight: 700; }
+
+/* Steps grid */
+.service-content .service-steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; list-style: none; padding: 0; margin: 1rem 0; }
+@media (max-width: 640px) { .service-content .service-steps { grid-template-columns: 1fr; } }
+.service-content .service-step { border-top: 2px solid #D4B06A; padding-top: 1rem; display: flex; flex-direction: column; gap: 0.375rem; }
+.service-content .service-step-num { font-size: 11px; color: #7A5A1E; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+.service-content .service-step-title { font-size: 16px; font-weight: 700; color: #0B1726; }
+.service-content .service-step-body { font-size: 14px; color: #4B5563; line-height: 1.6; }
+
+/* Highlight box */
+.service-content .service-highlight { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+.service-content .service-highlight-title { font-size: 14px; font-weight: 700; color: #0B1726; }
+.service-content .service-highlight-body { font-size: 14px; color: #4B5563; line-height: 1.7; }
+
+/* FAQ accordion */
+.service-content .service-faq-list { display: flex; flex-direction: column; margin-top: 0.5rem; }
+.service-content .service-faq { border-top: 1px solid #E5E7EB; padding: 1rem 0; }
+.service-content .service-faq-q { font-size: 15px; font-weight: 600; color: #0B1726; cursor: pointer; list-style: none; }
+.service-content .service-faq-q::-webkit-details-marker { display: none; }
+.service-content .service-faq-a { margin-top: 0.75rem; font-size: 14px; color: #4B5563; line-height: 1.75; }
+.service-content details { border-top: 1px solid #E5E7EB; padding: 1rem 0; }
+.service-content summary { font-size: 15px; font-weight: 600; color: #0B1726; cursor: pointer; list-style: none; }
+.service-content summary::-webkit-details-marker { display: none; }
+.service-content details > p { margin-top: 0.75rem; font-size: 14px; color: #4B5563; }
+
+/* Closing quote */
+.service-content .service-closing { font-family: Georgia, serif; font-size: 1.2rem; color: #0B1726; line-height: 1.4; margin-top: 2rem; border-left: 4px solid #D4B06A; padding-left: 1.25rem; font-style: italic; }
+
+/* Dark highlight variant (dispute resolution CTA) */
+.service-content .service-highlight[style*="background:#081222"] .service-highlight-title { color: #fff !important; }
+.service-content .service-highlight[style*="background:#081222"] .service-highlight-body { color: #C9D1DC !important; }

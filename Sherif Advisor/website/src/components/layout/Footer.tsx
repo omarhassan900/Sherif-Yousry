@@ -36,12 +36,14 @@ function FooterModern() {
     typeof window !== 'undefined' && window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const quickLinks = [
-    { href: '/#services', label: 'Services' },
-    { href: '/#markets', label: 'Markets' },
-    { href: '/knowledge', label: 'Insights' },
-    { href: '/#packages', label: 'Packages' },
-    { href: '/about', label: 'About Us' },
-    { href: '/contact', label: 'Contact Us' },
+    { href: '/#services',   label: 'Services' },
+    { href: '/#markets',    label: 'Markets' },
+    { href: '/knowledge',   label: 'Insights' },
+    { href: '/#packages',   label: 'Packages' },
+    { href: '/events',      label: 'Events' },
+    { href: '/trainings',   label: 'Trainings' },
+    { href: '/about',       label: 'About Us' },
+    { href: '/contact',     label: 'Contact Us' },
   ];
 
   return (
