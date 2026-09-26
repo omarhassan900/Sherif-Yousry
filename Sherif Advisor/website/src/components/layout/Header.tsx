@@ -8,7 +8,7 @@ import {
   Menu, X, Globe, Search, Map, User, FileText, BarChart2, 
   Briefcase, Users, Shield, Calculator, ShoppingCart, ChevronRight,
   Building2, Layers, Gem, Crown,
-  Globe2, MapPin, Newspaper, BookOpen, Users2, Award, Scale, TrendingUp, type LucideIcon,
+  Globe2, MapPin, Newspaper, BookOpen, Users2, Award, type LucideIcon,
 } from 'lucide-react';
 import { getClientLanguage, setLanguagePreference, type Language } from '@/lib/language';
 import { SearchOverlay } from '@/components/v2/SearchOverlay';
@@ -25,15 +25,17 @@ const navItems = [
   { href: '/about',      labelAr: 'من نحن',      labelEn: 'About Us',   id: 'about' },
 ];
 
-// A CMS service item (from /api/content/services).
 interface CmsService {
   id: string;
   title: string;
-  metadata?: { icon?: string };
+  metadata?: { 
+    icon?: string; 
+    serviceType?: string; 
+    displayOrder?: number; 
+    categorySlug?: string;
+  };
 }
 
-// Category definitions. Real services (from the CMS) are matched into these
-// by keywords in their title — no hardcoded/fake services.
 const serviceCategories = [
   {
     id: 'tax-compliance',
@@ -61,12 +63,10 @@ const serviceCategories = [
   },
 ];
 
-// Lucide icons the CMS may reference, plus a sensible default per category.
 const SERVICE_ICON_MAP: Record<string, typeof FileText> = {
   Briefcase, Building2, Shield, FileText, BarChart2, Users, Calculator, ShoppingCart,
 };
 
-// ─── Mega-menu content (Apollo-style: intro | links | featured card) ─────────
 interface MegaLink {
   href: string;
   labelAr: string;
@@ -117,8 +117,7 @@ const MEGA_MENUS: Record<string, MegaMenu> = {
     introDescAr: 'حضور وخبرة تمتد عبر الأسواق المحلية والإقليمية والدولية.',
     introDescEn: 'Presence and expertise spanning local, regional, and international markets.',
     ctaHref: '/#markets',
-    links: [
-    ],
+    links: [],
     feature: {
       href: '/#markets',
       image: '/images/markets-map.jpeg',
@@ -134,11 +133,10 @@ const MEGA_MENUS: Record<string, MegaMenu> = {
     introDescAr: 'مقالات وتحليلات تساعدك على اتخاذ قرارات أعمال أفضل.',
     introDescEn: 'Articles and analysis to help you make better business decisions.',
     ctaHref: '/knowledge',
-    // ✅ UPDATED: Replaced with specific alert categories
     links: [
-      { href: '/knowledge?category=tax', labelAr: 'تنبيهات ضريبية', labelEn: 'TAX ALERTS', icon: FileText },
-      { href: '/knowledge?category=legal', labelAr: 'تنبيهات قانونية', labelEn: 'LEGAL ALERTS', icon: Shield },
-      { href: '/knowledge?category=financial', labelAr: 'تنبيهات مالية', labelEn: 'FINANCIAL ALERTS', icon: BarChart2 },
+      { href: '/knowledge', labelAr: 'تنبيهات ضريبية', labelEn: 'Tax Alerts', icon: Calculator  },
+      { href: '/knowledge', labelAr: 'تنبيهات قانونية', labelEn: 'Legal Alerts', icon: BookOpen },
+      { href: '/knowledge', labelAr: 'تنبيهات مالية', labelEn: 'Financial Alerts', icon: Building2 },
     ],
     feature: {
       href: '/knowledge',
@@ -207,14 +205,14 @@ export function Header() {
     };
   }, [lang, isMounted]);
 
-  const groupedServices = serviceCategories
-    .map((cat) => ({
-      ...cat,
-      items: cmsServices.filter((svc) =>
-        cat.match.some((kw) => (svc.title || '').toLowerCase().includes(kw))
-      ),
-    }))
-    .filter((cat) => cat.items.length > 0);
+  // ✅ FIX: Check if explicit categories exist. If not, fallback to ALL services.
+  const hasCategories = cmsServices.some((svc) => svc.metadata?.serviceType === 'category');
+
+  const menuServices = hasCategories
+    ? cmsServices
+        .filter((svc) => svc.metadata?.serviceType === 'category')
+        .sort((a, b) => (a.metadata?.displayOrder ?? 99) - (b.metadata?.displayOrder ?? 99))
+    : cmsServices.sort((a, b) => (a.metadata?.displayOrder ?? 99) - (b.metadata?.displayOrder ?? 99));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -294,11 +292,10 @@ export function Header() {
         showWhiteBg ? 'bg-white/95 shadow-lg py-4' : 'bg-transparent py-6'
       }`}
     >
-      <div className="max-w-[1400px] mx-auto flex items-center justify-between">
+      <div className="max-w-[1400px] ml-16  flex items-center justify-between">
         
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-4 group mr-8">
-          <div className="relative w-14 h-14 lg:w-32 lg:h-16">
+        <Link href="/" className="flex items-center gap-6 group">
+          <div className="relative w-32 h-16 lg:w-32 lg:h-16">
             <Image
               src="/images/logo.png"
               alt="Sherif Yousry Advisory"
@@ -311,7 +308,6 @@ export function Header() {
           </div>
         </Link>
 
-        {/* Desktop Navigation with Mega Menu */}
         <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
           {navItems.map((item) => {
             const active = isActive(item);
@@ -319,6 +315,11 @@ export function Header() {
             const itemHasMenu = hasMenu(item.id);
             const isOpen = openMenu === item.id;
             const mega = MEGA_MENUS[item.id];
+
+            // ✅ FIX: Show middle column if menuServices has items OR if mega.links has items
+            const showMiddleColumn = isServices 
+              ? menuServices.length > 0 
+              : (mega?.links?.length ?? 0) > 0;
 
             return (
               <div
@@ -359,163 +360,148 @@ export function Header() {
 
                 {itemHasMenu && isOpen && (
                   <div 
-                    className={`fixed top-24 left-1/2 -translate-x-1/2 w-[920px] max-w-[94vw] rounded-lg shadow-2xl overflow-hidden transition-all duration-300 ${
+                    // ✅ FIX: Dynamic width based on whether middle column is shown
+                    className={`fixed top-24 left-1/2 -translate-x-1/2 rounded-lg shadow-2xl overflow-hidden transition-all duration-300 ${
                       showWhiteBg ? 'bg-white border border-gray-200' : 'bg-[#030a12] border border-white/10'
-                    }`}
+                    } ${showMiddleColumn ? 'w-[920px] max-w-[94vw]' : 'w-[520px] max-w-[90vw]'}`}
                     onMouseEnter={() => openMenuById(item.id)}
                     onMouseLeave={closeMenu}
                   >
-                    {/* ✅ CONDITIONAL GRID: Adjusts columns based on whether middle links exist */}
-                    {(() => {
-                      const showMiddleColumn = isServices ? true : (mega.links && mega.links.length > 0);
-                      return (
-                        <div className={`grid ${showMiddleColumn ? 'grid-cols-[240px_1fr_260px]' : 'grid-cols-[240px_1fr]'}`}>
-                          {/* Left — intro column */}
-                          <div className={`p-6 flex flex-col ${showMiddleColumn ? (showWhiteBg ? 'border-r border-gray-200' : 'border-r border-white/10') : ''}`}>
-                            <h3 className={`font-serif text-xl mb-3 ${showWhiteBg ? 'text-[#030a12]' : 'text-white'}`}>
-                              {isServices
-                                ? t(lang, 'الخدمات', 'Services')
-                                : t(lang, mega.introTitleAr, mega.introTitleEn)}
-                            </h3>
-                            <p className={`text-xs leading-relaxed mb-6 ${showWhiteBg ? 'text-gray-600' : 'text-gray-400'}`}>
-                              {isServices
-                                ? t(
-                                    lang,
-                                    'خدمات استشارية وإدارية متكاملة تجمع بين الخبرة الفنية العميقة والفهم العملي للأعمال.',
-                                    'End-to-end advisory and business management services, combining deep technical expertise with practical business understanding.'
-                                  )
-                                : t(lang, mega.introDescAr, mega.introDescEn)}
-                            </p>
-                            <Link
-                              href={isServices ? '/services' : mega.ctaHref}
-                              className="inline-flex items-center gap-2 self-start rounded-full bg-brand-gold text-[#030a12] px-5 py-2.5 text-xs font-bold tracking-wider uppercase hover:bg-brand-gold/90 transition-colors mt-auto"
-                            >
-                              {t(lang, 'استكشف', 'Explore')}
-                              <span className="rtl:rotate-180">→</span>
-                            </Link>
-                          </div>
+                    {/* ✅ FIX: Dynamic grid columns */}
+                    <div className={`grid ${showMiddleColumn ? 'grid-cols-[240px_1fr_260px]' : 'grid-cols-[240px_260px]'}`}>
+                      <div className={`p-6 flex flex-col ${showMiddleColumn ? (showWhiteBg ? 'border-r border-gray-200' : 'border-r border-white/10') : ''}`}>
+                        <h3 className={`font-serif text-xl mb-3 ${showWhiteBg ? 'text-[#030a12]' : 'text-white'}`}>
+                          {isServices
+                            ? t(lang, 'الخدمات', 'Services')
+                            : t(lang, mega.introTitleAr, mega.introTitleEn)}
+                        </h3>
+                        <p className={`text-xs leading-relaxed mb-6 ${showWhiteBg ? 'text-gray-600' : 'text-gray-400'}`}>
+                          {isServices
+                            ? t(
+                                lang,
+                                'خدمات استشارية وإدارية متكاملة تجمع بين الخبرة الفنية العميقة والفهم العملي للأعمال.',
+                                'End-to-end advisory and business management services, combining deep technical expertise with practical business understanding.'
+                              )
+                            : t(lang, mega.introDescAr, mega.introDescEn)}
+                        </p>
+                        <Link
+                          href={isServices ? '/services' : mega.ctaHref}
+                          className="inline-flex items-center gap-2 self-start rounded-full bg-brand-gold text-[#030a12] px-5 py-2.5 text-xs font-bold tracking-wider uppercase hover:bg-brand-gold/90 transition-colors mt-auto"
+                        >
+                          {t(lang, 'استكشف', 'Explore')}
+                          <span className="rtl:rotate-180">→</span>
+                        </Link>
+                      </div>
 
-                          {/* ✅ Middle — links (ONLY rendered if links exist) */}
-                          {showMiddleColumn && (
-                            <div className="p-6">
-                              {isServices ? (
-                                <>
-                                  <div className="grid grid-cols-2 gap-x-5 gap-y-4">
-                                    {groupedServices.map((cat) => (
-                                      <div key={cat.id} className="flex flex-col">
-                                        <div className="flex items-center gap-2 pb-2 mb-1 border-b border-brand-gold/30">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-brand-gold" />
-                                          <h4 className="text-[11px] font-bold tracking-wide uppercase text-brand-gold">
-                                            {t(lang, cat.categoryAr, cat.categoryEn)}
-                                          </h4>
-                                        </div>
-                                        {cat.items.map((service) => {
-                                          const Icon = service.metadata?.icon
-                                            ? SERVICE_ICON_MAP[service.metadata.icon]
-                                            : undefined;
-                                          return (
-                                            <Link
-                                              key={service.id}
-                                              href={`/services/${service.id}`}
-                                              className={`flex items-center justify-between gap-2 px-2 py-1.5 rounded-md transition-all duration-200 group/item ${
-                                                showWhiteBg ? 'hover:bg-gray-50' : 'hover:bg-white/5'
-                                              }`}
-                                            >
-                                              <span className="flex items-center gap-2.5">
-                                                {Icon && (
-                                                  <Icon className={`w-4 h-4 flex-shrink-0 transition-colors ${
-                                                    showWhiteBg ? 'text-gray-400 group-hover/item:text-brand-gold' : 'text-gray-500 group-hover/item:text-brand-gold'
-                                                  }`} />
-                                                )}
-                                                <span className={`text-xs font-medium transition-colors ${
-                                                  showWhiteBg ? 'text-gray-800 group-hover/item:text-brand-gold' : 'text-gray-200 group-hover/item:text-brand-gold'
-                                                }`}>
-                                                  {service.title}
-                                                </span>
-                                              </span>
-                                              <ChevronRight className={`w-3.5 h-3.5 shrink-0 opacity-0 -translate-x-1 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 rtl:rotate-180 ${
-                                                showWhiteBg ? 'text-gray-400' : 'text-gray-500'
-                                              }`} />
-                                            </Link>
-                                          );
-                                        })}
-                                      </div>
-                                    ))}
-                                  </div>
-                                  <div className={`mt-5 pt-4 border-t ${showWhiteBg ? 'border-gray-200' : 'border-white/10'}`}>
-                                    <Link href="/services" className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-brand-gold hover:text-brand-gold/80 transition-colors">
-                                      {t(lang, 'عرض جميع الخدمات', 'VIEW ALL SERVICES')}
-                                      <span className="transition-transform group-hover:translate-x-1 rtl:rotate-180">→</span>
-                                    </Link>
-                                  </div>
-                                </>
-                              ) : (
-                                <div className="flex flex-col justify-center h-full gap-1">
-                                  {mega.links.map((link) => {
-                                    const Icon = link.icon;
-                                    return (
-                                      <Link
-                                        key={`${link.href}-${link.labelEn}`}
-                                        href={link.href}
-                                        className={`flex items-center justify-between gap-2 px-3 py-3 rounded-md transition-all duration-200 group/item ${
-                                          showWhiteBg ? 'hover:bg-gray-50' : 'hover:bg-white/5'
-                                        }`}
-                                      >
-                                        <span className="flex items-center gap-3">
-                                          {Icon && (
-                                            <Icon className={`w-5 h-5 flex-shrink-0 transition-colors ${
-                                              showWhiteBg ? 'text-gray-400 group-hover/item:text-brand-gold' : 'text-gray-500 group-hover/item:text-brand-gold'
-                                            }`} />
-                                          )}
-                                          <span className={`text-sm font-medium transition-colors ${
-                                            showWhiteBg ? 'text-gray-800 group-hover/item:text-brand-gold' : 'text-gray-200 group-hover/item:text-brand-gold'
-                                          }`}>
-                                            {t(lang, link.labelAr, link.labelEn)}
-                                          </span>
+                      {/* ✅ FIX: Render middle column using menuServices */}
+                      {showMiddleColumn && (
+                        <div className="p-6">
+                          {isServices ? (
+                            <>
+                              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                {menuServices.map((svc) => {
+                                  const Icon = svc.metadata?.icon
+                                    ? SERVICE_ICON_MAP[svc.metadata.icon]
+                                    : undefined;
+                                  return (
+                                    <Link
+                                      key={svc.id}
+                                      href={`/services/${svc.metadata?.categorySlug ?? svc.id}`}
+                                      onClick={() => { setOpenMenu(null); }}
+                                      className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-md transition-all duration-200 group/item ${
+                                        showWhiteBg ? 'hover:bg-gray-50' : 'hover:bg-white/5'
+                                      }`}
+                                    >
+                                      <span className="flex items-center gap-2.5">
+                                        {Icon && (
+                                          <Icon className={`w-4 h-4 flex-shrink-0 transition-colors ${
+                                            showWhiteBg ? 'text-gray-400 group-hover/item:text-brand-gold' : 'text-gray-500 group-hover/item:text-brand-gold'
+                                          }`} />
+                                        )}
+                                        <span className={`text-xs font-medium transition-colors leading-snug ${
+                                          showWhiteBg ? 'text-gray-800 group-hover/item:text-brand-gold' : 'text-gray-200 group-hover/item:text-brand-gold'
+                                        }`}>
+                                          {svc.title}
                                         </span>
-                                        <ChevronRight className={`w-4 h-4 shrink-0 opacity-0 -translate-x-1 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 rtl:rotate-180 ${
-                                          showWhiteBg ? 'text-gray-400' : 'text-gray-500'
+                                      </span>
+                                      <ChevronRight className={`w-3.5 h-3.5 shrink-0 opacity-0 -translate-x-1 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 rtl:rotate-180 ${
+                                        showWhiteBg ? 'text-gray-400' : 'text-gray-500'
+                                      }`} />
+                                    </Link>
+                                  );
+                                })}
+                              </div>
+                              <div className={`mt-4 pt-4 border-t ${showWhiteBg ? 'border-gray-200' : 'border-white/10'}`}>
+                                <Link href="/services" className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-brand-gold hover:text-brand-gold/80 transition-colors">
+                                  {t(lang, 'عرض جميع الخدمات', 'VIEW ALL SERVICES')}
+                                  <span className="rtl:rotate-180">→</span>
+                                </Link>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="flex flex-col justify-center h-full gap-1">
+                              {mega.links.map((link) => {
+                                const Icon = link.icon;
+                                return (
+                                  <Link
+                                    key={`${link.href}-${link.labelEn}`}
+                                    href={link.href}
+                                    className={`flex items-center justify-between gap-2 px-3 py-3 rounded-md transition-all duration-200 group/item ${
+                                      showWhiteBg ? 'hover:bg-gray-50' : 'hover:bg-white/5'
+                                    }`}
+                                  >
+                                    <span className="flex items-center gap-3">
+                                      {Icon && (
+                                        <Icon className={`w-5 h-5 flex-shrink-0 transition-colors ${
+                                          showWhiteBg ? 'text-gray-400 group-hover/item:text-brand-gold' : 'text-gray-500 group-hover/item:text-brand-gold'
                                         }`} />
-                                      </Link>
-                                    );
-                                  })}
-                                </div>
-                              )}
+                                      )}
+                                      <span className={`text-sm font-medium transition-colors ${
+                                        showWhiteBg ? 'text-gray-800 group-hover/item:text-brand-gold' : 'text-gray-200 group-hover/item:text-brand-gold'
+                                      }`}>
+                                        {t(lang, link.labelAr, link.labelEn)}
+                                      </span>
+                                    </span>
+                                    <ChevronRight className={`w-4 h-4 shrink-0 opacity-0 -translate-x-1 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 rtl:rotate-180 ${
+                                      showWhiteBg ? 'text-gray-400' : 'text-gray-500'
+                                    }`} />
+                                  </Link>
+                                );
+                              })}
                             </div>
                           )}
-
-                          {/* Right — featured card with image */}
-                          <Link
-                            href={isServices ? '/services' : mega.feature.href}
-                            className="relative m-4 rounded-lg overflow-hidden group/feat min-h-[220px] flex flex-col justify-end"
-                          >
-                            <Image
-                              src={isServices ? '/images/Bussniess.jpeg' : mega.feature.image}
-                              alt=""
-                              fill
-                              className="object-cover transition-transform duration-500 group-hover/feat:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#030a12]/90 via-[#030a12]/40 to-transparent" />
-                            <div className="relative p-4">
-                              <h4 className="text-white font-serif text-base leading-snug mb-1.5">
-                                {isServices
-                                  ? t(lang, 'استشارات الأعمال المتكاملة', 'Integrated Business Advisory')
-                                  : t(lang, mega.feature.titleAr, mega.feature.titleEn)}
-                              </h4>
-                              <p className="text-gray-300 text-[11px] leading-relaxed">
-                                {isServices
-                                  ? t(
-                                      lang,
-                                      'حلول عملية تدعم نمو أعمالك واستدامتها في الأسواق المحلية والدولية.',
-                                      'Practical solutions that support your business growth and resilience across local and international markets.'
-                                    )
-                                  : t(lang, mega.feature.descAr, mega.feature.descEn)}
-                              </p>
-                            </div>
-                          </Link>
                         </div>
-                      );
-                    })()}
+                      )}
+
+                      <Link
+                        href={isServices ? '/services' : mega.feature.href}
+                        className="relative m-4 rounded-lg overflow-hidden group/feat min-h-[220px] flex flex-col justify-end"
+                      >
+                        <Image
+                          src={isServices ? '/images/Bussniess.jpeg' : mega.feature.image}
+                          alt=""
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover/feat:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#030a12]/90 via-[#030a12]/40 to-transparent" />
+                        <div className="relative p-4">
+                          <h4 className="text-white font-serif text-base leading-snug mb-1.5">
+                            {isServices
+                              ? t(lang, 'استشارات الأعمال المتكاملة', 'Integrated Business Advisory')
+                              : t(lang, mega.feature.titleAr, mega.feature.titleEn)}
+                          </h4>
+                          <p className="text-gray-300 text-[11px] leading-relaxed">
+                            {isServices
+                              ? t(
+                                  lang,
+                                  'حلول عملية تدعم نمو أعمالك واستدامتها في الأسواق المحلية والدولية.',
+                                  'Practical solutions that support your business growth and resilience across local and international markets.'
+                                )
+                              : t(lang, mega.feature.descAr, mega.feature.descEn)}
+                          </p>
+                        </div>
+                      </Link>
+                    </div>
                   </div>
                 )}
               </div>
@@ -523,7 +509,6 @@ export function Header() {
           })}
         </nav>
 
-        {/* Right Actions: Icon Buttons (Desktop) */}
         <div className="hidden lg:flex items-center gap-3">
           <button 
             onClick={toggleLanguage}
@@ -542,14 +527,10 @@ export function Header() {
           >
             <Search className="w-4 h-4" />
           </button>
-        
-          <Link href="/admin/login" className={`${iconBtnClass} w-11 h-11`} aria-label="Login">
-            <User className="w-4 h-4" />
-          </Link>
         </div>
+
       </div>
 
-      {/* Mobile floating pill (bottom-center): search | menu */}
       {!isMenuOpen && (
         <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[90]">
           <div className="flex items-center gap-1 rounded-full bg-brand-navy/95 backdrop-blur-md border border-white/10 shadow-xl shadow-black/30 px-2 py-1.5">
@@ -574,7 +555,6 @@ export function Header() {
         </div>
       )}
 
-      {/* FULL-SCREEN MOBILE MENU */}
       {isMenuOpen && (
         <div
           className="lg:hidden fixed inset-0 z-[100] overflow-y-auto"
@@ -599,7 +579,7 @@ export function Header() {
 
           <div className="flex items-center justify-between px-6 py-5">
             <Link href="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3">
-              <div className="relative w-11 h-11">
+              <div className="relative w-40 h-16">
                 <Image
                   src="/images/logo.png"
                   alt="Sherif Yousry Advisory"
@@ -607,10 +587,6 @@ export function Header() {
                   className="object-contain"
                   priority
                 />
-              </div>
-              <div>
-                <h3 className="text-white font-serif text-base tracking-wide">SHERIF YOUSRY</h3>
-                <p className="text-gray-400 text-[10px] tracking-[0.2em] uppercase">ADVISORY</p>
               </div>
             </Link>
 
@@ -683,32 +659,24 @@ export function Header() {
                   {itemHasMenu && isOpen && (
                     <div className="pb-3 ps-2 space-y-4" style={{ animation: 'slideDown 0.3s ease' }}>
                       {isServices ? (
-                        groupedServices.map((cat) => (
-                          <div key={cat.id}>
-                            <div className="flex items-center gap-2 py-1.5 border-b border-brand-gold/30 mb-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-brand-gold" />
-                              <span className="text-xs font-bold tracking-wide uppercase text-brand-gold">
-                                {t(lang, cat.categoryAr, cat.categoryEn)}
-                              </span>
-                            </div>
-                            {cat.items.map((service) => {
-                              const Icon = service.metadata?.icon
-                                ? SERVICE_ICON_MAP[service.metadata.icon]
-                                : undefined;
-                              return (
-                                <Link
-                                  key={service.id}
-                                  href={`/services/${service.id}`}
-                                  className="flex items-center gap-3 py-2.5 ps-3 text-sm text-gray-300 hover:text-brand-gold transition-colors"
-                                  onClick={() => setIsMenuOpen(false)}
-                                >
-                                  {Icon && <Icon className="w-4 h-4 shrink-0" />}
-                                  {service.title}
-                                </Link>
-                              );
-                            })}
-                          </div>
-                        ))
+                        <div className="grid grid-cols-2 gap-1">
+                          {menuServices.map((svc) => {
+                            const Icon = svc.metadata?.icon
+                              ? SERVICE_ICON_MAP[svc.metadata.icon]
+                              : undefined;
+                            return (
+                              <Link
+                                key={svc.id}
+                                href={`/services#${svc.metadata?.categorySlug ?? svc.id}`}
+                                className="flex items-center gap-2 py-2 ps-2 text-sm text-gray-300 hover:text-brand-gold transition-colors rounded-md hover:bg-white/5"
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                {Icon && <Icon className="w-4 h-4 shrink-0 text-brand-gold" />}
+                                <span className="text-xs leading-snug">{svc.title}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
                       ) : (
                         <>
                           {mega.links.map((link) => {

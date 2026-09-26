@@ -132,7 +132,7 @@ export default function ServiceDetailPage() {
       ) : (
         <>
           {/* Hero */}
-          <div className="bg-brand-navy py-16 lg:py-20">
+          <div className="bg-brand-navy py-16 lg:py-24">
             <div className="max-w-7xl mx-auto px-6 lg:px-8">
               <Link href="/services" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-brand-gold transition-colors mb-6">
                 {lang === 'ar' ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
