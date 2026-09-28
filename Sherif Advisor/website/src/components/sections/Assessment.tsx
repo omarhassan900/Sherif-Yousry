@@ -16,7 +16,7 @@ const t = (lang: Language, ar: React.ReactNode, en: React.ReactNode): React.Reac
   lang === 'ar' ? ar : en;
 
 export function Assessment() {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
   const [langReady, setLangReady] = useState(false);
   const [vis, setVis] = useState(false);
   const [cms, setCms] = useState<{ title: string; body: string } | null>(null);

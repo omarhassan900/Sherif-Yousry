@@ -57,7 +57,7 @@ function StatItem({ value, suffix, labelAr, labelEn, lang }: {
 }
 
 export function Stats() {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
   const [langReady, setLangReady] = useState(false);
   const [heading, setHeading] = useState<{ title: string; body: string } | null>(null);
 

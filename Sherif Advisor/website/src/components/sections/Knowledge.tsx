@@ -50,7 +50,7 @@ const tabs = [
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export function Knowledge() {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [currentSlide, setCurrentSlide] = useState(0);

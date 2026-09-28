@@ -28,17 +28,12 @@ interface Article {
 const CATEGORIES_AR = ['الكل', 'قانوني', 'ضريبي', 'مالي'];
 const CATEGORIES_EN = ['All', 'Legal', 'Tax', 'Financial'];
 
-// ✅ Helper to get initial language safely for SSR/CSR match
-// Returns 'ar' on the server, and the detected language on the client.
-// This prevents the "Server: ar, Client: en" hydration mismatch.
-const getInitialLang = (): Language => {
-  if (typeof window === 'undefined') return 'ar';
-  return getClientLanguage();
-};
+// ✅ Use 'en' as the SSR default — matches DEFAULT_LANGUAGE in language.ts
+// so server & client initial renders always agree.
+const SSR_DEFAULT_LANG: Language = 'en';
 
 export default function KnowledgePage() {
-  // 1. Initialize with a function to ensure Server and Client initial render match
-  const [lang, setLang] = useState<Language>(getInitialLang);
+  const [lang, setLang] = useState<Language>(SSR_DEFAULT_LANG);
   const [isMounted, setIsMounted] = useState(false);
   
   const [articles, setArticles] = useState<Article[]>([]);
@@ -48,14 +43,11 @@ export default function KnowledgePage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 2. After mount, confirm the language (in case client lang differs from default)
+  // 2. After mount, update to the real client language (no dependency on lang to avoid loops)
   useEffect(() => {
     setIsMounted(true);
-    const detectedLang = getClientLanguage();
-    if (detectedLang !== lang) {
-      setLang(detectedLang);
-    }
-  }, [lang]);
+    setLang(getClientLanguage());
+  }, []);
 
   const categories = lang === 'ar' ? CATEGORIES_AR : CATEGORIES_EN;
 

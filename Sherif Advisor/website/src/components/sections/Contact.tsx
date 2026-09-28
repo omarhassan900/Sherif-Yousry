@@ -14,7 +14,7 @@ interface ServiceOption {
 }
 
 export function Contact() {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

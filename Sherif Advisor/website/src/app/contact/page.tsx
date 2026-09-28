@@ -16,7 +16,7 @@ interface SectionContent {
 
 export default function ContactPage() {
   const [contactInfo, setContactInfo] = useState<SectionContent | null>(null);
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
   const [langReady, setLangReady] = useState(false);
 
   useEffect(() => {

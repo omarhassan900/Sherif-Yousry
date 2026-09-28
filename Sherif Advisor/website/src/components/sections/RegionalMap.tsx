@@ -32,7 +32,7 @@ const countryData = {
 type CountryKey = keyof typeof countryData;
 
 export function RegionalMap() {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
   const [langReady, setLangReady] = useState(false);
   
   // 1. State for active country (starts null, updated by useEffect)

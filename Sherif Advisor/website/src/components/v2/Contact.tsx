@@ -9,7 +9,7 @@ import { useV2Section } from '@/lib/use-v2-section';
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export function Contact() {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
 
   // CMS-backed content (falls back to the hardcoded copy).
   const section = useV2Section('contact', lang);

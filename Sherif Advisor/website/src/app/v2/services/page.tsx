@@ -116,7 +116,7 @@ function categorize(services: ServiceItem[]) {
 export default function ServicesV2Page() {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
   const [langReady, setLangReady] = useState(false);
 
   useEffect(() => {

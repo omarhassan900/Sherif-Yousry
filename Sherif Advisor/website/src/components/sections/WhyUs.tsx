@@ -78,7 +78,7 @@ function Card({ reason, lang, delay }: { reason: typeof reasons[0]; lang: Langua
 }
 
 export function WhyUs() {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
   const [langReady, setLangReady] = useState(false);
   const [cms, setCms] = useState<{ label: string; title: string } | null>(null);
 

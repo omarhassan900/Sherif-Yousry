@@ -109,7 +109,7 @@ function ArticleCard({ item, lang, delay }: { item: typeof fallback[0]; lang: La
 }
 
 export function Knowledge() {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   

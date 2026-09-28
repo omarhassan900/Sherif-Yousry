@@ -9,7 +9,7 @@ import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 export default function TermsPage() {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
 
   useEffect(() => {
     setLang(getClientLanguage());

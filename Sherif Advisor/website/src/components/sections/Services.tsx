@@ -122,7 +122,7 @@ function ServiceCard({
 }
 
 export function Services() {
-  const [lang, setLang] = useState<Language>('ar');
+  const [lang, setLang] = useState<Language>('en');
   const [langReady, setLangReady] = useState(false);
   const [cmsServices, setCmsServices] = useState<CmsService[]>([]);
   const [loaded, setLoaded] = useState(false);
