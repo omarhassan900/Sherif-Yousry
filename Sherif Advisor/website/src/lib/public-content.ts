@@ -218,13 +218,15 @@ export async function getPublishedServiceById(
 /**
  * Get published events with pagination, sorted by start date ascending (upcoming first).
  * Optionally filters by category (e.g., 'workshop', 'seminar', 'webinar', 'conference').
+ * Optionally filters by eventType ('event' | 'training') stored in metadata.eventType.
  */
 export async function getPublishedEvents(
   lang: Language,
   page: number = 1,
-  category?: string
+  category?: string,
+  pageSize: number = 50,
+  eventType?: string
 ): Promise<PaginatedPublicResult> {
-  const pageSize = 12; // Typical grid size for events
 
   const allEvents = await prisma.contentItem.findMany({
     where: {
@@ -241,9 +243,16 @@ export async function getPublishedEvents(
       return false;
     }
 
-    // Check category filter (e.g., 'workshop', 'seminar')
+    // Filter by category if provided
     if (category && meta.category !== category) {
       return false;
+    }
+
+    // Filter by eventType ('event' | 'training') if provided.
+    // Items with no eventType set are treated as 'event' for backward compatibility.
+    if (eventType) {
+      const itemEventType = (meta.eventType as string | undefined) || 'event';
+      if (itemEventType !== eventType) return false;
     }
 
     return true;

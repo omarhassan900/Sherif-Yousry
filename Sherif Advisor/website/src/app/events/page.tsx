@@ -94,8 +94,14 @@ export default function EventsPage() {
         const res = await fetch('/api/events?lang=en&page=1&pageSize=50');
         const data = await res.json();
         if (data.items) {
-          setEvents(data.items);
-          setFeaturedEvents(data.items.slice(0, 3));
+          // Mirror the admin tab logic: events = categories NOT in training set
+          const TRAINING_CATS = new Set(['workshop','webinar','seminar','training']);
+          const eventItems = data.items.filter((item: any) => {
+            const cat = (item.metadata?.category ?? '').toLowerCase();
+            return cat && !TRAINING_CATS.has(cat);
+          });
+          setEvents(eventItems);
+          setFeaturedEvents(eventItems.slice(0, 3));
         }
       } catch (error) {
         console.error('Error fetching events:', error);
@@ -167,7 +173,7 @@ export default function EventsPage() {
               <div className="relative h-64 lg:h-auto min-h-[300px] lg:min-h-[500px] bg-gray-100 overflow-hidden">
                 {featuredEvents.map((event, index) => (
                   <div key={event.id} className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-                    <Image src={event.metadata?.image || '/images/events/default.jpg'} alt={event.title} fill className="object-cover" priority={index === 0} />
+                    <Image src={event.metadata?.image || '/images/events/tax-workshop.jpeg'} alt={event.title} fill className="object-cover" priority={index === 0} />
                   </div>
                 ))}
                 <button onClick={() => setCurrentSlide((prev) => (prev - 1 + featuredEvents.length) % featuredEvents.length)} className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm border border-gray-200 hover:bg-brand-navy hover:text-white hover:border-brand-navy rounded-full flex items-center justify-center shadow-lg z-20 transition-all duration-300 ease-in-out">
@@ -217,7 +223,7 @@ export default function EventsPage() {
                   <FadeIn key={event.id} delay={index * 100}>
                     <Link href={`/events/${event.id}`} className="group bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl hover:border-[#009086]/30 transition-all duration-300 ease-in-out flex flex-col hover:-translate-y-1 h-full">
                       <div className="relative h-56 bg-gray-100">
-                        <Image src={meta.image || '/images/events/default.jpg'} alt={event.title} fill className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" />
+                        <Image src={meta.image || '/images/events/tax-workshop.jpeg'} alt={event.title} fill className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" />
                         <div className="absolute top-4 left-4"><span className="bg-brand-navy/90 backdrop-blur-sm text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-full">{meta.categoryLabel || meta.category || 'Event'}</span></div>
                       </div>
                       <div className="p-5 flex flex-col flex-1">
@@ -252,7 +258,7 @@ export default function EventsPage() {
                       </div>
                       <div className="relative bg-white rounded-2xl overflow-hidden shadow-lg ml-6 transition-all duration-300 ease-in-out group-hover:-translate-y-2 group-hover:shadow-2xl">
                         <div className="relative h-64 bg-gray-100">
-                          <Image src={meta.image || '/images/events/default.jpg'} alt={event.title} fill className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" />
+                          <Image src={meta.image || '/images/events/tax-workshop.jpeg'} alt={event.title} fill className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" />
                           <div className="absolute top-4 left-4">
                             <span className="bg-brand-navy/90 backdrop-blur-sm text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-full">
                               {meta.categoryLabel || meta.category || 'Event'}

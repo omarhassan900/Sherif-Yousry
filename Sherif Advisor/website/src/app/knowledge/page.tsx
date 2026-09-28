@@ -6,9 +6,11 @@ import Image from 'next/image'; // ✅ Added for optimized local images
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Knowledge } from '@/components/sections/Knowledge';
-import { BookOpen, Search } from 'lucide-react';
+import { BookOpen, Search, ArrowRight, ArrowLeft } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
+
+const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
 interface Article {
   id: string;
@@ -23,8 +25,8 @@ interface Article {
   updatedAt: string;
 }
 
-const CATEGORIES_AR = ['الكل', 'Advisory', 'Market Updates', 'Regulatory', 'Industry Insights', 'General'];
-const CATEGORIES_EN = ['All', 'Advisory', 'Market Updates', 'Regulatory', 'Industry Insights', 'General'];
+const CATEGORIES_AR = ['الكل', 'قانوني', 'ضريبي', 'مالي'];
+const CATEGORIES_EN = ['All', 'Legal', 'Tax', 'Financial'];
 
 // ✅ Helper to get initial language safely for SSR/CSR match
 // Returns 'ar' on the server, and the detected language on the client.
@@ -92,59 +94,102 @@ export default function KnowledgePage() {
       <Header />
 
       {/* Hero */}
-      <section className="bg-brand-navy py-20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-            <div>
-              <div className="flex items-center gap-2 section-label mb-4">
-                <BookOpen className="w-4 h-4" />
-                <span>{lang === 'ar' ? 'الأفكار والرؤى' : 'Insights'}</span>
-              </div>
-              <h1 className="font-amiri text-4xl md:text-5xl text-text-primary leading-relaxed">
-                {lang === 'ar' ? 'رؤى تزيد وعي عملائنا' : 'Insights to Raise Our Clients’ Awareness'}
-              </h1>
-              <p className="text-text-secondary mt-4 max-w-xl leading-7">
-                {lang === 'ar'
-                  ? 'مقالات وأدلة إرشادية وتحديثات ضريبية وتنظيمية من فريق خبرائنا لمساعدتك في فهم التغييرات وتطبيقها.'
-                  : 'Articles, guides, and regulatory updates from our team of experts to help you understand and apply changes.'}
-              </p>
-            </div>
+      <section className="relative h-[70vh] min-h-[600px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/bg-3.jpeg"
+            alt="Services Hero"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1929]/90" />
+        </div>
 
-            {/* Search */}
-            <div className="relative w-full lg:w-96">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-              <input
-                type="search"
-                placeholder={lang === 'ar' ? 'ابحث في المقالات...' : 'Search articles...'}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-brand-navy-deep border border-white/10 pr-11 pl-4 py-3 text-sm text-text-primary placeholder:text-text-muted rounded focus:outline-none focus:border-brand-gold transition-colors"
-              />
-            </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 text-center">
+          <p className="font-mono text-sm tracking-[0.3em] text-brand-gold mb-5"
+             style={{ animation: 'heroFadeRight 0.8s ease 0.2s both' }}>
+            {t(lang, 'رؤى ومعرفة', 'Insights & Knowledge')}
+          </p>
+          <h1 className="font-serif text-white leading-[1.05] max-w-2xl mx-auto mb-5"
+              style={{
+                fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+                animation: 'heroFadeUp 0.8s ease 0.4s both',
+                textShadow: '0 4px 24px rgba(0,0,0,0.6)',
+              }}>
+            {t(lang, 'أحدث المقالات', 'Latest Articles')}<br />
+            <span className="italic">{t(lang, 'والتحليلات', '& Insights')}</span>
+          </h1>
+          <p className="text-gray-300 text-base max-w-xl mx-auto leading-relaxed mb-5"
+             style={{ animation: 'heroFadeUp 0.8s ease 0.6s both', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+            {t(
+              lang,
+              'ابقَ على اطلاع بأحدث الرؤى والتحليلات والتوجهات في مجالات الضرائب والمحاسبة والامتثال.',
+              'Stay informed with the latest insights, analysis, and trends in tax, accounting, and compliance.'
+            )}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/contact"
+              className="border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+            >
+              <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-white transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+              <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-white text-[#030a12] flex-shrink-0">
+                {lang === 'ar'
+                  ? <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                  : <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />}
+              </span>
+              <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">
+                {t(lang, 'احجز استشارة', 'Schedule a Consultation')}
+              </span>
+            </Link>
+            <Link
+              href="/about"
+              className="border cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+            >
+              <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-gold transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+              <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-gold text-white flex-shrink-0">
+                {lang === 'ar'
+                  ? <ArrowLeft className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                  : <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />}
+              </span>
+              <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-white">
+                {t(lang, 'تعرف علينا', 'Learn More About Us')}
+              </span>
+            </Link>
           </div>
         </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
       </section>
 
+
       {/* Categories */}
-      <section className="bg-brand-navy-mid py-6 border-y border-white/5">
+      <section className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex flex-wrap gap-3">
-            {categories.map((cat, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  setSelectedCategory(i === 0 ? '' : cat);
-                  setPage(1);
-                }}
-                className={`px-4 py-2 text-xs tracking-wider rounded border transition-colors ${
-                  (i === 0 && !selectedCategory) || selectedCategory === cat
-                    ? 'bg-brand-gold text-brand-navy border-brand-gold'
-                    : 'border-white/20 text-text-muted hover:border-brand-gold hover:text-brand-gold'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="flex gap-0 overflow-x-auto">
+            {categories.map((cat, i) => {
+              const isActive = (i === 0 && !selectedCategory) || selectedCategory === cat;
+              return (
+                <button
+                  key={i}
+                  onClick={() => {
+                    setSelectedCategory(i === 0 ? '' : cat);
+                    setPage(1);
+                  }}
+                  className={`relative px-6 py-4 text-[11px] font-bold tracking-[0.15em] uppercase whitespace-nowrap transition-colors ${
+                    isActive
+                      ? 'text-brand-navy'
+                      : 'text-gray-400 hover:text-brand-navy'
+                  }`}
+                >
+                  {cat}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand-gold rounded-t" />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>

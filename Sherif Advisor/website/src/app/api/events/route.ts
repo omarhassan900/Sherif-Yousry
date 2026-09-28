@@ -9,10 +9,11 @@ export async function GET(request: NextRequest) {
     // Extract query parameters
     const lang = (searchParams.get('lang') as 'ar' | 'en') || 'en';
     const page = parseInt(searchParams.get('page') || '1', 10);
-    const category = searchParams.get('category') || undefined; // e.g., 'workshop', 'seminar'
+    const pageSize = parseInt(searchParams.get('pageSize') || '50', 10);
+    const category = searchParams.get('category') || undefined;
+    const eventType = searchParams.get('eventType') || undefined;
 
-    // Use the module function
-    const result = await getPublishedEvents(lang, page, category);
+    const result = await getPublishedEvents(lang, page, category, pageSize, eventType);
 
     return NextResponse.json(result);
   } catch (error) {

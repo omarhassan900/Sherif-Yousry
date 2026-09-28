@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { ScrollProgress } from '@/components/effects/ScrollProgress';
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
+import { EventsHero } from '@/components/sections/EventsHero';
 
 // ==========================================
 // Scroll Animation Component
@@ -92,14 +93,14 @@ export default function TrainingsPage() {
         const res = await fetch('/api/events?lang=en&page=1&pageSize=50');
         const data = await res.json();
         if (data.items) {
-          // Filter only training-related categories
-          const allTrainings = data.items.filter((item: any) => {
-            const category = item.metadata?.category?.toLowerCase();
-            return ['workshop', 'webinar', 'seminar', 'training'].includes(category);
+          // Mirror the admin tab logic: trainings = categories IN training set
+          const TRAINING_CATS = new Set(['workshop','webinar','seminar','training']);
+          const trainingItems = data.items.filter((item: any) => {
+            const cat = (item.metadata?.category ?? '').toLowerCase();
+            return cat && TRAINING_CATS.has(cat);
           });
-          
-          setTrainings(allTrainings);
-          setFeaturedTrainings(allTrainings.slice(0, 3));
+          setTrainings(trainingItems);
+          setFeaturedTrainings(trainingItems.slice(0, 3));
         }
       } catch (error) {
         console.error('Error fetching trainings:', error);
@@ -134,6 +135,7 @@ export default function TrainingsPage() {
     <main className="min-h-screen bg-white text-brand-navy font-sans">
       <ScrollProgress />
       <Header />
+      <EventsHero />
 
       {/* ── Featured Training Banner Slideshow ── */}
       <FadeIn>
@@ -169,10 +171,17 @@ export default function TrainingsPage() {
                   View Details <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
-              <div className="relative h-64 lg:h-auto min-h-[300px] lg:min-h-[500px] bg-gray-100 overflow-hidden">
+              <div className="relative h-64 bg-gray-100 overflow-hidden">
                 {featuredTrainings.map((event, index) => (
                   <div key={event.id} className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-                    <Image src={event.metadata?.image || '/images/events/default.jpg'} alt={event.title} fill className="object-cover" priority={index === 0} />
+                    <Image
+                      src={event.metadata?.image || '/images/events/tax-workshop.jpeg'}
+                      alt={event.title}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover"
+                      priority={index === 0}
+                    />
                   </div>
                 ))}
                 <button onClick={() => setCurrentSlide((prev) => (prev - 1 + featuredTrainings.length) % featuredTrainings.length)} className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm border border-gray-200 hover:bg-brand-navy hover:text-white hover:border-brand-navy rounded-full flex items-center justify-center shadow-lg z-20 transition-all duration-300 ease-in-out">
@@ -222,7 +231,7 @@ export default function TrainingsPage() {
                   <FadeIn key={event.id} delay={index * 100}>
                     <Link href={`/trainings/${event.id}`} className="group bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl hover:border-[#009086]/30 transition-all duration-300 ease-in-out flex flex-col hover:-translate-y-1 h-full">
                       <div className="relative h-56 bg-gray-100">
-                        <Image src={meta.image || '/images/events/default.jpg'} alt={event.title} fill className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" />
+                        <Image src={meta.image || '/images/events/tax-workshop.jpeg'} alt={event.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" />
                         <div className="absolute top-4 left-4">
                           <span className="bg-brand-navy/90 backdrop-blur-sm text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-full flex items-center gap-1.5">
                             <GraduationCap className="w-3 h-3" /> {meta.categoryLabel || meta.category || 'Training'}
@@ -261,7 +270,7 @@ export default function TrainingsPage() {
                       </div>
                       <div className="relative bg-white rounded-2xl overflow-hidden shadow-lg ml-6 transition-all duration-300 ease-in-out group-hover:-translate-y-2 group-hover:shadow-2xl">
                         <div className="relative h-64 bg-gray-100">
-                          <Image src={meta.image || '/images/events/default.jpg'} alt={event.title} fill className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" />
+                          <Image src={meta.image || '/images/events/tax-workshop.jpeg'} alt={event.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-105" />
                           <div className="absolute top-4 left-4">
                             <span className="bg-brand-navy/90 backdrop-blur-sm text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-full flex items-center gap-1.5">
                               <GraduationCap className="w-3 h-3" /> {meta.categoryLabel || meta.category || 'Training'}
