@@ -33,6 +33,12 @@ interface ServiceItem {
     icon?: string;
     image?: string;
     imageId?: string;
+    fullDescriptionEn?: string;
+    fullDescriptionAr?: string;
+    shortDescriptionEn?: string;
+    shortDescriptionAr?: string;
+    descriptionEn?: string;
+    descriptionAr?: string;
   };
 }
 
@@ -181,10 +187,9 @@ export default function ServicesPage() {
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 lg:gap-12 items-start">
 
-              {/* ── LEFT SIDEBAR — category list (Andersen-style) ── */}
+              {/* ── LEFT SIDEBAR — category + sub-services ── */}
               <aside className="lg:sticky lg:top-28">
                 <div className="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
-                  {/* Sidebar header */}
                   <div className="bg-brand-navy px-5 py-4">
                     <h2 className="text-white font-semibold text-sm tracking-wide">
                       {t(lang, 'خدماتنا', 'Our Services')}
@@ -195,32 +200,51 @@ export default function ServicesPage() {
                       const slug = cat.metadata?.categorySlug ?? cat.id;
                       const active = activeSlug === slug;
                       const Icon = ICON_MAP[cat.metadata?.icon ?? ''] ?? FileText;
+                      const subs = subServices(slug);
                       return (
-                        <button
-                          key={cat.id}
-                          onClick={() => setActiveSlug(slug)}
-                          className={`w-full flex items-center gap-3 px-5 py-3 text-sm text-start transition-all duration-200 border-s-2 ${
-                            active
-                              ? 'border-brand-gold bg-brand-gold/5 text-brand-navy font-semibold'
-                              : 'border-transparent text-text-dark-secondary hover:bg-gray-50 hover:text-brand-gold hover:border-brand-gold/40'
-                          }`}
-                        >
-                          <Icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-brand-gold' : 'text-gray-400'}`} />
-                          <span className="leading-snug">{cat.title}</span>
-                        </button>
+                        <div key={cat.id}>
+                          {/* Category row */}
+                          <button
+                            onClick={() => setActiveSlug(slug)}
+                            className={`w-full flex items-center gap-3 px-5 py-3 text-sm text-start transition-all duration-200 border-s-2 ${
+                              active
+                                ? 'border-brand-gold bg-brand-gold/5 text-brand-navy font-semibold'
+                                : 'border-transparent text-text-dark-secondary hover:bg-gray-50 hover:text-brand-gold hover:border-brand-gold/40'
+                            }`}
+                          >
+                            <Icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-brand-gold' : 'text-gray-400'}`} />
+                            <span className="leading-snug">{cat.title}</span>
+                          </button>
+
+                          {/* Sub-services — only shown when this category is active */}
+                          {active && subs.length > 0 && (
+                            <div className="border-s-2 border-brand-gold/20 ms-5">
+                              {subs.map(svc => (
+                                <Link
+                                  key={svc.id}
+                                  href={`/services/${svc.id}`}
+                                  className="flex items-center gap-2 px-4 py-2 text-xs text-text-dark-secondary hover:text-brand-gold hover:bg-gray-50 transition-colors"
+                                >
+                                  <span className="w-1 h-1 rounded-full bg-brand-gold/40 flex-shrink-0" />
+                                  {svc.title}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </nav>
                 </div>
               </aside>
 
-              {/* ── RIGHT CONTENT — active category + its sub-services ── */}
+              {/* ── RIGHT CONTENT — category description + sub-services list ── */}
               <div className="min-w-0">
                 {activeCategory && (
                   <FadeIn key={activeSlug ?? ''}>
                     {/* Category heading */}
-                    <div className="mb-8 pb-6 border-b border-gray-200">
-                      <div className="flex items-center gap-3 mb-2">
+                    <div className="mb-6">
+                      <div className="flex items-center gap-3 mb-3">
                         {(() => {
                           const Icon = ICON_MAP[activeCategory.metadata?.icon ?? ''] ?? FileText;
                           return <Icon className="w-6 h-6 text-brand-gold flex-shrink-0" />;
@@ -229,59 +253,61 @@ export default function ServicesPage() {
                           {activeCategory.title}
                         </h2>
                       </div>
-                      <p className="text-text-secondary leading-relaxed max-w-2xl">
-                        {activeCategory.body}
-                      </p>
+
+                      {/* Short description */}
+                      {activeCategory.body && (
+                        <p className="text-text-secondary text-sm leading-relaxed mb-6">
+                          {activeCategory.body}
+                        </p>
+                      )}
+
+                      {/* Full rich-text description — rendered as HTML if available */}
+                      {(() => {
+                        const fullDesc = lang === 'ar'
+                          ? activeCategory.metadata?.fullDescriptionAr
+                          : activeCategory.metadata?.fullDescriptionEn;
+                        if (fullDesc) {
+                          return (
+                            <div
+                              className="service-content mb-8"
+                              dangerouslySetInnerHTML={{ __html: fullDesc }}
+                            />
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
 
-                    {/* Sub-services grid */}
-                    {activeSubs.length === 0 ? (
-                      <p className="text-text-muted text-sm">
-                        {t(lang, 'لا توجد خدمات محددة بعد.', 'No sub-services defined yet.')}
-                      </p>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {activeSubs.map((svc, i) => (
-                          <Link
-                            key={svc.id}
-                            href={`/services/${svc.id}`}
-                            className="group bg-white border border-gray-100 rounded-sm overflow-hidden hover:border-brand-gold/40 hover:shadow-md transition-all duration-300 flex flex-col"
-                            style={{ transitionDelay: `${i * 40}ms` }}
-                          >
-                            {/* Cover image */}
-                            {svc.metadata?.image ? (
-                              <div className="relative h-44 overflow-hidden bg-gray-100">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={svc.metadata.image}
-                                  alt={svc.title}
-                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                />
-                                <div className="absolute inset-0 bg-brand-navy/10 group-hover:bg-brand-navy/0 transition-colors duration-300" />
-                              </div>
-                            ) : (
-                              /* Fallback: gold-accent placeholder */
-                              <div className="h-2 bg-gradient-to-r from-brand-gold/60 to-brand-gold/20" />
-                            )}
-
-                            {/* Text content */}
-                            <div className="p-6 flex flex-col gap-3 flex-1">
-                              <h3 className="font-semibold text-brand-navy text-base group-hover:text-brand-gold transition-colors leading-snug">
+                    {/* Sub-services — 2-column text list, no images */}
+                    {activeSubs.length > 0 && (
+                      <>
+                        <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-4">
+                          {t(lang, 'خدماتنا في هذا المجال', 'Our services in this area')}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-0">
+                          {activeSubs.map((svc) => (
+                            <div key={svc.id} className="py-5 border-b border-gray-200">
+                              <h3 className="font-semibold text-brand-navy text-base mb-1.5 leading-snug">
                                 {svc.title}
                               </h3>
-                              <p className="text-text-secondary text-sm leading-relaxed flex-1 line-clamp-3">
-                                {svc.body}
-                              </p>
-                              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-gold mt-1 group-hover:gap-2.5 transition-all">
+                              {svc.body && (
+                                <p className="text-text-secondary text-sm leading-relaxed mb-2 line-clamp-2">
+                                  {svc.body}
+                                </p>
+                              )}
+                              <Link
+                                href={`/services/${svc.id}`}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-gold hover:gap-2.5 transition-all"
+                              >
                                 {t(lang, 'اقرأ المزيد', 'Learn more')}
                                 {lang === 'ar'
-                                  ? <ArrowLeft className="w-3.5 h-3.5" />
-                                  : <ArrowRight className="w-3.5 h-3.5" />}
-                              </span>
+                                  ? <ArrowLeft className="w-3 h-3" />
+                                  : <ArrowRight className="w-3 h-3" />}
+                              </Link>
                             </div>
-                          </Link>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
+                      </>
                     )}
                   </FadeIn>
                 )}
