@@ -141,12 +141,14 @@ export default function InquiryForm({
 
   if (success) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 flex flex-col items-center text-center gap-3">
-        <CheckCircle2 className="w-12 h-12 text-green-600" />
-        <h3 className="text-2xl font-semibold text-text-dark">
+      <div className="bg-brand-navy rounded-2xl border border-white/10 shadow-xl p-8 flex flex-col items-center text-center gap-3">
+        <div className="w-14 h-14 rounded-full bg-brand-gold/15 border border-brand-gold/30 flex items-center justify-center">
+          <CheckCircle2 className="w-7 h-7 text-brand-gold" />
+        </div>
+        <h3 className="text-2xl font-semibold text-white">
           {t(lang, 'تم الإرسال', 'Message Sent')}
         </h3>
-        <p className="text-sm text-text-dark-secondary leading-6">
+        <p className="text-sm text-gray-400 leading-6">
           {t(
             lang,
             'شكراً لتواصلك. سنعود إليك قريباً.',
@@ -158,24 +160,25 @@ export default function InquiryForm({
   }
 
   const fieldClass =
-    'w-full px-5 py-2.5 bg-white border border-gray-200 rounded-full text-text-dark placeholder:text-gray-400 text-sm focus:outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 transition-all';
-  const selectClass = `${fieldClass} appearance-none cursor-pointer`;
+    'w-full px-5 py-2.5 bg-white/5 border border-white/15 rounded-full text-white placeholder:text-gray-400 text-sm focus:outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 transition-all';
+  const selectClass = `${fieldClass} appearance-none cursor-pointer [&>option]:bg-[#0d1f35] [&>option]:text-white`;
 
   return (
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6 space-y-3"
+      className="bg-brand-navy rounded-2xl border border-white/10 shadow-xl p-5 sm:p-7 space-y-3"
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
     >
-      <div className="mb-1">
-        <h3 className="text-2xl font-semibold text-text-dark">
+      {/* Heading */}
+      <div className="mb-2">
+        <h3 className="text-2xl font-semibold text-white">
           {title || t(lang, 'لنبدأ العمل', "Let's get you started")}
         </h3>
         {lockedService && (
-          <p className="text-xs text-text-dark-secondary mt-1">
+          <p className="text-xs text-gray-400 mt-1">
             {t(lang, 'بخصوص:', 'Regarding:')}{' '}
-            <span className="text-brand-gold-dark font-medium">{lockedService.name}</span>
+            <span className="text-brand-gold font-medium">{lockedService.name}</span>
           </p>
         )}
       </div>
@@ -183,7 +186,7 @@ export default function InquiryForm({
       {error && (
         <div
           role="alert"
-          className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2.5 rounded-xl"
+          className="bg-red-900/30 border border-red-500/40 text-red-300 text-sm px-4 py-2.5 rounded-xl"
         >
           {error}
         </div>
@@ -208,11 +211,11 @@ export default function InquiryForm({
       />
 
       {/* Phone with dial code */}
-      <div className="flex items-stretch bg-white border border-gray-200 rounded-full overflow-hidden focus-within:border-brand-gold focus-within:ring-2 focus-within:ring-brand-gold/20 transition-all">
+      <div className="flex items-stretch bg-white/5 border border-white/15 rounded-full overflow-hidden focus-within:border-brand-gold focus-within:ring-2 focus-within:ring-brand-gold/20 transition-all">
         <select
           value={dialCode}
           onChange={(e) => setDialCode(e.target.value)}
-          className="bg-transparent px-4 py-2.5 text-sm text-text-dark border-e border-gray-200 focus:outline-none cursor-pointer"
+          className="bg-transparent px-4 py-2.5 text-sm text-white border-e border-white/15 focus:outline-none cursor-pointer [&>option]:bg-[#0d1f35]"
           aria-label={t(lang, 'رمز الدولة', 'Country code')}
         >
           {DIAL_CODES.map((d) => (
@@ -227,22 +230,22 @@ export default function InquiryForm({
           onChange={(e) => setPhone(e.target.value)}
           placeholder={t(lang, 'أدخل رقم هاتفك هنا', 'Enter your phone number here')}
           maxLength={30}
-          className="flex-1 px-4 py-2.5 bg-transparent text-sm text-text-dark placeholder:text-gray-400 focus:outline-none"
+          className="flex-1 px-4 py-2.5 bg-transparent text-sm text-white placeholder:text-gray-400 focus:outline-none"
         />
       </div>
 
-      {/* Business Activity + Country side by side to save height */}
+      {/* Business Activity + Country */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <select
           value={businessActivity}
           onChange={(e) => setBusinessActivity(e.target.value)}
-          className={`${selectClass} ${businessActivity ? 'text-text-dark' : 'text-gray-400'}`}
+          className={`${selectClass} ${businessActivity ? 'text-white' : 'text-gray-400'}`}
         >
           <option value="" disabled>
             {t(lang, 'نشاط العمل*', 'Business Activity*')}
           </option>
           {BUSINESS_ACTIVITIES.map((o) => (
-            <option key={o.value} value={o.value} className="text-text-dark">
+            <option key={o.value} value={o.value}>
               {t(lang, o.labelAr, o.labelEn)}
             </option>
           ))}
@@ -251,35 +254,35 @@ export default function InquiryForm({
         <select
           value={country}
           onChange={(e) => setCountry(e.target.value)}
-          className={`${selectClass} ${country ? 'text-text-dark' : 'text-gray-400'}`}
+          className={`${selectClass} ${country ? 'text-white' : 'text-gray-400'}`}
         >
           <option value="" disabled>
             {t(lang, 'أقيم في...*', 'I live in...*')}
           </option>
           {COUNTRIES.map((o) => (
-            <option key={o.value} value={o.value} className="text-text-dark">
+            <option key={o.value} value={o.value}>
               {t(lang, o.labelAr, o.labelEn)}
             </option>
           ))}
         </select>
       </div>
 
-      {/* What can we help with — hidden when a service is locked */}
+      {/* What can we help with */}
       {!lockedService && (
         <select
           value={helpWith}
           onChange={(e) => setHelpWith(e.target.value)}
-          className={`${selectClass} ${helpWith ? 'text-text-dark' : 'text-gray-400'}`}
+          className={`${selectClass} ${helpWith ? 'text-white' : 'text-gray-400'}`}
         >
           <option value="" disabled>
             {t(lang, 'كيف يمكننا مساعدتك؟*', 'What Can We Help You With?*')}
           </option>
           {services.map((s) => (
-            <option key={s.id} value={s.title} className="text-text-dark">
+            <option key={s.id} value={s.title}>
               {s.title}
             </option>
           ))}
-          <option value="Other" className="text-text-dark">
+          <option value="Other">
             {t(lang, 'أخرى', 'Other')}
           </option>
         </select>
@@ -292,7 +295,7 @@ export default function InquiryForm({
         placeholder={t(lang, 'رسالتك (اختياري)', 'Your message (optional)')}
         maxLength={2000}
         rows={2}
-        className="w-full px-5 py-2.5 bg-white border border-gray-200 rounded-2xl text-text-dark placeholder:text-gray-400 text-sm focus:outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 transition-all resize-none"
+        className="w-full px-5 py-2.5 bg-white/5 border border-white/15 rounded-2xl text-white placeholder:text-gray-400 text-sm focus:outline-none focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 transition-all resize-none"
       />
 
       {/* Consent */}
@@ -301,19 +304,19 @@ export default function InquiryForm({
           type="checkbox"
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
-          className="mt-0.5 w-4 h-4 rounded border-gray-300 text-brand-gold focus:ring-brand-gold/40 cursor-pointer"
+          className="mt-0.5 w-4 h-4 rounded border-white/30 bg-white/5 text-brand-gold focus:ring-brand-gold/40 cursor-pointer"
         />
-        <span className="text-xs text-text-dark-secondary leading-5">
+        <span className="text-xs text-gray-400 leading-5">
           {t(
             lang,
             'أؤكد أنني قرأت وفهمت الشروط وسياسة الخصوصية وأوافق على جمع ومعالجة بياناتي. ',
             'I confirm that I have read and understood the Terms and Privacy Policy and consent to the collection and processing of my data. '
           )}
-          <Link href="/terms" className="text-brand-gold-dark underline hover:text-brand-gold">
+          <Link href="/terms" className="text-brand-gold underline hover:text-brand-gold/80">
             {t(lang, 'الشروط', 'Terms')}
           </Link>
           {' · '}
-          <Link href="/privacy" className="text-brand-gold-dark underline hover:text-brand-gold">
+          <Link href="/privacy" className="text-brand-gold underline hover:text-brand-gold/80">
             {t(lang, 'الخصوصية', 'Privacy')}
           </Link>
         </span>
@@ -322,7 +325,7 @@ export default function InquiryForm({
       <button
         type="submit"
         disabled={submitting}
-        className="inline-flex items-center gap-2 bg-brand-navy text-white font-medium py-3 px-6 rounded-full hover:bg-brand-navy-mid transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-2 bg-brand-gold text-brand-navy font-bold py-3 px-6 rounded-full hover:bg-brand-gold/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {submitting ? (
           <>
@@ -331,7 +334,7 @@ export default function InquiryForm({
           </>
         ) : (
           <>
-            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-gold text-brand-navy">
+            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-navy text-brand-gold">
               <ArrowRight className={`w-3.5 h-3.5 ${lang === 'ar' ? 'rotate-180' : ''}`} />
             </span>
             {t(lang, 'ابدأ الآن', 'Get Started Now')}

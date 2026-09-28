@@ -131,19 +131,46 @@ export default function ServiceDetailPage() {
         </div>
       ) : (
         <>
-          {/* Hero */}
-          <div className="bg-brand-navy py-16 lg:py-24">
-            <div className="max-w-7xl mx-auto px-6 lg:px-8">
-              <Link href="/services" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-brand-gold transition-colors mb-6">
-                {lang === 'ar' ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-                {t(lang, 'العودة إلى الخدمات', 'Back to Services')}
-              </Link>
-              <span className="section-label mb-4 block">{t(lang, 'خدمة', 'Service')}</span>
-              <h1 className="font-amiri text-3xl md:text-4xl lg:text-5xl text-text-primary leading-relaxed">
-                {service.title}
-              </h1>
-            </div>
-          </div>
+          {/* Hero with Background Image — same pattern as insights page */}
+          {(() => {
+            const img = service.metadata?.image;
+            const categoryDefaults: Record<string, string> = {
+              'tax-advisory': '/images/bg.jpeg',
+              'financial-advisory': '/images/bg-2.jpeg',
+              'business-management-advisory': '/images/bg-3.jpeg',
+              'corporate-legal-services': '/images/bg-4.jpeg',
+              'payroll-social-insurance': '/images/bg_.jpeg',
+              'ecommerce-digital-business': '/images/bg__.jpeg',
+            };
+            const coverSrc = img || categoryDefaults[service.metadata?.categorySlug ?? ''] || '/images/bg.jpeg';
+            return (
+              <div
+                className="relative py-20 lg:py-28 overflow-hidden"
+                style={{
+                  backgroundImage: `url(${coverSrc})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              >
+                {/* Dark overlay for text readability */}
+                <div className="absolute inset-0 bg-brand-navy/80" />
+
+                <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+                  <Link
+                    href="/services"
+                    className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-brand-gold transition-colors mb-6"
+                  >
+                    {lang === 'ar' ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+                    {t(lang, 'العودة إلى الخدمات', 'Back to Services')}
+                  </Link>
+                  <span className="section-label mb-4 block">{t(lang, 'خدمة', 'Service')}</span>
+                  <h1 className="font-amiri text-3xl md:text-4xl lg:text-5xl text-white leading-relaxed drop-shadow-lg">
+                    {service.title}
+                  </h1>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Body — 3 Column Layout: Related Services | Main Content | Contact Card */}
           <section className="bg-surface-light py-16 lg:py-20">
@@ -180,30 +207,6 @@ export default function ServiceDetailPage() {
 
               {/* Main content */}
               <div className="min-w-0 space-y-10">
-                {/* Cover image — from metadata.image or a category default */}
-                {(() => {
-                  const img = service.metadata?.image;
-                  const categoryDefaults: Record<string, string> = {
-                    'tax-advisory': '/images/bg.jpeg',
-                    'financial-advisory': '/images/bg-2.jpeg',
-                    'business-management-advisory': '/images/bg-3.jpeg',
-                    'corporate-legal-services': '/images/bg-4.jpeg',
-                    'payroll-social-insurance': '/images/bg_.jpeg',
-                    'ecommerce-digital-business': '/images/bg__.jpeg',
-                  };
-                  const coverSrc = img || categoryDefaults[service.metadata?.categorySlug ?? ''] || '/images/bg.jpeg';
-                  return (
-                    <div className="relative w-full h-56 md:h-72 rounded-lg overflow-hidden shadow-sm mb-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={coverSrc}
-                        alt={service.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/40 to-transparent" />
-                    </div>
-                  );
-                })()}
 
                 {/* Rich HTML content from DB */}
                 {richContent ? (

@@ -67,6 +67,17 @@ const SERVICE_ICON_MAP: Record<string, typeof FileText> = {
   Briefcase, Building2, Shield, FileText, BarChart2, Users, Calculator, ShoppingCart,
 };
 
+/** Fallback icons by categorySlug — used when no icon is stored in the DB metadata */
+const CATEGORY_SLUG_ICON_MAP: Record<string, typeof FileText> = {
+  'tax-advisory':                  Calculator,
+  'audit-accounting-assurance':    FileText,
+  'financial-advisory':            BarChart2,
+  'business-management-advisory':  Briefcase,
+  'corporate-legal-services':      Shield,
+  'payroll-social-insurance':      Users,
+  'ecommerce-digital-business':    ShoppingCart,
+};
+
 interface MegaLink {
   href: string;
   labelAr: string;
@@ -401,12 +412,12 @@ export function Header() {
                               <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                                 {menuServices.map((svc) => {
                                   const Icon = svc.metadata?.icon
-                                    ? SERVICE_ICON_MAP[svc.metadata.icon]
-                                    : undefined;
+                                    ? (SERVICE_ICON_MAP[svc.metadata.icon] ?? CATEGORY_SLUG_ICON_MAP[svc.metadata?.categorySlug ?? ''] ?? FileText)
+                                    : (CATEGORY_SLUG_ICON_MAP[svc.metadata?.categorySlug ?? ''] ?? FileText);
                                   return (
                                     <Link
                                       key={svc.id}
-                                      href={`/services/${svc.metadata?.categorySlug ?? svc.id}`}
+                                      href={`/services?category=${svc.metadata?.categorySlug ?? svc.id}`}
                                       onClick={() => { setOpenMenu(null); }}
                                       className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-md transition-all duration-200 group/item ${
                                         showWhiteBg ? 'hover:bg-gray-50' : 'hover:bg-white/5'
@@ -662,12 +673,12 @@ export function Header() {
                         <div className="grid grid-cols-2 gap-1">
                           {menuServices.map((svc) => {
                             const Icon = svc.metadata?.icon
-                              ? SERVICE_ICON_MAP[svc.metadata.icon]
-                              : undefined;
+                              ? (SERVICE_ICON_MAP[svc.metadata.icon] ?? CATEGORY_SLUG_ICON_MAP[svc.metadata?.categorySlug ?? ''] ?? FileText)
+                              : (CATEGORY_SLUG_ICON_MAP[svc.metadata?.categorySlug ?? ''] ?? FileText);
                             return (
                               <Link
                                 key={svc.id}
-                                href={`/services#${svc.metadata?.categorySlug ?? svc.id}`}
+                                href={`/services?category=${svc.metadata?.categorySlug ?? svc.id}`}
                                 className="flex items-center gap-2 py-2 ps-2 text-sm text-gray-300 hover:text-brand-gold transition-colors rounded-md hover:bg-white/5"
                                 onClick={() => setIsMenuOpen(false)}
                               >

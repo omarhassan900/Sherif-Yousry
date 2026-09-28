@@ -20,7 +20,7 @@ export function Contact() {
 
   return (
     <section
-      className="bg-brand-navy py-12 lg:py-14"
+      className="bg-[#07111e] py-12 lg:py-14"
       id="contact"
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
     >

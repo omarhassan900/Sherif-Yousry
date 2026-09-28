@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowRight, ArrowLeft, FileText, Briefcase, Building2, Scale,
@@ -58,8 +59,15 @@ export default function ServicesPage() {
   const [items, setItems]         = useState<ServiceItem[]>([]);
   const [loading, setLoading]     = useState(true);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
+  const searchParams = useSearchParams();
 
   useEffect(() => { setLang(getClientLanguage()); }, []);
+
+  // Pre-select category from ?category= query param
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    if (cat) setActiveSlug(cat);
+  }, [searchParams]);
 
   useEffect(() => {
     fetch(`/api/content/services?lang=${lang}`)
@@ -77,7 +85,7 @@ export default function ServicesPage() {
       .filter(i => i.metadata?.serviceType !== 'category' && i.metadata?.categorySlug === slug)
       .sort((a, b) => (a.metadata?.displayOrder ?? 99) - (b.metadata?.displayOrder ?? 99));
 
-  // Auto-select first category
+  // Auto-select first category only when nothing is pre-selected
   useEffect(() => {
     if (!activeSlug && categories.length > 0) {
       setActiveSlug(categories[0].metadata?.categorySlug ?? null);
