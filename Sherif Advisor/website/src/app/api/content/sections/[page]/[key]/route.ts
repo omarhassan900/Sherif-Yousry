@@ -28,7 +28,11 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(section);
+    return NextResponse.json(section, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+      },
+    });
   } catch (error) {
     console.error('Failed to fetch page section:', error);
     return NextResponse.json(

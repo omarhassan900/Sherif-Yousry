@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { getContentById, updateContent, deleteContent, ContentStatus } from '@/lib/content';
 import { pruneOldRevisions } from '@/lib/revisions';
+
+/** Purge all cache tags related to a given content type. */
+function invalidateCache(type: string) {
+  const tagMap: Record<string, string[]> = {
+    service:      ['services', 'search', 'content'],
+    article:      ['articles', 'search', 'content'],
+    event:        ['events',   'search', 'content'],
+    page_section: ['page-sections', 'content'],
+  };
+  const tags = tagMap[type] ?? ['content'];
+  tags.forEach((tag) => revalidateTag(tag));
+}
 
 const VALID_STATUSES: ContentStatus[] = ['published', 'unpublished'];
 const MAX_REVISIONS = 50;
@@ -232,6 +245,9 @@ export async function PATCH(
     // Prune old revisions (keep max 50)
     await pruneOldRevisions(id, MAX_REVISIONS);
 
+    // Invalidate public cache so updated content is visible immediately
+    invalidateCache(updatedItem.type);
+
     return NextResponse.json(updatedItem);
   } catch (error) {
     console.error('Failed to update content item:', error);
@@ -262,6 +278,9 @@ export async function DELETE(
   try {
     const { id } = await context.params;
 
+    // Read type before deletion so we can invalidate the correct cache tags
+    const existing = await getContentById(id);
+
     try {
       await deleteContent(id);
     } catch (err) {
@@ -273,6 +292,9 @@ export async function DELETE(
       }
       throw err;
     }
+
+    // Invalidate public cache so deleted content disappears immediately
+    if (existing) invalidateCache(existing.type);
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {

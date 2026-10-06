@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { createContent, ContentType, ContentStatus } from '@/lib/content';
+
+/** Map a content type to the cache tags that should be purged. */
+function tagsForType(type: string): string[] {
+  switch (type) {
+    case 'service':      return ['services', 'search', 'content'];
+    case 'article':      return ['articles', 'search', 'content'];
+    case 'event':        return ['events',   'search', 'content'];
+    case 'page_section': return ['page-sections', 'content'];
+    default:             return ['content'];
+  }
+}
+
+function invalidateCache(type: string) {
+  tagsForType(type).forEach((tag) => revalidateTag(tag));
+}
 
 const VALID_TYPES: ContentType[] = ['service', 'article', 'page_section', 'event'];
 const VALID_STATUSES: ContentStatus[] = ['published', 'unpublished'];
@@ -259,6 +275,9 @@ export async function POST(request: NextRequest) {
     }
 
     const item = await createContent(validation.data!, adminId);
+
+    // Invalidate public cache so the new content is visible immediately
+    invalidateCache(validation.data!.type);
 
     return NextResponse.json(item, { status: 201 });
   } catch (error) {

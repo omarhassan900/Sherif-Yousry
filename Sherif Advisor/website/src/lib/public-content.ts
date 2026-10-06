@@ -3,8 +3,23 @@
  *
  * Provides functions for serving published content to the public website,
  * filtered by language with fallback support.
+ *
+ * CACHING STRATEGY
+ * ─────────────────
+ * All read functions are wrapped with Next.js `unstable_cache`.
+ * • Data is served from the Next.js Data Cache after the first request.
+ * • Cache is invalidated via `revalidateTag` whenever the admin mutates content
+ *   (POST / PATCH / DELETE on /api/admin/content).
+ * • Tags used:
+ *     'content'          – all public content (broadest invalidation)
+ *     'services'         – published services
+ *     'articles'         – published articles
+ *     'events'           – published events
+ *     'page-sections'    – page section content
+ *     'search'           – search results
  */
 
+import { unstable_cache } from 'next/cache';
 import prisma from '@/lib/prisma';
 
 // ============================================
@@ -19,7 +34,7 @@ export interface PublicContentResponse {
   body: string;
   metadata: Record<string, unknown>;
   updatedAt: Date;
-  createdAt?: Date; // Added for event sorting
+  createdAt?: Date;
 }
 
 export interface PaginatedPublicResult {
@@ -30,16 +45,25 @@ export interface PaginatedPublicResult {
   totalPages: number;
 }
 
+// Cache TTL: 5 minutes. The admin revalidation will clear it earlier when
+// content changes, but this acts as a safety net.
+const CACHE_TTL = 300;
+
 // ============================================
 // LANGUAGE HELPERS
 // ============================================
 
-/**
- * Resolve language fallback: if the requested language field is empty,
- * return the alternative language version instead.
- */
 export function resolveLanguageFallback(
-  item: { titleAr: string; titleEn: string; bodyAr: string; bodyEn: string; id: string; metadata: string; updatedAt: Date; createdAt?: Date },
+  item: {
+    titleAr: string;
+    titleEn: string;
+    bodyAr: string;
+    bodyEn: string;
+    id: string;
+    metadata: string;
+    updatedAt: Date;
+    createdAt?: Date;
+  },
   lang: Language
 ): PublicContentResponse {
   let title: string;
@@ -71,269 +95,272 @@ export function resolveLanguageFallback(
 }
 
 // ============================================
-// PUBLIC CONTENT FUNCTIONS
+// PUBLIC CONTENT FUNCTIONS  (cached)
 // ============================================
 
 /**
- * Get published services sorted by display order (ascending),
- * with creation date as tiebreaker (oldest first).
+ * Get published services sorted by display order (ascending).
+ * Cached with tags: ['content', 'services']
  */
-export async function getPublishedServices(lang: Language): Promise<PublicContentResponse[]> {
-  const items = await prisma.contentItem.findMany({
-    where: {
-      type: 'service',
-      status: 'published',
-    },
-  });
+export const getPublishedServices = unstable_cache(
+  async (lang: Language): Promise<PublicContentResponse[]> => {
+    const items = await prisma.contentItem.findMany({
+      where: { type: 'service', status: 'published' },
+      orderBy: { createdAt: 'asc' },
+    });
 
-  // Sort by displayOrder from metadata, then createdAt
-  const sorted = items.sort((a, b) => {
-    const metaA = JSON.parse(a.metadata);
-    const metaB = JSON.parse(b.metadata);
-    const orderA = metaA.displayOrder ?? 9999;
-    const orderB = metaB.displayOrder ?? 9999;
-    if (orderA !== orderB) return orderA - orderB;
-    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-  });
+    // Sort by displayOrder stored in metadata JSON, then createdAt
+    const sorted = items.sort((a, b) => {
+      let metaA: Record<string, unknown> = {};
+      let metaB: Record<string, unknown> = {};
+      try { metaA = JSON.parse(a.metadata); } catch { /* ignore */ }
+      try { metaB = JSON.parse(b.metadata); } catch { /* ignore */ }
+      const orderA = (metaA.displayOrder as number) ?? 9999;
+      const orderB = (metaB.displayOrder as number) ?? 9999;
+      if (orderA !== orderB) return orderA - orderB;
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
 
-  return sorted.map((item) => resolveLanguageFallback(item, lang));
-}
+    return sorted.map((item) => resolveLanguageFallback(item, lang));
+  },
+  ['get-published-services'],
+  { revalidate: CACHE_TTL, tags: ['content', 'services'] }
+);
 
 /**
- * Get published articles with pagination, sorted by publish date descending.
- * Only returns articles with status "published" and publishDate <= now.
- * Optionally filters by category.
+ * Get published articles with pagination and optional category filter.
+ * Sorting and date-filtering is now done in the DB where possible.
+ * Cached with tags: ['content', 'articles']
  */
-export async function getPublishedArticles(
-  lang: Language,
-  page: number = 1,
-  category?: string
-): Promise<PaginatedPublicResult> {
-  const pageSize = 20;
-  const now = new Date().toISOString();
+export const getPublishedArticles = unstable_cache(
+  async (
+    lang: Language,
+    page: number = 1,
+    category?: string
+  ): Promise<PaginatedPublicResult> => {
+    const pageSize = 20;
+    const now = new Date().toISOString();
 
-  const allArticles = await prisma.contentItem.findMany({
-    where: {
-      type: 'article',
-      status: 'published',
-    },
-  });
-  
-  const filtered = allArticles.filter((item) => {
-    let meta: Record<string, unknown> = {};
+    // Fetch all published articles; SQLite doesn't support JSON WHERE natively
+    // in Prisma, so we fetch published ones and filter by date/category in JS.
+    // The set is bounded by the published+type index so it stays small.
+    const allArticles = await prisma.contentItem.findMany({
+      where: { type: 'article', status: 'published' },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const filtered = allArticles.filter((item) => {
+      let meta: Record<string, unknown> = {};
+      try { meta = JSON.parse(item.metadata); } catch { return false; }
+
+      // Exclude scheduled-future articles
+      const publishDate = meta.publishDate as string | undefined;
+      if (publishDate && new Date(publishDate) > new Date(now)) return false;
+
+      // Category filter
+      if (category && meta.category !== category) return false;
+
+      return true;
+    });
+
+    // Sort by publishDate desc, falling back to createdAt
+    filtered.sort((a, b) => {
+      let metaA: Record<string, unknown> = {};
+      let metaB: Record<string, unknown> = {};
+      try { metaA = JSON.parse(a.metadata); } catch { /* ignore */ }
+      try { metaB = JSON.parse(b.metadata); } catch { /* ignore */ }
+      const dateA = metaA.publishDate
+        ? new Date(metaA.publishDate as string).getTime()
+        : new Date(a.createdAt).getTime();
+      const dateB = metaB.publishDate
+        ? new Date(metaB.publishDate as string).getTime()
+        : new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    });
+
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / pageSize) || 1;
+    const offset = (Math.max(1, page) - 1) * pageSize;
+    const paged = filtered.slice(offset, offset + pageSize);
+
+    return {
+      items: paged.map((item) => resolveLanguageFallback(item, lang)),
+      total,
+      page: Math.max(1, page),
+      pageSize,
+      totalPages,
+    };
+  },
+  ['get-published-articles'],
+  { revalidate: CACHE_TTL, tags: ['content', 'articles'] }
+);
+
+/**
+ * Get a single published article by id.
+ * Cached with tags: ['content', 'articles']
+ */
+export const getPublishedArticleById = unstable_cache(
+  async (id: string, lang: Language): Promise<PublicContentResponse | null> => {
+    const item = await prisma.contentItem.findFirst({
+      where: { id, type: 'article', status: 'published' },
+    });
+
+    if (!item) return null;
+
     try {
-      meta = JSON.parse(item.metadata);
+      const meta = JSON.parse(item.metadata);
+      const publishDate = meta.publishDate as string | undefined;
+      if (publishDate && new Date(publishDate) > new Date()) return null;
     } catch {
-      return false;
+      // ignore — treat as publishable
     }
 
-    const publishDate = meta.publishDate as string | undefined;
-    if (publishDate && new Date(publishDate) > new Date(now)) {
-      return false;
-    }
-
-    if (category && meta.category !== category) {
-      return false;
-    }
-
-    return true;
-  });
-
-  filtered.sort((a, b) => {
-    const metaA = JSON.parse(a.metadata);
-    const metaB = JSON.parse(b.metadata);
-    const dateA = metaA.publishDate ? new Date(metaA.publishDate).getTime() : new Date(a.createdAt).getTime();
-    const dateB = metaB.publishDate ? new Date(metaB.publishDate).getTime() : new Date(b.createdAt).getTime();
-    return dateB - dateA;
-  });
-
-  const total = filtered.length;
-  const totalPages = Math.ceil(total / pageSize);
-  const offset = (Math.max(1, page) - 1) * pageSize;
-  const paged = filtered.slice(offset, offset + pageSize);
-
-  return {
-    items: paged.map((item) => resolveLanguageFallback(item, lang)),
-    total,
-    page: Math.max(1, page),
-    pageSize,
-    totalPages,
-  };
-}
+    return resolveLanguageFallback(item, lang);
+  },
+  ['get-published-article-by-id'],
+  { revalidate: CACHE_TTL, tags: ['content', 'articles'] }
+);
 
 /**
- * Get a single published article by id, with language fallback applied.
+ * Get a single published service by id.
+ * Cached with tags: ['content', 'services']
  */
-export async function getPublishedArticleById(
-  id: string,
-  lang: Language
-): Promise<PublicContentResponse | null> {
-  const item = await prisma.contentItem.findFirst({
-    where: {
-      id,
-      type: 'article',
-      status: 'published',
-    },
-  });
+export const getPublishedServiceById = unstable_cache(
+  async (id: string, lang: Language): Promise<PublicContentResponse | null> => {
+    const item = await prisma.contentItem.findFirst({
+      where: { id, type: 'service', status: 'published' },
+    });
 
-  if (!item) return null;
+    if (!item) return null;
 
-  try {
-    const meta = JSON.parse(item.metadata);
-    const publishDate = meta.publishDate as string | undefined;
-    if (publishDate && new Date(publishDate) > new Date()) {
-      return null;
-    }
-  } catch {
-    // ignore parse errors and treat as publishable
-  }
-
-  return resolveLanguageFallback(item, lang);
-}
-
-/**
- * Get a single published service by id, with language fallback applied.
- */
-export async function getPublishedServiceById(
-  id: string,
-  lang: Language
-): Promise<PublicContentResponse | null> {
-  const item = await prisma.contentItem.findFirst({
-    where: {
-      id,
-      type: 'service',
-      status: 'published',
-    },
-  });
-
-  if (!item) return null;
-
-  return resolveLanguageFallback(item, lang);
-}
+    return resolveLanguageFallback(item, lang);
+  },
+  ['get-published-service-by-id'],
+  { revalidate: CACHE_TTL, tags: ['content', 'services'] }
+);
 
 // ============================================
-// NEW: EVENTS FUNCTIONS
+// EVENTS FUNCTIONS  (cached)
 // ============================================
 
 /**
- * Get published events with pagination, sorted by start date ascending (upcoming first).
- * Optionally filters by category (e.g., 'workshop', 'seminar', 'webinar', 'conference').
- * Optionally filters by eventType ('event' | 'training') stored in metadata.eventType.
+ * Get published events with pagination and optional filters.
+ * Cached with tags: ['content', 'events']
  */
-export async function getPublishedEvents(
-  lang: Language,
-  page: number = 1,
-  category?: string,
-  pageSize: number = 50,
-  eventType?: string
-): Promise<PaginatedPublicResult> {
+export const getPublishedEvents = unstable_cache(
+  async (
+    lang: Language,
+    page: number = 1,
+    category?: string,
+    pageSize: number = 50,
+    eventType?: string
+  ): Promise<PaginatedPublicResult> => {
+    const allEvents = await prisma.contentItem.findMany({
+      where: { type: 'event', status: 'published' },
+      orderBy: { createdAt: 'asc' },
+    });
 
-  const allEvents = await prisma.contentItem.findMany({
-    where: {
-      type: 'event',
-      status: 'published',
-    },
-  });
+    const filtered = allEvents.filter((item) => {
+      let meta: Record<string, unknown> = {};
+      try { meta = JSON.parse(item.metadata); } catch { return false; }
 
-  const filtered = allEvents.filter((item) => {
-    let meta: Record<string, unknown> = {};
-    try {
-      meta = JSON.parse(item.metadata);
-    } catch {
-      return false;
-    }
+      if (category && meta.category !== category) return false;
 
-    // Filter by category if provided
-    if (category && meta.category !== category) {
-      return false;
-    }
+      if (eventType) {
+        const itemEventType = (meta.eventType as string | undefined) || 'event';
+        if (itemEventType !== eventType) return false;
+      }
 
-    // Filter by eventType ('event' | 'training') if provided.
-    // Items with no eventType set are treated as 'event' for backward compatibility.
-    if (eventType) {
-      const itemEventType = (meta.eventType as string | undefined) || 'event';
-      if (itemEventType !== eventType) return false;
-    }
+      return true;
+    });
 
-    return true;
-  });
+    // Sort by startDate ascending (upcoming first)
+    filtered.sort((a, b) => {
+      let metaA: Record<string, unknown> = {};
+      let metaB: Record<string, unknown> = {};
+      try { metaA = JSON.parse(a.metadata); } catch { /* ignore */ }
+      try { metaB = JSON.parse(b.metadata); } catch { /* ignore */ }
+      const dateA = metaA.startDate
+        ? new Date(metaA.startDate as string).getTime()
+        : new Date(a.createdAt).getTime();
+      const dateB = metaB.startDate
+        ? new Date(metaB.startDate as string).getTime()
+        : new Date(b.createdAt).getTime();
+      return dateA - dateB;
+    });
 
-  // Sort by startDate ascending (upcoming events first), fallback to createdAt
-  filtered.sort((a, b) => {
-    const metaA = JSON.parse(a.metadata);
-    const metaB = JSON.parse(b.metadata);
-    const dateA = metaA.startDate ? new Date(metaA.startDate as string).getTime() : new Date(a.createdAt).getTime();
-    const dateB = metaB.startDate ? new Date(metaB.startDate as string).getTime() : new Date(b.createdAt).getTime();
-    return dateA - dateB;
-  });
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / pageSize) || 1;
+    const offset = (Math.max(1, page) - 1) * pageSize;
+    const paged = filtered.slice(offset, offset + pageSize);
 
-  const total = filtered.length;
-  const totalPages = Math.ceil(total / pageSize);
-  const offset = (Math.max(1, page) - 1) * pageSize;
-  const paged = filtered.slice(offset, offset + pageSize);
-
-  return {
-    items: paged.map((item) => resolveLanguageFallback(item, lang)),
-    total,
-    page: Math.max(1, page),
-    pageSize,
-    totalPages,
-  };
-}
+    return {
+      items: paged.map((item) => resolveLanguageFallback(item, lang)),
+      total,
+      page: Math.max(1, page),
+      pageSize,
+      totalPages,
+    };
+  },
+  ['get-published-events'],
+  { revalidate: CACHE_TTL, tags: ['content', 'events'] }
+);
 
 /**
- * Get a single published event by id, with language fallback applied.
+ * Get a single published event by id.
+ * Cached with tags: ['content', 'events']
  */
-export async function getPublishedEventById(
-  id: string,
-  lang: Language
-): Promise<PublicContentResponse | null> {
-  const item = await prisma.contentItem.findFirst({
-    where: {
-      id,
-      type: 'event',
-      status: 'published',
-    },
-  });
+export const getPublishedEventById = unstable_cache(
+  async (id: string, lang: Language): Promise<PublicContentResponse | null> => {
+    const item = await prisma.contentItem.findFirst({
+      where: { id, type: 'event', status: 'published' },
+    });
 
-  if (!item) return null;
+    if (!item) return null;
 
-  return resolveLanguageFallback(item, lang);
-}
+    return resolveLanguageFallback(item, lang);
+  },
+  ['get-published-event-by-id'],
+  { revalidate: CACHE_TTL, tags: ['content', 'events'] }
+);
 
 // ============================================
-// PAGE SECTIONS
+// PAGE SECTIONS  (cached)
 // ============================================
 
 /**
  * Get a specific page section by page name and section key.
+ * Cached with tags: ['content', 'page-sections']
  */
-export async function getPageSection(
-  page: string,
-  sectionKey: string,
-  lang: Language
-): Promise<PublicContentResponse | null> {
-  const items = await prisma.contentItem.findMany({
-    where: {
-      type: 'page_section',
-    },
-  });
-  const section = items.find((item) => {
-    try {
-      const meta = JSON.parse(item.metadata);
-      return meta.page === page && meta.sectionKey === sectionKey;
-    } catch {
-      return false;
-    }
-  });
+export const getPageSection = unstable_cache(
+  async (
+    page: string,
+    sectionKey: string,
+    lang: Language
+  ): Promise<PublicContentResponse | null> => {
+    const items = await prisma.contentItem.findMany({
+      where: { type: 'page_section' },
+    });
 
-  if (!section) return null;
+    const section = items.find((item) => {
+      try {
+        const meta = JSON.parse(item.metadata);
+        return meta.page === page && meta.sectionKey === sectionKey;
+      } catch {
+        return false;
+      }
+    });
 
-  return resolveLanguageFallback(section, lang);
-}
+    if (!section) return null;
+
+    return resolveLanguageFallback(section, lang);
+  },
+  ['get-page-section'],
+  { revalidate: CACHE_TTL, tags: ['content', 'page-sections'] }
+);
 
 // ============================================
-// SEARCH
+// SEARCH  (cached)
 // ============================================
 
 export type SearchResultType = 'service' | 'article' | 'event';
@@ -350,82 +377,79 @@ function toPlainText(html: string): string {
 
 /**
  * Search published services, articles, and events by keyword.
+ * Cached with tags: ['content', 'search']
+ *
+ * NOTE: The short CACHE_TTL (5 min) is intentional here — search results
+ * should feel near-real-time. Invalidation via revalidateTag('search') on
+ * admin saves will clear it immediately when new content is published.
  */
-export async function searchPublicContent(
-  query: string,
-  lang: Language,
-  limit: number = 8
-): Promise<SearchResult[]> {
-  const q = query.trim().toLowerCase();
-  if (q.length < 2) return [];
+export const searchPublicContent = unstable_cache(
+  async (
+    query: string,
+    lang: Language,
+    limit: number = 8
+  ): Promise<SearchResult[]> => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
 
-  const items = await prisma.contentItem.findMany({
-    where: {
-      type: { in: ['service', 'article', 'event'] },
-      status: 'published',
-    },
-  });
-
-  const now = new Date();
-  const results: (SearchResult & { score: number })[] = [];
-
-  for (const item of items) {
-    let meta: Record<string, unknown> = {};
-    try {
-      meta = JSON.parse(item.metadata);
-    } catch {
-      meta = {};
-    }
-
-    // Respect scheduled/future article publish dates.
-    if (item.type === 'article') {
-      const publishDate = meta.publishDate as string | undefined;
-      if (publishDate && new Date(publishDate) > now) continue;
-    }
-
-    const category = typeof meta.category === 'string' ? meta.category : '';
-    const haystack = [
-      item.titleAr,
-      item.titleEn,
-      toPlainText(item.bodyAr || ''),
-      toPlainText(item.bodyEn || ''),
-      category,
-    ]
-      .join(' ')
-      .toLowerCase();
-
-    if (!haystack.includes(q)) continue;
-
-    const resolved = resolveLanguageFallback(item, lang);
-    const type = item.type as SearchResultType;
-
-    // Rank: title matches beat body matches; services beat events, events beat articles.
-    const titleMatch =
-      item.titleAr.toLowerCase().includes(q) ||
-      item.titleEn.toLowerCase().includes(q);
-    
-    let score = titleMatch ? 100 : 50;
-    if (type === 'service') score += 20;
-    else if (type === 'event') score += 10;
-
-    let url = '';
-    if (type === 'service') url = `/services/${item.id}`;
-    else if (type === 'event') url = `/events/${item.id}`;
-    else url = `/knowledge/${item.id}`;
-
-    results.push({
-      ...resolved,
-      type,
-      category: category || undefined,
-      url,
-      score,
+    const items = await prisma.contentItem.findMany({
+      where: {
+        type: { in: ['service', 'article', 'event'] },
+        status: 'published',
+      },
     });
-  }
 
-  results.sort((a, b) => b.score - a.score);
+    const now = new Date();
+    const results: (SearchResult & { score: number })[] = [];
 
-  return results.slice(0, limit).map(({ score, ...rest }) => {
-    void score;
-    return rest;
-  });
-}
+    for (const item of items) {
+      let meta: Record<string, unknown> = {};
+      try { meta = JSON.parse(item.metadata); } catch { meta = {}; }
+
+      if (item.type === 'article') {
+        const publishDate = meta.publishDate as string | undefined;
+        if (publishDate && new Date(publishDate) > now) continue;
+      }
+
+      const category = typeof meta.category === 'string' ? meta.category : '';
+      const haystack = [
+        item.titleAr,
+        item.titleEn,
+        toPlainText(item.bodyAr || ''),
+        toPlainText(item.bodyEn || ''),
+        category,
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      if (!haystack.includes(q)) continue;
+
+      const resolved = resolveLanguageFallback(item, lang);
+      const type = item.type as SearchResultType;
+
+      const titleMatch =
+        item.titleAr.toLowerCase().includes(q) ||
+        item.titleEn.toLowerCase().includes(q);
+
+      let score = titleMatch ? 100 : 50;
+      if (type === 'service') score += 20;
+      else if (type === 'event') score += 10;
+
+      let url = '';
+      if (type === 'service') url = `/services/${item.id}`;
+      else if (type === 'event') url = `/events/${item.id}`;
+      else url = `/knowledge/${item.id}`;
+
+      results.push({ ...resolved, type, category: category || undefined, url, score });
+    }
+
+    results.sort((a, b) => b.score - a.score);
+
+    return results.slice(0, limit).map(({ score, ...rest }) => {
+      void score;
+      return rest;
+    });
+  },
+  ['search-public-content'],
+  { revalidate: CACHE_TTL, tags: ['content', 'search'] }
+);

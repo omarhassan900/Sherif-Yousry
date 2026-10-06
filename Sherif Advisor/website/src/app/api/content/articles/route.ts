@@ -25,7 +25,11 @@ export async function GET(request: NextRequest) {
 
     const result = await getPublishedArticles(lang, page, category);
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+      },
+    });
   } catch (error) {
     console.error('Failed to fetch public articles:', error);
     return NextResponse.json(

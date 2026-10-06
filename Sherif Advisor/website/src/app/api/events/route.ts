@@ -15,7 +15,11 @@ export async function GET(request: NextRequest) {
 
     const result = await getPublishedEvents(lang, page, category, pageSize, eventType);
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+      },
+    });
   } catch (error) {
     console.error('Error fetching events:', error);
     return NextResponse.json(

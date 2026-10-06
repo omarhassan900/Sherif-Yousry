@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { Loader2, CheckCircle2, Phone, Mail, MapPin } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
 import { BUSINESS_ACTIVITIES, COUNTRIES, DIAL_CODES } from '@/lib/inquiry-options';
 
@@ -35,7 +35,6 @@ export function Contact() {
     setLang(getClientLanguage());
   }, []);
 
-  // Load the service list for the "What can we help you with?" dropdown.
   useEffect(() => {
     let cancelled = false;
     fetch(`/api/content/services?lang=${lang}`)
@@ -46,9 +45,7 @@ export function Contact() {
         }
       })
       .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [lang]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -113,89 +110,104 @@ export function Contact() {
   }
 
   const fieldClass =
-    'w-full px-4 py-3 bg-white border border-[#d8d2c6] rounded-lg text-[#1c2733] placeholder:text-[#727e8c] text-sm focus:outline-none focus:border-[#1c2733] focus:ring-2 focus:ring-[#1c2733]/10 transition-all';
+    'w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-400 text-sm focus:outline-none focus:border-gray-900 focus:ring-2 focus:ring-gray-900/8 transition-all';
   const selectClass = `${fieldClass} appearance-none cursor-pointer`;
 
   return (
     <section
-      className="relative overflow-hidden border-y border-[#d8d2c6]"
+      className="bg-white py-16 lg:py-24"
       id="contact"
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[700px]">
+      <div className="max-w-3xl mx-auto px-6 lg:px-8">
 
-        {/* ── LEFT: Navy info panel ── */}
-        <div className="relative bg-[#1c2733] flex flex-col justify-center px-10 py-16 lg:py-20 overflow-hidden">
-          {/* Subtle cream-tinted glow matching banner */}
-          <div className="absolute -top-32 -start-32 w-80 h-80 bg-[#f4f0e8]/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-32 -end-20 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl pointer-events-none" />
+        {/* Section header — centered */}
+        <div className="text-center mb-10 lg:mb-12">
+          <span className="text-xs font-bold tracking-[0.25em] text-gray-400 uppercase mb-3 block">
+            {t(lang, 'تواصل معنا', 'Get In Touch')}
+          </span>
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-gray-900 uppercase tracking-wide leading-tight">
+            {t(lang, 'اطلب استشارة', 'Request a Consultation')}
+          </h2>
+          <p className="mt-4 text-sm text-gray-500 leading-relaxed max-w-lg mx-auto">
+            {t(
+              lang,
+              'اترك بياناتك وسنتواصل معك قريباً. نلتزم بالرد بسرعة على كل استفساراتكم.',
+              "Leave your details and we'll be in touch shortly. We're committed to responding promptly to every query."
+            )}
+          </p>
+        </div>
 
-          <div className="relative max-w-md">
-            <span className="text-[0.65rem] font-bold tracking-[0.25em] text-[#727e8c] uppercase mb-4 block">
-              {t(lang, 'تواصل معنا', 'Get In Touch')}
-            </span>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-white uppercase tracking-wide leading-tight mb-5">
-              {t(lang, 'اطلب\nاستشارة', 'Request a\nConsultation')}
-            </h2>
-            <p className="text-[#727e8c] text-xs leading-relaxed mb-10 max-w-xs">
-              {t(
-                lang,
-                'اترك بياناتك وسنتواصل معك قريباً. نلتزم بالرد بسرعة على كل استفساراتكم.',
-                "Leave your details and we'll be in touch shortly. We're committed to responding promptly to every query."
-              )}
-            </p>
-
-            {/* Contact details */}
-            <div className="flex flex-col gap-5">
-              {[
-                { icon: '✆', labelAr: 'اتصل بنا', labelEn: 'Call us', valueAr: '+٢٠ ١١١ ٢٠٤ ٢٠٩٨', valueEn: '+20 111 204 2098', href: 'tel:+201112042098' },
-                { icon: '✉', labelAr: 'البريد الإلكتروني', labelEn: 'Email', valueAr: 'info@sherifadvisory.com', valueEn: 'info@sherifadvisory.com', href: 'mailto:info@sherifadvisory.com' },
-                { icon: '⌖', labelAr: 'المقر الرئيسي', labelEn: 'Headquarters', valueAr: 'القاهرة الجديدة، مصر', valueEn: 'New Cairo, Cairo, Egypt', href: undefined },
-              ].map((item) => (
-                <div key={item.labelEn} className="flex items-center gap-4">
-                  <div className="w-9 h-9 rounded-full border border-brand-gold/40 flex items-center justify-center shrink-0">
-                    <span className="text-brand-gold text-sm">{item.icon}</span>
-                  </div>
-                  <div>
-                    <p className="text-[0.6rem] text-[#4a5664] uppercase tracking-wider mb-0.5">
-                      {t(lang, item.labelAr, item.labelEn)}
-                    </p>
-                    {item.href ? (
-                      <a href={item.href} className="text-white text-sm hover:text-brand-gold transition-colors" dir={item.labelEn === 'Call us' ? 'ltr' : undefined}>
-                        {t(lang, item.valueAr, item.valueEn)}
-                      </a>
-                    ) : (
-                      <p className="text-white text-sm">{t(lang, item.valueAr, item.valueEn)}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
+        {/* Contact info row — centered */}
+        <div className="flex flex-wrap justify-center gap-8 mb-10">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center shrink-0">
+              <Phone className="w-4 h-4 text-gray-700" />
             </div>
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">
+                {t(lang, 'اتصل بنا', 'Call us')}
+              </p>
+              <a href="tel:+201112042098" className="text-sm text-gray-900 hover:text-brand-gold transition-colors" dir="ltr">
+                +20 111 204 2098
+              </a>
+            </div>
+          </div>
 
-            {/* Divider line — matches banner style */}
-            <div className="w-10 h-[1.5px] bg-brand-gold mt-10" />
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center shrink-0">
+              <Mail className="w-4 h-4 text-gray-700" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">
+                {t(lang, 'البريد الإلكتروني', 'Email')}
+              </p>
+              <a href="mailto:info@sherifadvisory.com" className="text-sm text-gray-900 hover:text-brand-gold transition-colors">
+                info@sherifadvisory.com
+              </a>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center shrink-0">
+              <MapPin className="w-4 h-4 text-gray-700" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">
+                {t(lang, 'المقر الرئيسي', 'Headquarters')}
+              </p>
+              <p className="text-sm text-gray-900">
+                {t(lang, 'القاهرة الجديدة، مصر', 'New Cairo, Egypt')}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* ── RIGHT: Cream form panel ── */}
-        <div className="bg-[#f4f0e8] flex flex-col justify-center px-8 py-16 lg:py-20">
-          <div className="max-w-lg w-full mx-auto">
-            <h3 className="font-serif text-2xl font-bold text-[#1c2733] uppercase tracking-wide mb-1">
+        {/* Divider */}
+        <div className="flex items-center gap-4 mb-10">
+          <div className="flex-1 h-px bg-gray-100" />
+          <div className="w-8 h-[2px] bg-brand-gold" />
+          <div className="flex-1 h-px bg-gray-100" />
+        </div>
+
+        {/* ── Form — full width, centered ── */}
+        <div>
+            <h3 className="font-serif text-xl font-bold text-gray-900 uppercase tracking-wide mb-1 text-center">
               {t(lang, 'أرسل لنا رسالة', 'Send us a message')}
             </h3>
-            <p className="text-xs text-[#727e8c] tracking-wider uppercase mb-6">
+            <p className="text-xs text-gray-400 tracking-wider uppercase mb-6 text-center">
               {t(lang, 'جميع الحقول المعلّمة بـ * إلزامية', 'All fields marked * are required')}
             </p>
 
             {success ? (
-              <div className="flex flex-col items-center text-center gap-4 py-10">
-                <div className="w-14 h-14 rounded-full bg-white border border-[#d8d2c6] flex items-center justify-center">
-                  <CheckCircle2 className="w-7 h-7 text-[#1c2733]" />
+              <div className="flex flex-col items-center text-center gap-4 py-12 border border-gray-100 rounded-2xl">
+                <div className="w-14 h-14 rounded-full bg-gray-50 border border-gray-200 flex items-center justify-center">
+                  <CheckCircle2 className="w-7 h-7 text-gray-900" />
                 </div>
-                <h3 className="text-xl font-semibold text-[#1c2733]">
+                <h3 className="text-xl font-semibold text-gray-900">
                   {t(lang, 'تم الإرسال', 'Message Sent')}
                 </h3>
-                <p className="text-sm text-[#4a5664]">
+                <p className="text-sm text-gray-500">
                   {t(lang, 'شكراً لتواصلك. سنعود إليك قريباً.', 'Thank you for reaching out. We will get back to you soon.')}
                 </p>
               </div>
@@ -208,77 +220,132 @@ export function Contact() {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-                    placeholder={t(lang, 'الاسم الكامل*', 'Full Name*')} maxLength={100} className={fieldClass} />
-                  <div className="flex items-stretch bg-white border border-[#d8d2c6] rounded-lg overflow-hidden focus-within:border-[#1c2733] focus-within:ring-2 focus-within:ring-[#1c2733]/10 transition-all">
-                    <select value={dialCode} onChange={(e) => setDialCode(e.target.value)}
-                      className="bg-[#ede9e1] px-3 py-3 text-sm text-[#1c2733] border-e border-[#d8d2c6] focus:outline-none cursor-pointer"
-                      aria-label={t(lang, 'رمز الدولة', 'Country code')}>
-                      {DIAL_CODES.map((d) => <option key={d.code} value={d.dial}>{d.code} {d.dial}</option>)}
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={t(lang, 'الاسم الكامل*', 'Full Name*')}
+                    maxLength={100}
+                    className={fieldClass}
+                  />
+                  <div className="flex items-stretch bg-white border border-gray-200 rounded-lg overflow-hidden focus-within:border-gray-900 focus-within:ring-2 focus-within:ring-gray-900/8 transition-all">
+                    <select
+                      value={dialCode}
+                      onChange={(e) => setDialCode(e.target.value)}
+                      className="bg-gray-50 px-3 py-3 text-sm text-gray-900 border-e border-gray-200 focus:outline-none cursor-pointer"
+                      aria-label={t(lang, 'رمز الدولة', 'Country code')}
+                    >
+                      {DIAL_CODES.map((d) => (
+                        <option key={d.code} value={d.dial}>{d.code} {d.dial}</option>
+                      ))}
                     </select>
-                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-                      placeholder={t(lang, 'الهاتف', 'Phone')} maxLength={30}
-                      className="flex-1 px-4 py-3 bg-transparent text-sm text-[#1c2733] placeholder:text-[#727e8c] focus:outline-none" />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder={t(lang, 'الهاتف', 'Phone')}
+                      maxLength={30}
+                      className="flex-1 px-4 py-3 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                    />
                   </div>
                 </div>
 
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t(lang, 'البريد الإلكتروني*', 'Email*')} maxLength={254} className={fieldClass} />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t(lang, 'البريد الإلكتروني*', 'Email*')}
+                  maxLength={254}
+                  className={fieldClass}
+                />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <select value={businessActivity} onChange={(e) => setBusinessActivity(e.target.value)}
-                    className={`${selectClass} ${businessActivity ? 'text-[#1c2733]' : 'text-[#727e8c]'}`}>
+                  <select
+                    value={businessActivity}
+                    onChange={(e) => setBusinessActivity(e.target.value)}
+                    className={`${selectClass} ${businessActivity ? 'text-gray-900' : 'text-gray-400'}`}
+                  >
                     <option value="" disabled>{t(lang, 'نشاط العمل*', 'Business Activity*')}</option>
-                    {BUSINESS_ACTIVITIES.map((o) => <option key={o.value} value={o.value}>{t(lang, o.labelAr, o.labelEn)}</option>)}
+                    {BUSINESS_ACTIVITIES.map((o) => (
+                      <option key={o.value} value={o.value}>{t(lang, o.labelAr, o.labelEn)}</option>
+                    ))}
                   </select>
-                  <select value={country} onChange={(e) => setCountry(e.target.value)}
-                    className={`${selectClass} ${country ? 'text-[#1c2733]' : 'text-[#727e8c]'}`}>
+                  <select
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className={`${selectClass} ${country ? 'text-gray-900' : 'text-gray-400'}`}
+                  >
                     <option value="" disabled>{t(lang, 'أقيم في...*', 'I live in...*')}</option>
-                    {COUNTRIES.map((o) => <option key={o.value} value={o.value}>{t(lang, o.labelAr, o.labelEn)}</option>)}
+                    {COUNTRIES.map((o) => (
+                      <option key={o.value} value={o.value}>{t(lang, o.labelAr, o.labelEn)}</option>
+                    ))}
                   </select>
                 </div>
 
-                <select value={helpWith} onChange={(e) => setHelpWith(e.target.value)}
-                  className={`${selectClass} ${helpWith ? 'text-[#1c2733]' : 'text-[#727e8c]'}`}>
+                <select
+                  value={helpWith}
+                  onChange={(e) => setHelpWith(e.target.value)}
+                  className={`${selectClass} ${helpWith ? 'text-gray-900' : 'text-gray-400'}`}
+                >
                   <option value="" disabled>{t(lang, 'كيف يمكننا مساعدتك؟*', 'What Can We Help You With?*')}</option>
-                  {services.map((s) => <option key={s.id} value={s.title}>{s.title}</option>)}
+                  {services.map((s) => (
+                    <option key={s.id} value={s.title}>{s.title}</option>
+                  ))}
                   <option value="Other">{t(lang, 'أخرى', 'Other')}</option>
                 </select>
 
-                <textarea value={message} onChange={(e) => setMessage(e.target.value)}
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                   placeholder={t(lang, 'رسالتك (اختياري)', 'Your Message (optional)')}
-                  maxLength={2000} rows={4}
-                  className={`${fieldClass} rounded-xl resize-none`} />
+                  maxLength={2000}
+                  rows={4}
+                  className={`${fieldClass} rounded-xl resize-none`}
+                />
 
                 <label className="flex items-start gap-2.5 cursor-pointer">
-                  <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-[#d8d2c6] text-[#1c2733] focus:ring-[#1c2733]/30 cursor-pointer" />
-                  <span className="text-xs text-[#4a5664] leading-5">
-                    {t(lang, 'أؤكد أنني قرأت وفهمت الشروط وسياسة الخصوصية وأوافق على جمع ومعالجة بياناتي. ',
-                      'I confirm that I have read and understood the Terms and Privacy Policy and consent to the collection and processing of my data. ')}
-                    <Link href="/terms" className="text-[#1c2733] underline hover:text-brand-gold">{t(lang, 'الشروط', 'Terms')}</Link>
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900/30 cursor-pointer"
+                  />
+                  <span className="text-xs text-gray-500 leading-5">
+                    {t(
+                      lang,
+                      'أؤكد أنني قرأت وفهمت الشروط وسياسة الخصوصية وأوافق على جمع ومعالجة بياناتي. ',
+                      'I confirm that I have read and understood the Terms and Privacy Policy and consent to the collection and processing of my data. '
+                    )}
+                    <Link href="/terms" className="text-gray-900 underline hover:text-brand-gold">
+                      {t(lang, 'الشروط', 'Terms')}
+                    </Link>
                     {' · '}
-                    <Link href="/privacy" className="text-[#1c2733] underline hover:text-brand-gold">{t(lang, 'الخصوصية', 'Privacy')}</Link>
+                    <Link href="/privacy" className="text-gray-900 underline hover:text-brand-gold">
+                      {t(lang, 'الخصوصية', 'Privacy')}
+                    </Link>
                   </span>
                 </label>
 
-                {/* Submit — same pill style as banner CTA */}
-                <div className="pt-1">
-                  <button type="submit" disabled={submitting}
-                    className="border-[#1c2733] border group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed">
-                    <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-[#1c2733] transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
-                    <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-[#1c2733] text-white flex-shrink-0">
+                <div className="pt-1 flex justify-center">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="border border-gray-900 group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-xs font-bold uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed overflow-hidden"
+                  >
+                    <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-gray-900 transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
+                    <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-gray-900 text-white flex-shrink-0">
                       {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <span className="text-base">→</span>}
                     </span>
-                    <span className="relative z-10 text-[#1c2733] transition-colors duration-300 group-hover:text-white">
-                      {submitting ? t(lang, 'جاري الإرسال...', 'Submitting...') : t(lang, 'إرسال الطلب', 'Submit Request')}
+                    <span className="relative z-10 text-gray-900 transition-colors duration-300 group-hover:text-white">
+                      {submitting
+                        ? t(lang, 'جاري الإرسال...', 'Submitting...')
+                        : t(lang, 'إرسال الطلب', 'Submit Request')}
                     </span>
                   </button>
                 </div>
               </form>
             )}
           </div>
-        </div>
       </div>
     </section>
   );

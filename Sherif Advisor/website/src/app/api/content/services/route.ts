@@ -16,7 +16,11 @@ export async function GET(request: NextRequest) {
 
     const services = await getPublishedServices(lang);
 
-    return NextResponse.json({ items: services });
+    return NextResponse.json({ items: services }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+      },
+    });
   } catch (error) {
     console.error('Failed to fetch public services:', error);
     return NextResponse.json(

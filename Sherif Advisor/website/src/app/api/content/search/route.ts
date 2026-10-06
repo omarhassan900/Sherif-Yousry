@@ -24,7 +24,11 @@ export async function GET(request: NextRequest) {
 
     const items = await searchPublicContent(q, lang, limit);
 
-    return NextResponse.json({ query: q.trim(), items });
+    return NextResponse.json({ query: q.trim(), items }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+      },
+    });
   } catch (error) {
     console.error('Failed to search content:', error);
     return NextResponse.json(

@@ -10,6 +10,7 @@ import { ScrollProgress } from '@/components/effects/ScrollProgress';
 import { Team } from '@/components/sections/Team';
 import { ArrowRight, Eye, Target, Briefcase, TrendingUp, Users, Heart } from 'lucide-react';
 import { getClientLanguage, type Language } from '@/lib/language';
+import { ClientsSection } from '@/components/sections/ClientsSection';
 
 const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 
@@ -257,6 +258,9 @@ export default function AboutPage() {
         )}
         <Team hideHeader={!!teamSection} />
       </section>
+
+      {/* ══ OUR CLIENTS ═══════════════════════════════════════════ */}
+      <ClientsSection />
 
       {/* ══ CAREERS ═══════════════════════════════════════════════ */}
       <section id="careers" className="py-24 bg-gray-50">
