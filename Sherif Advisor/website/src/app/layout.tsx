@@ -4,6 +4,13 @@ import './globals.css';
 import { DirectionSync } from '@/components/DirectionSync'; // ✅ Import the sync component
 import { PageViewTracker } from '@/components/PageViewTracker';
 
+// Database-driven CMS: render all routes dynamically at request time.
+// Prevents build-time static-prerender crashes (useContext null from client
+// components / request.url usage) and matches how the app serves live content.
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Sherif Yousry Advisory | استشارات شريف يسري',
   description:

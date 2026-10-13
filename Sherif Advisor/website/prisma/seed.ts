@@ -1,21 +1,32 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
-import { PrismaLibSql } from '@prisma/adapter-libsql';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import bcrypt from 'bcryptjs';
 
-// Use the same libSQL adapter as the app runtime (src/lib/prisma.ts) so the
-// seed writes to the exact database the app reads from. libSQL is pure JS,
-// which also avoids the native-binding build that better-sqlite3 requires.
-// Fall back to DATABASE_URL when the TURSO_* vars aren't set (local dev uses
-// a file: URL for both).
-const adapter = new PrismaLibSql({
-  url:
-    process.env.TURSO_DATABASE_URL ||
-    process.env.DATABASE_URL ||
-    'file:./prisma/dev.db',
-  authToken: process.env.TURSO_AUTH_TOKEN,
+// Build the MySQL connection URL the same way the app runtime does
+// (src/lib/db-url.ts) so the seed writes to the exact database the app reads.
+function getDatabaseUrl(): string {
+  if (process.env.DATABASE_URL && process.env.DATABASE_URL.length > 0) {
+    return process.env.DATABASE_URL;
+  }
+  const host = process.env.DB_HOST;
+  const port = process.env.DB_PORT ?? '3306';
+  const name = process.env.DB_NAME;
+  const user = process.env.DB_USER;
+  const password = process.env.DB_PASSWORD ?? '';
+  if (!host || !name || !user) {
+    throw new Error(
+      'No database connection info. Set DATABASE_URL or DB_HOST/DB_NAME/DB_USER/DB_PASSWORD.'
+    );
+  }
+  return `mysql://${encodeURIComponent(user)}:${encodeURIComponent(
+    password
+  )}@${host}:${port}/${name}`;
+}
+
+const prisma = new PrismaClient({
+  adapter: new PrismaMariaDb(getDatabaseUrl()),
 });
-const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const email = process.env.ADMIN_EMAIL;

@@ -3,6 +3,8 @@ import { getAdminSession } from '@/lib/admin-session';
 import AdminShell from './components/AdminShell';
 import DashboardClient from './components/dashboard/DashboardClient';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Admin v2 Dashboard — modern interactive analytics dashboard.
  * Server component handles auth; the interactive charts/KPIs live in

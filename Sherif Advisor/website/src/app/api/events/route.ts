@@ -1,3 +1,6 @@
+// Force dynamic rendering - reads request data / queries the DB at runtime
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 // ⚠️ Adjust this import path to match where you saved the Public Content Delivery Module
 import { getPublishedEvents } from '@/lib/public-content'; 

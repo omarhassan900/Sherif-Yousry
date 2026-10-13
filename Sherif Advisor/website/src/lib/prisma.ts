@@ -1,26 +1,34 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaLibSql } from '@prisma/adapter-libsql';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+import { getDatabaseUrl } from './db-url';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
 function createPrismaClient() {
-  // ✅ Pass the config object directly to the adapter
-  const adapter = new PrismaLibSql({
-    url: process.env.TURSO_DATABASE_URL!,
-    authToken: process.env.TURSO_AUTH_TOKEN!,
-  });
-
+  // Prisma 7 requires a driver adapter. GoDaddy's MySQL speaks the MariaDB
+  // wire protocol, so the official @prisma/adapter-mariadb works. It accepts a
+  // connection string built from GoDaddy's injected DB_* vars (or DATABASE_URL).
+  const url = getDatabaseUrl();
+  const adapter = new PrismaMariaDb(url);
   return new PrismaClient({ adapter });
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+/**
+ * Lazily-initialised Prisma client. The Proxy defers creation until first use
+ * so `next build` doesn't instantiate it (and connect) at import time.
+ */
+const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    if (!globalForPrisma.prisma) {
+      globalForPrisma.prisma = createPrismaClient();
+    }
+    const client = globalForPrisma.prisma as unknown as Record<string | symbol, unknown>;
+    const value = client[prop];
+    return typeof value === 'function' ? value.bind(client) : value;
+  },
+});
 
-// Cache the client on the global object in every environment. Without this,
-// each module load / serverless invocation could create a brand-new
-// PrismaClient (and a new libSQL connection), adding cold-start latency to
-// requests. The global cache ensures a single reused instance per process.
-globalForPrisma.prisma = prisma;
-
+export { prisma };
 export default prisma;

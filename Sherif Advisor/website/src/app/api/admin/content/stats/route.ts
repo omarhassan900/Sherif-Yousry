@@ -1,3 +1,6 @@
+// Force dynamic rendering - reads request data / queries the DB at runtime
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 

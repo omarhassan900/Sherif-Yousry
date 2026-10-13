@@ -1,11 +1,12 @@
 // prisma/schema.prisma
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 model AdminUser {
@@ -21,8 +22,8 @@ model AdminUser {
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
-  createdContent  ContentItem[]    @relation("CreatedBy")
-  updatedContent  ContentItem[]    @relation("UpdatedBy")
+  createdContent  ContentItem[]     @relation("CreatedBy")
+  updatedContent  ContentItem[]     @relation("UpdatedBy")
   revisions       ContentRevision[]
   uploadedMedia   MediaItem[]
 }
@@ -30,39 +31,39 @@ model AdminUser {
 model ContentItem {
   id         String   @id @default(cuid())
   type       String   // "service" | "article" | "page_section"
-  titleAr    String
-  titleEn    String
-  bodyAr     String
-  bodyEn     String
+  titleAr    String   @db.Text
+  titleEn    String   @db.Text
+  bodyAr     String   @db.LongText
+  bodyEn     String   @db.LongText
   status     String   @default("unpublished") // "published" | "unpublished"
-  metadata   String   @default("{}") // JSON string for type-specific fields
-  
+  metadata   String   @default("{}") @db.Text // JSON string for type-specific fields
+
   createdById String
   updatedById String
   createdBy   AdminUser @relation("CreatedBy", fields: [createdById], references: [id])
   updatedBy   AdminUser @relation("UpdatedBy", fields: [updatedById], references: [id])
-  
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  revisions      ContentRevision[]
-  mediaReferences MediaReference[]
-  serviceInquiries ServiceInquiry[] @relation("ServiceInquiries")
+  revisions        ContentRevision[]
+  mediaReferences  MediaReference[]
+  serviceInquiries ServiceInquiry[]  @relation("ServiceInquiries")
 
   @@index([type, status])
   @@index([updatedAt])
 }
 
 model ContentRevision {
-  id              String   @id @default(cuid())
-  contentId       String
-  content         ContentItem @relation(fields: [contentId], references: [id], onDelete: Cascade)
-  revisionNumber  Int
-  previousState   String   // JSON snapshot of all fields
-  changedFields   String   // JSON array of field names
-  changedById     String
-  changedBy       AdminUser @relation(fields: [changedById], references: [id])
-  createdAt       DateTime @default(now())
+  id             String      @id @default(cuid())
+  contentId      String
+  content        ContentItem @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  revisionNumber Int
+  previousState  String      @db.LongText // JSON snapshot of all fields
+  changedFields  String      @db.Text     // JSON array of field names
+  changedById    String
+  changedBy      AdminUser   @relation(fields: [changedById], references: [id])
+  createdAt      DateTime    @default(now())
 
   @@index([contentId, createdAt])
   @@unique([contentId, revisionNumber])
@@ -79,7 +80,7 @@ model MediaItem {
   height       Int
   uploadedById String
   uploadedBy   AdminUser @relation(fields: [uploadedById], references: [id])
-  uploadedAt   DateTime @default(now())
+  uploadedAt   DateTime  @default(now())
 
   references MediaReference[]
 }
@@ -102,8 +103,7 @@ model PageView {
   country   String?  // coarse country (from header if available)
   device    String?  // "mobile" | "tablet" | "desktop"
   lang      String?  // "ar" | "en"
-  // A coarse, cookieless session id (rotates daily) to approximate unique visits.
-  sessionId String?
+  sessionId String?  // cookieless session id, rotates daily
   createdAt DateTime @default(now())
 
   @@index([createdAt])
@@ -111,30 +111,25 @@ model PageView {
 }
 
 model ServiceInquiry {
-  id           String   @id @default(cuid())
-  // Link to the service the inquiry was sent from. Nullable + SetNull so
-  // deleting a service doesn't erase its inquiry history.
-  serviceId    String?
-  service      ContentItem? @relation("ServiceInquiries", fields: [serviceId], references: [id], onDelete: SetNull)
-  // Snapshot of the service name at submission time (survives service deletion)
-  serviceName  String
+  id          String  @id @default(cuid())
+  serviceId   String?
+  service     ContentItem? @relation("ServiceInquiries", fields: [serviceId], references: [id], onDelete: SetNull)
+  serviceName String
 
-  // Source of the inquiry: "service" (from a service page) | "contact" (contact form)
-  source       String   @default("service")
-
+  source           String  @default("service") // "service" | "contact"
   name             String
   email            String
   phone            String?
-  countryCode      String?  // dial code selected with the phone, e.g. "+20"
+  countryCode      String?
   businessActivity String?
-  country          String?  // "I live in..."
-  helpWith         String?  // "What can we help you with?"
-  consent          Boolean  @default(false)
-  message          String?
+  country          String?
+  helpWith         String?
+  consent          Boolean @default(false)
+  message          String? @db.Text
 
-  status       String   @default("new") // "new" | "read" | "archived"
-  ipAddress    String?
-  createdAt    DateTime @default(now())
+  status    String   @default("new") // "new" | "read" | "archived"
+  ipAddress String?
+  createdAt DateTime @default(now())
 
   @@index([status, createdAt])
   @@index([serviceId])

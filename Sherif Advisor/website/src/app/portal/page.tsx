@@ -1,6 +1,8 @@
 import { Lock, FileText, MessageSquare, BarChart3, Bell, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function PortalPage() {
   return (
     <div className="min-h-screen bg-brand-navy-dark flex items-center justify-center px-6">

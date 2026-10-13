@@ -1,0 +1,157 @@
+-- ============================================================
+-- Sherif Yousry Advisory — MySQL full import (schema + admin)
+-- Import via GoDaddy → Settings → Hosted Database → Import SQL
+-- ============================================================
+
+SET FOREIGN_KEY_CHECKS = 0;
+SET NAMES utf8mb4;
+
+DROP TABLE IF EXISTS `MediaReference`;
+DROP TABLE IF EXISTS `ContentRevision`;
+DROP TABLE IF EXISTS `ServiceInquiry`;
+DROP TABLE IF EXISTS `MediaItem`;
+DROP TABLE IF EXISTS `ContentItem`;
+DROP TABLE IF EXISTS `PageView`;
+DROP TABLE IF EXISTS `AdminUser`;
+
+CREATE TABLE `AdminUser` (
+    `id` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `displayName` VARCHAR(191) NOT NULL,
+    `passwordHash` VARCHAR(191) NOT NULL,
+    `role` VARCHAR(191) NOT NULL DEFAULT 'admin',
+    `isActive` TINYINT(1) NOT NULL DEFAULT 1,
+    `requiresPasswordChange` TINYINT(1) NOT NULL DEFAULT 1,
+    `failedLoginAttempts` INTEGER NOT NULL DEFAULT 0,
+    `lockedUntil` DATETIME(3) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    UNIQUE INDEX `AdminUser_email_key`(`email`),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `ContentItem` (
+    `id` VARCHAR(191) NOT NULL,
+    `type` VARCHAR(191) NOT NULL,
+    `titleAr` TEXT NOT NULL,
+    `titleEn` TEXT NOT NULL,
+    `bodyAr` LONGTEXT NOT NULL,
+    `bodyEn` LONGTEXT NOT NULL,
+    `status` VARCHAR(191) NOT NULL DEFAULT 'unpublished',
+    `metadata` TEXT NULL,
+    `createdById` VARCHAR(191) NOT NULL,
+    `updatedById` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    INDEX `ContentItem_type_status_idx`(`type`, `status`),
+    INDEX `ContentItem_updatedAt_idx`(`updatedAt`),
+    INDEX `ContentItem_createdById_fkey`(`createdById`),
+    INDEX `ContentItem_updatedById_fkey`(`updatedById`),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `ContentRevision` (
+    `id` VARCHAR(191) NOT NULL,
+    `contentId` VARCHAR(191) NOT NULL,
+    `revisionNumber` INTEGER NOT NULL,
+    `previousState` LONGTEXT NOT NULL,
+    `changedFields` TEXT NOT NULL,
+    `changedById` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    INDEX `ContentRevision_contentId_createdAt_idx`(`contentId`, `createdAt`),
+    INDEX `ContentRevision_changedById_fkey`(`changedById`),
+    UNIQUE INDEX `ContentRevision_contentId_revisionNumber_key`(`contentId`, `revisionNumber`),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `MediaItem` (
+    `id` VARCHAR(191) NOT NULL,
+    `fileName` VARCHAR(191) NOT NULL,
+    `originalName` VARCHAR(191) NOT NULL,
+    `filePath` VARCHAR(191) NOT NULL,
+    `mimeType` VARCHAR(191) NOT NULL,
+    `fileSize` INTEGER NOT NULL,
+    `width` INTEGER NOT NULL,
+    `height` INTEGER NOT NULL,
+    `uploadedById` VARCHAR(191) NOT NULL,
+    `uploadedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    UNIQUE INDEX `MediaItem_fileName_key`(`fileName`),
+    INDEX `MediaItem_uploadedById_fkey`(`uploadedById`),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `MediaReference` (
+    `id` VARCHAR(191) NOT NULL,
+    `mediaId` VARCHAR(191) NOT NULL,
+    `contentId` VARCHAR(191) NOT NULL,
+    `fieldName` VARCHAR(191) NOT NULL,
+    UNIQUE INDEX `MediaReference_mediaId_contentId_fieldName_key`(`mediaId`, `contentId`, `fieldName`),
+    INDEX `MediaReference_contentId_fkey`(`contentId`),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `PageView` (
+    `id` VARCHAR(191) NOT NULL,
+    `path` VARCHAR(191) NOT NULL,
+    `referrer` VARCHAR(191) NULL,
+    `country` VARCHAR(191) NULL,
+    `device` VARCHAR(191) NULL,
+    `lang` VARCHAR(191) NULL,
+    `sessionId` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    INDEX `PageView_createdAt_idx`(`createdAt`),
+    INDEX `PageView_path_idx`(`path`),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE `ServiceInquiry` (
+    `id` VARCHAR(191) NOT NULL,
+    `serviceId` VARCHAR(191) NULL,
+    `serviceName` VARCHAR(191) NOT NULL,
+    `source` VARCHAR(191) NOT NULL DEFAULT 'service',
+    `name` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `phone` VARCHAR(191) NULL,
+    `countryCode` VARCHAR(191) NULL,
+    `businessActivity` VARCHAR(191) NULL,
+    `country` VARCHAR(191) NULL,
+    `helpWith` VARCHAR(191) NULL,
+    `consent` TINYINT(1) NOT NULL DEFAULT 0,
+    `message` TEXT NULL,
+    `status` VARCHAR(191) NOT NULL DEFAULT 'new',
+    `ipAddress` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    INDEX `ServiceInquiry_status_createdAt_idx`(`status`, `createdAt`),
+    INDEX `ServiceInquiry_serviceId_idx`(`serviceId`),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE `ContentItem` ADD CONSTRAINT `ContentItem_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `AdminUser`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `ContentItem` ADD CONSTRAINT `ContentItem_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `AdminUser`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `ContentRevision` ADD CONSTRAINT `ContentRevision_contentId_fkey` FOREIGN KEY (`contentId`) REFERENCES `ContentItem`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `ContentRevision` ADD CONSTRAINT `ContentRevision_changedById_fkey` FOREIGN KEY (`changedById`) REFERENCES `AdminUser`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `MediaItem` ADD CONSTRAINT `MediaItem_uploadedById_fkey` FOREIGN KEY (`uploadedById`) REFERENCES `AdminUser`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `MediaReference` ADD CONSTRAINT `MediaReference_mediaId_fkey` FOREIGN KEY (`mediaId`) REFERENCES `MediaItem`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `MediaReference` ADD CONSTRAINT `MediaReference_contentId_fkey` FOREIGN KEY (`contentId`) REFERENCES `ContentItem`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `ServiceInquiry` ADD CONSTRAINT `ServiceInquiry_serviceId_fkey` FOREIGN KEY (`serviceId`) REFERENCES `ContentItem`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- ============================================================
+-- Seed: Super Admin user
+--   email:    sherifyousry.eg@gmail.com
+--   password: Go@daddy2026
+-- ============================================================
+INSERT INTO `AdminUser`
+  (`id`, `email`, `displayName`, `passwordHash`, `role`, `isActive`, `requiresPasswordChange`, `failedLoginAttempts`, `createdAt`, `updatedAt`)
+VALUES
+  ('cadmini0o95r2vx5mux5f59q',
+   'sherifyousry.eg@gmail.com',
+   'Super Admin',
+   '$2a$10$R0ouRtKYi3jswggGYzwsLu/jUou0s6JQanRgdL46sdKaTrRtnVMcu',
+   'super_admin',
+   1,
+   0,
+   0,
+   CURRENT_TIMESTAMP(3),
+   CURRENT_TIMESTAMP(3));
+
+SET FOREIGN_KEY_CHECKS = 1;

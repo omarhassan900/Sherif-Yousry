@@ -16,13 +16,7 @@ const nextConfig = {
     ],
   },
 
-  // ✅ 2. Externalize native Node modules so webpack doesn't try to bundle them
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.externals.push('better-sqlite3');
-    }
-    return config;
-  },
+
 
   // ✅ 3. Skip ESLint and TypeScript checks during Vercel production builds
   // This prevents builds from hanging or failing on minor warnings. 
