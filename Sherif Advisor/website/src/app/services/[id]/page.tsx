@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Loader2, MessageSquare } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import InquiryForm from '@/components/forms/InquiryForm';
+import { Contact } from '@/components/sections/Contact';
 import { getClientLanguage, getDirection, type Language } from '@/lib/language';
 import { WhatsAppFloat } from '@/components/layout/WhatsAppFloat';
 
@@ -131,7 +132,7 @@ export default function ServiceDetailPage() {
         </div>
       ) : (
         <>
-          {/* Hero with Background Image — same pattern as insights page */}
+          {/* Hero with Background Image */}
           {(() => {
             const img = service.metadata?.image;
             const categoryDefaults: Record<string, string> = {
@@ -163,7 +164,9 @@ export default function ServiceDetailPage() {
                     {lang === 'ar' ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                     {t(lang, 'العودة إلى الخدمات', 'Back to Services')}
                   </Link>
-                  <span className="section-label mb-4 block">{t(lang, 'خدمة', 'Service')}</span>
+                  <span className="section-label mb-4 block text-brand-gold font-bold tracking-wider uppercase text-sm">
+                    {t(lang, 'خدمة', 'Service')}
+                  </span>
                   <h1 className="font-amiri text-3xl md:text-4xl lg:text-5xl text-white leading-relaxed drop-shadow-lg">
                     {service.title}
                   </h1>
@@ -174,7 +177,8 @@ export default function ServiceDetailPage() {
 
           {/* Body — 3 Column Layout: Related Services | Main Content | Contact Card */}
           <section className="bg-surface-light py-16 lg:py-20">
-            <div className="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-[260px_1fr_340px] gap-10 lg:gap-12 items-start">
+            {/* ✅ CHANGED: Last column reduced from 340px to 280px */}
+            <div className="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-[260px_1fr_280px] gap-10 lg:gap-12 items-start">
 
               {/* Left sidebar: Related Services */}
               <aside className="lg:sticky lg:top-28">
@@ -207,7 +211,6 @@ export default function ServiceDetailPage() {
 
               {/* Main content */}
               <div className="min-w-0 space-y-10">
-
                 {/* Rich HTML content from DB */}
                 {richContent ? (
                   <div
@@ -234,41 +237,39 @@ export default function ServiceDetailPage() {
                 </div>
               </div>
 
-              {/* Right sidebar: Contact Us Card (Scrolls to form) */}
+              {/* ✅ Right sidebar: Contact Card (Scrolls to form) */}
               <aside className="hidden lg:block lg:sticky lg:top-28">
-                <div className="bg-brand-navy text-white rounded-lg p-6 shadow-lg border border-white/10">
+                <div className="bg-brand-navy text-white rounded-lg p-5 shadow-lg border border-white/10">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-brand-gold/20 flex items-center justify-center">
-                      <MessageSquare className="w-5 h-5 text-brand-gold" />
+                    <div className="w-9 h-9 rounded-full bg-brand-gold/20 flex items-center justify-center flex-shrink-0">
+                      <MessageSquare className="w-4 h-4 text-brand-gold" />
                     </div>
-                    <h3 className="font-amiri text-xl">
+                    <h3 className="font-amiri text-base leading-tight">
                       {t(lang, 'هل لديك استفسار؟', 'Have a question?')}
                     </h3>
                   </div>
-                  <p className="text-sm text-gray-300 mb-6 leading-relaxed">
+                  <p className="text-xs text-gray-300 mb-5 leading-relaxed">
                     {t(
                       lang,
-                      'تواصل مع فريقنا للحصول على استشارة مخصصة حول هذه الخدمة وكيف يمكننا مساعدتك.',
-                      'Reach out to our team for a customized consultation regarding this service and how we can help you.'
+                      'تواصل مع فريقنا للحصول على استشارة مخصصة حول هذه الخدمة.',
+                      'Reach out to our team for a customized consultation regarding this service.'
                     )}
                   </p>
                   <button
                     onClick={scrollToForm}
-                    className="w-full border border-brand-gold/40 cta group relative inline-flex items-center gap-3 h-12 ps-1.5 pe-6 rounded-full text-[11px] font-bold tracking-[0.1em] uppercase"
+                    className="w-full bg-brand-gold text-brand-navy font-bold py-2.5 px-4 rounded-lg hover:bg-brand-gold/90 transition-all duration-300 flex items-center justify-center gap-2 group text-sm"
                   >
-                    <span className="pointer-events-none absolute top-0 bottom-0 start-0 w-12 opacity-0 rounded-full bg-brand-gold transition-all duration-500 ease-out group-hover:w-full group-hover:opacity-100" aria-hidden="true" />
-                    <span className="relative z-10 flex items-center justify-center w-9 h-9 rounded-full bg-brand-gold text-[#030a12] flex-shrink-0">
-                      <ArrowRight className="w-4 h-4 rtl:rotate-180 transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1" />
-                    </span>
-                    <span className="relative z-10 text-white transition-colors duration-300 group-hover:text-[#030a12]">
                     {t(lang, 'تواصل معنا', 'Contact Us')}
-                    </span>
+                    <ArrowRight className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 ${lang === 'ar' ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
                   </button>
                 </div>
               </aside>
 
             </div>
           </section>
+
+          {/* Full Width Contact Section */}
+          <Contact />
         </>
       )}
 

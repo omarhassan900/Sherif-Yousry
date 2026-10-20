@@ -278,37 +278,7 @@ export default function ServicesPage() {
                       })()}
                     </div>
 
-                    {/* Sub-services — 2-column text list, no images */}
-                    {activeSubs.length > 0 && (
-                      <>
-                        <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-4">
-                          {t(lang, 'خدماتنا في هذا المجال', 'Our services in this area')}
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-0">
-                          {activeSubs.map((svc) => (
-                            <div key={svc.id} className="py-5 border-b border-gray-200">
-                              <h3 className="font-semibold text-brand-navy text-base mb-1.5 leading-snug">
-                                {svc.title}
-                              </h3>
-                              {svc.body && (
-                                <p className="text-text-secondary text-sm leading-relaxed mb-2 line-clamp-2">
-                                  {svc.body}
-                                </p>
-                              )}
-                              <Link
-                                href={`/services/${svc.id}`}
-                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-gold hover:gap-2.5 transition-all"
-                              >
-                                {t(lang, 'اقرأ المزيد', 'Learn more')}
-                                {lang === 'ar'
-                                  ? <ArrowLeft className="w-3 h-3" />
-                                  : <ArrowRight className="w-3 h-3" />}
-                              </Link>
-                            </div>
-                          ))}
-                        </div>
-                      </>
-                    )}
+                 
                   </FadeIn>
                 )}
               </div>

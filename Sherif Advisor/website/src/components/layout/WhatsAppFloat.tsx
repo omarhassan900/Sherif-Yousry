@@ -14,7 +14,7 @@ export function WhatsAppFloat() {
   }, []);
 
   // ⚙️ CONFIGURATION: Replace with your actual WhatsApp number (Country code + Number, no '+' or spaces)
-  const phoneNumber = "201112042098"; 
+  const phoneNumber = "201111181896"; 
   
   // Dynamic pre-filled message based on language
   const defaultMessage = lang === 'ar' 

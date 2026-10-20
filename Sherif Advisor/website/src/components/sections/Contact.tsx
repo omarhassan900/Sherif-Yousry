@@ -148,8 +148,8 @@ export function Contact() {
               <p className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">
                 {t(lang, 'اتصل بنا', 'Call us')}
               </p>
-              <a href="tel:+201112042098" className="text-sm text-gray-900 hover:text-brand-gold transition-colors" dir="ltr">
-                +20 111 204 2098
+              <a href="tel:+201111181896" className="text-sm text-gray-900 hover:text-brand-gold transition-colors" dir="ltr">
+                +20 111 118 1896 
               </a>
             </div>
           </div>
@@ -163,7 +163,7 @@ export function Contact() {
                 {t(lang, 'البريد الإلكتروني', 'Email')}
               </p>
               <a href="mailto:info@sherifadvisory.com" className="text-sm text-gray-900 hover:text-brand-gold transition-colors">
-                info@sherifadvisory.com
+                info@sherifyousry.com
               </a>
             </div>
           </div>

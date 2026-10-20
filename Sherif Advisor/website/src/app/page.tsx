@@ -22,6 +22,7 @@ import { DigitalExperience } from '@/components/sections/DigitalExperience';
 import { CTABanner } from '@/components/sections/CTABanner';
 import { Training } from '@/components/sections/Trainings';
 import { Team } from '@/components/sections/Team';
+import { ClientsSection } from '@/components/sections/ClientsSection';
 
 export default function Home() {
   return (
@@ -40,6 +41,7 @@ export default function Home() {
       <CTABanner />
       <Contact />
       <Team />
+      <ClientsSection />
       <Footer />
       <WhatsAppFloat />
     </main>

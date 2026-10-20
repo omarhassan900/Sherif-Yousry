@@ -167,10 +167,8 @@ function FooterModern() {
             </div>
           </div>
           <div className="border-t border-white/10 pt-5">
-            <p className="text-sm font-semibold">EGYPT</p>
-            <p className="text-xs text-gray-400 mt-1">Sherif Yousry Advisory
-from experties, we build trust
-</p>
+            <p className="text-sm font-semibold">Sherif Yousry Advisory</p>
+            <p className="text-xs text-gray-400 mt-1">from experties, we build trust</p>
             <a href="tel:+201112042098" className="block text-sm text-gray-300 hover:text-brand-gold transition-colors mt-2" dir="ltr">
               +20 111 118 1896
             </a>
