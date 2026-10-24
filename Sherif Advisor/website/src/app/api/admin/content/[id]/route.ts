@@ -12,6 +12,7 @@ function invalidateCache(type: string) {
     service:      ['services', 'search', 'content'],
     article:      ['articles', 'search', 'content'],
     event:        ['events',   'search', 'content'],
+    job:          ['jobs',     'content'],
     page_section: ['page-sections', 'content'],
   };
   const tags = tagMap[type] ?? ['content'];

@@ -12,6 +12,7 @@ function tagsForType(type: string): string[] {
     case 'service':      return ['services', 'search', 'content'];
     case 'article':      return ['articles', 'search', 'content'];
     case 'event':        return ['events',   'search', 'content'];
+    case 'job':          return ['jobs',     'content'];
     case 'page_section': return ['page-sections', 'content'];
     default:             return ['content'];
   }
@@ -21,7 +22,7 @@ function invalidateCache(type: string) {
   tagsForType(type).forEach((tag) => revalidateTag(tag));
 }
 
-const VALID_TYPES: ContentType[] = ['service', 'article', 'page_section', 'event'];
+const VALID_TYPES: ContentType[] = ['service', 'article', 'page_section', 'event', 'job'];
 const VALID_STATUSES: ContentStatus[] = ['published', 'unpublished'];
 const PAGE_SIZE = 20;
 

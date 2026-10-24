@@ -11,6 +11,7 @@ import {
   Inbox,
   ChevronRight,
   CalendarDays,
+  UserPlus,
 } from 'lucide-react';
 
 interface NavItem {
@@ -24,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Services',         href: '/admin/services',       icon: Briefcase },
   { label: 'Articles',         href: '/admin/articles',       icon: FileText },
   { label: 'Events & Training',href: '/admin/events',         icon: CalendarDays },
+  { label: 'Careers',          href: '/admin/jobs',           icon: UserPlus },
   { label: 'Page Sections',    href: '/admin/sections',       icon: Layers },
   { label: 'Inquiries',        href: '/admin/inquiries',      icon: Inbox },
   { label: 'Media',            href: '/admin/media',          icon: Image },

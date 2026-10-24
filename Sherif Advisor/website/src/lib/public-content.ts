@@ -128,6 +128,34 @@ export const getPublishedServices = unstable_cache(
 );
 
 /**
+ * Get published job openings (careers) sorted by display order (ascending).
+ * Cached with tags: ['content', 'jobs']
+ */
+export const getPublishedJobs = unstable_cache(
+  async (lang: Language): Promise<PublicContentResponse[]> => {
+    const items = await prisma.contentItem.findMany({
+      where: { type: 'job', status: 'published' },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const sorted = items.sort((a, b) => {
+      let metaA: Record<string, unknown> = {};
+      let metaB: Record<string, unknown> = {};
+      try { metaA = JSON.parse(a.metadata); } catch { /* ignore */ }
+      try { metaB = JSON.parse(b.metadata); } catch { /* ignore */ }
+      const orderA = (metaA.displayOrder as number) ?? 9999;
+      const orderB = (metaB.displayOrder as number) ?? 9999;
+      if (orderA !== orderB) return orderA - orderB;
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
+
+    return sorted.map((item) => resolveLanguageFallback(item, lang));
+  },
+  ['get-published-jobs'],
+  { revalidate: CACHE_TTL, tags: ['content', 'jobs'] }
+);
+
+/**
  * Get published articles with pagination and optional category filter.
  * Sorting and date-filtering is now done in the DB where possible.
  * Cached with tags: ['content', 'articles']

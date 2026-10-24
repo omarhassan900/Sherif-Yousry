@@ -15,6 +15,15 @@ const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 interface ServiceOption {
   id: string;
   title: string;
+  categorySlug?: string;
+  parentSlug?: string;
+  serviceType?: string;
+}
+
+interface RawService {
+  id: string;
+  title: string;
+  metadata?: { serviceType?: string; categorySlug?: string } | null;
 }
 
 export interface InquiryFormProps {
@@ -48,9 +57,12 @@ export default function InquiryForm({
   const [businessActivity, setBusinessActivity] = useState('');
   const [country, setCountry] = useState('');
   const [helpWith, setHelpWith] = useState('');
+  const [serviceName, setServiceName] = useState('');
   const [consent, setConsent] = useState(false);
   const [message, setMessage] = useState('');
+  const [businessActivityOther, setBusinessActivityOther] = useState('');
 
+  const [allServices, setAllServices] = useState<ServiceOption[]>([]);
   const [services, setServices] = useState<ServiceOption[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -65,7 +77,16 @@ export default function InquiryForm({
       .then((res) => (res.ok ? res.json() : { items: [] }))
       .then((data) => {
         if (!cancelled && Array.isArray(data.items)) {
-          setServices(data.items.map((s: { id: string; title: string }) => ({ id: s.id, title: s.title })));
+          const mapped: ServiceOption[] = (data.items as RawService[]).map((s) => ({
+            id: s.id,
+            title: s.title,
+            serviceType: s.metadata?.serviceType,
+            categorySlug: s.metadata?.serviceType === 'category' ? s.metadata?.categorySlug : undefined,
+            parentSlug: s.metadata?.serviceType !== 'category' ? s.metadata?.categorySlug : undefined,
+          }));
+          setAllServices(mapped);
+          // Only top-level categories go in the first dropdown.
+          setServices(mapped.filter((s) => s.serviceType === 'category'));
         }
       })
       .catch(() => {});
@@ -73,6 +94,16 @@ export default function InquiryForm({
       cancelled = true;
     };
   }, [lang, lockedService]);
+
+  // The category selected in the first "help with" dropdown.
+  const selectedCategory = services.find((s) => s.title === helpWith);
+  // Sub-services belonging to the selected category.
+  const subServices = selectedCategory
+    ? allServices.filter(
+        (s) => s.serviceType !== 'category' && s.parentSlug && s.parentSlug === selectedCategory.categorySlug
+      )
+    : [];
+  const isOtherActivity = businessActivity === 'Other';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -86,6 +117,10 @@ export default function InquiryForm({
       setError(t(lang, 'نشاط العمل مطلوب', 'Business activity is required'));
       return;
     }
+    if (isOtherActivity && !businessActivityOther.trim()) {
+      setError(t(lang, 'يرجى تحديد نشاط عملك', 'Please specify your business activity'));
+      return;
+    }
     if (!country) {
       setError(t(lang, 'يرجى اختيار الدولة', 'Please select your country'));
       return;
@@ -94,19 +129,28 @@ export default function InquiryForm({
       setError(t(lang, 'يرجى اختيار الخدمة', 'Please select what we can help with'));
       return;
     }
+    if (!lockedService && helpWith !== 'Other' && subServices.length > 0 && !serviceName) {
+      setError(t(lang, 'يرجى اختيار الخدمة', 'Please select a service'));
+      return;
+    }
     if (!consent) {
       setError(t(lang, 'يرجى الموافقة على الشروط وسياسة الخصوصية', 'Please accept the terms and privacy policy'));
       return;
     }
+
+    const resolvedHelpWith = lockedService
+      ? lockedService.name
+      : serviceName || helpWith;
+    const resolvedActivity = isOtherActivity ? businessActivityOther.trim() : businessActivity;
 
     const payload = {
       name: name.trim(),
       email: email.trim(),
       phone: phone.trim() || undefined,
       countryCode: dialCode,
-      businessActivity,
+      businessActivity: resolvedActivity,
       country,
-      helpWith: lockedService ? lockedService.name : helpWith,
+      helpWith: resolvedHelpWith,
       consent,
       message: message.trim() || undefined,
       source,
@@ -234,7 +278,10 @@ export default function InquiryForm({
       {/* Business Activity */}
       <select
         value={businessActivity}
-        onChange={(e) => setBusinessActivity(e.target.value)}
+        onChange={(e) => {
+          setBusinessActivity(e.target.value);
+          if (e.target.value !== 'Other') setBusinessActivityOther('');
+        }}
         className={`${selectClass} ${businessActivity ? 'text-text-dark' : 'text-gray-400'}`}
       >
         <option value="" disabled>
@@ -246,6 +293,18 @@ export default function InquiryForm({
           </option>
         ))}
       </select>
+
+      {/* Free-text business activity shown only when "Other" is chosen */}
+      {isOtherActivity && (
+        <input
+          type="text"
+          value={businessActivityOther}
+          onChange={(e) => setBusinessActivityOther(e.target.value)}
+          placeholder={t(lang, 'يرجى تحديد نشاط عملك*', 'Please specify your business activity*')}
+          maxLength={120}
+          className={`${selectClass} text-text-dark`}
+        />
+      )}
 
       {/* Country */}
       <select
@@ -267,7 +326,10 @@ export default function InquiryForm({
       {!lockedService && (
         <select
           value={helpWith}
-          onChange={(e) => setHelpWith(e.target.value)}
+          onChange={(e) => {
+            setHelpWith(e.target.value);
+            setServiceName('');
+          }}
           className={`${selectClass} ${helpWith ? 'text-text-dark' : 'text-gray-400'}`}
         >
           <option value="" disabled>
@@ -281,6 +343,25 @@ export default function InquiryForm({
           <option value="Other" className="text-text-dark">
             {t(lang, 'أخرى', 'Other')}
           </option>
+        </select>
+      )}
+
+      {/* Dependent service dropdown — appears when a category with
+          sub-services is selected. */}
+      {!lockedService && helpWith !== 'Other' && subServices.length > 0 && (
+        <select
+          value={serviceName}
+          onChange={(e) => setServiceName(e.target.value)}
+          className={`${selectClass} ${serviceName ? 'text-text-dark' : 'text-gray-400'}`}
+        >
+          <option value="" disabled>
+            {t(lang, 'اختر الخدمة*', 'Select a Service*')}
+          </option>
+          {subServices.map((s) => (
+            <option key={s.id} value={s.title} className="text-text-dark">
+              {s.title}
+            </option>
+          ))}
         </select>
       )}
 

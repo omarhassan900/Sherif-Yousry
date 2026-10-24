@@ -11,6 +11,18 @@ const t = (lang: Language, ar: string, en: string) => (lang === 'ar' ? ar : en);
 interface ServiceOption {
   id: string;
   title: string;
+  /** Slug of this category (categories only). */
+  categorySlug?: string;
+  /** For sub-services: the slug of the category they belong to. */
+  parentSlug?: string;
+  /** 'category' | 'sub-service' | other */
+  serviceType?: string;
+}
+
+interface RawService {
+  id: string;
+  title: string;
+  metadata?: { serviceType?: string; categorySlug?: string } | null;
 }
 
 export function Contact() {
@@ -23,9 +35,14 @@ export function Contact() {
   const [businessActivity, setBusinessActivity] = useState('');
   const [country, setCountry] = useState('');
   const [helpWith, setHelpWith] = useState('');
+  const [serviceName, setServiceName] = useState('');
   const [message, setMessage] = useState('');
   const [consent, setConsent] = useState(false);
+  const [businessActivityOther, setBusinessActivityOther] = useState('');
 
+  // All published services (categories + sub-services), used to derive the
+  // dependent category → service dropdowns.
+  const [allServices, setAllServices] = useState<ServiceOption[]>([]);
   const [services, setServices] = useState<ServiceOption[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -41,12 +58,32 @@ export function Contact() {
       .then((res) => (res.ok ? res.json() : { items: [] }))
       .then((data) => {
         if (!cancelled && Array.isArray(data.items)) {
-          setServices(data.items.map((s: { id: string; title: string }) => ({ id: s.id, title: s.title })));
+          const mapped: ServiceOption[] = (data.items as RawService[]).map((s) => ({
+            id: s.id,
+            title: s.title,
+            serviceType: s.metadata?.serviceType,
+            categorySlug: s.metadata?.serviceType === 'category' ? s.metadata?.categorySlug : undefined,
+            parentSlug: s.metadata?.serviceType !== 'category' ? s.metadata?.categorySlug : undefined,
+          }));
+          setAllServices(mapped);
+          // Only top-level categories go in the first dropdown. Matches the
+          // grouping on the Services page (metadata.serviceType === 'category').
+          setServices(mapped.filter((s) => s.serviceType === 'category'));
         }
       })
       .catch(() => {});
     return () => { cancelled = true; };
   }, [lang]);
+
+  // The category currently selected in the first "help with" dropdown.
+  const selectedCategory = services.find((s) => s.title === helpWith);
+  // Sub-services that belong to the selected category.
+  const subServices = selectedCategory
+    ? allServices.filter(
+        (s) => s.serviceType !== 'category' && s.parentSlug && s.parentSlug === selectedCategory.categorySlug
+      )
+    : [];
+  const isOtherActivity = businessActivity === 'Other';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,6 +97,10 @@ export function Contact() {
       setError(t(lang, 'نشاط العمل مطلوب', 'Business activity is required'));
       return;
     }
+    if (isOtherActivity && !businessActivityOther.trim()) {
+      setError(t(lang, 'يرجى تحديد نشاط عملك', 'Please specify your business activity'));
+      return;
+    }
     if (!country) {
       setError(t(lang, 'يرجى اختيار الدولة', 'Please select your country'));
       return;
@@ -68,19 +109,29 @@ export function Contact() {
       setError(t(lang, 'يرجى اختيار الخدمة', 'Please select what we can help with'));
       return;
     }
+    if (helpWith !== 'Other' && subServices.length > 0 && !serviceName) {
+      setError(t(lang, 'يرجى اختيار الخدمة', 'Please select a service'));
+      return;
+    }
     if (!consent) {
       setError(t(lang, 'يرجى الموافقة على الشروط وسياسة الخصوصية', 'Please accept the terms and privacy policy'));
       return;
     }
+
+    // Resolve the final "help with" value: the chosen sub-service when one is
+    // selected, otherwise the category (or "Other").
+    const resolvedHelpWith = serviceName || helpWith;
+    // When the activity is "Other", submit the user's free-text description.
+    const resolvedActivity = isOtherActivity ? businessActivityOther.trim() : businessActivity;
 
     const payload = {
       name: name.trim(),
       email: email.trim(),
       phone: phone.trim() || undefined,
       countryCode: dialCode,
-      businessActivity,
+      businessActivity: resolvedActivity,
       country,
-      helpWith,
+      helpWith: resolvedHelpWith,
       consent,
       message: message.trim() || undefined,
       source: 'contact' as const,
@@ -262,7 +313,10 @@ export function Contact() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <select
                     value={businessActivity}
-                    onChange={(e) => setBusinessActivity(e.target.value)}
+                    onChange={(e) => {
+                      setBusinessActivity(e.target.value);
+                      if (e.target.value !== 'Other') setBusinessActivityOther('');
+                    }}
                     className={`${selectClass} ${businessActivity ? 'text-gray-900' : 'text-gray-400'}`}
                   >
                     <option value="" disabled>{t(lang, 'نشاط العمل*', 'Business Activity*')}</option>
@@ -282,9 +336,25 @@ export function Contact() {
                   </select>
                 </div>
 
+                {/* Free-text business activity shown only when "Other" is chosen */}
+                {isOtherActivity && (
+                  <input
+                    type="text"
+                    value={businessActivityOther}
+                    onChange={(e) => setBusinessActivityOther(e.target.value)}
+                    placeholder={t(lang, 'يرجى تحديد نشاط عملك*', 'Please specify your business activity*')}
+                    maxLength={120}
+                    className={fieldClass}
+                  />
+                )}
+
                 <select
                   value={helpWith}
-                  onChange={(e) => setHelpWith(e.target.value)}
+                  onChange={(e) => {
+                    setHelpWith(e.target.value);
+                    // Reset the dependent sub-service whenever the category changes.
+                    setServiceName('');
+                  }}
                   className={`${selectClass} ${helpWith ? 'text-gray-900' : 'text-gray-400'}`}
                 >
                   <option value="" disabled>{t(lang, 'كيف يمكننا مساعدتك؟*', 'What Can We Help You With?*')}</option>
@@ -293,6 +363,21 @@ export function Contact() {
                   ))}
                   <option value="Other">{t(lang, 'أخرى', 'Other')}</option>
                 </select>
+
+                {/* Dependent service dropdown — appears once a category with
+                    sub-services is selected. */}
+                {helpWith !== 'Other' && subServices.length > 0 && (
+                  <select
+                    value={serviceName}
+                    onChange={(e) => setServiceName(e.target.value)}
+                    className={`${selectClass} ${serviceName ? 'text-gray-900' : 'text-gray-400'}`}
+                  >
+                    <option value="" disabled>{t(lang, 'اختر الخدمة*', 'Select a Service*')}</option>
+                    {subServices.map((s) => (
+                      <option key={s.id} value={s.title}>{s.title}</option>
+                    ))}
+                  </select>
+                )}
 
                 <textarea
                   value={message}
